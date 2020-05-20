@@ -5,5 +5,6 @@ To install and use with Ph2_ACF:
 4. Give permissions to your user to access the CP2130 chip via usb :
 -Run: sudo vim /etc/udev/rules.d/12-uib.rules
 -Write the following: SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="87a0", MODE="0660", GROUP="dialout"
+-Add your user to the dialout group
 -Run: sudo udevadm control --reload-rules && sudo udevadm trigger
 -If you experience problems, PC restart or logging out and back in along with usb disconnection and then reconnection updates the permissions.
