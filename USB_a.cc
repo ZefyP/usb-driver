@@ -233,8 +233,17 @@ int TC_PSROH::dac_output()
 
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
+//init static members of PSFE
+char TC_PSFE::adg714_state=0;
+uint16_t TC_PSFE::saved_pot_value=0; 
+bool TC_PSFE::is_initialized=false;
+bool TC_PSFE::chirality=0;
+CP2130 TC_PSFE::cCP2130; 
+std::string TC_PSFE::product_string;
+
 TC_PSFE::TC_PSFE()
 {
+    if(!is_initialized){
     cCP2130.initialize();
     product_string.resize(64,' ');
     cCP2130.get_product_string(&product_string[0]);
@@ -255,6 +264,8 @@ TC_PSFE::TC_PSFE()
     int t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc));
     /////
     cCP2130.get_gpio_value(cCP2130.cs10,chirality);
+    is_initialized=true;
+    }
 }
 
 TC_PSFE::~TC_PSFE(){}

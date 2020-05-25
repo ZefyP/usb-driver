@@ -43,6 +43,12 @@ int main(){
 	cTC_PSFE.antenna_fc7(512,cTC_PSFE.ALL); //512 positive
 	cTC_PSFE.adc_get(cTC_PSFE._1V,result );
 	cTC_PSFE.adc_get(cTC_PSFE._1V25, result);
-
+	std::cout << cTC_PSFE.product_string << std::endl;
+	std::cout <<cTC_PSFE.chirality<< std::endl;
+	{
+	TC_PSFE a;
+	std::cout <<a.chirality<< std::endl;
+	}
+	std::cout <<cTC_PSFE.chirality<< std::endl;
     return 0;
 }

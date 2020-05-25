@@ -88,8 +88,8 @@ class TC_PSFE
     enum ant_channel:char{NONE,_1,_2,ALL}; // Antenna Options  _2 EVEN, _1 ODD
     
     //Card Id// Full after creating a TC_PSFE object
-    bool chirality=0; // 0 LEFT, 1 RIGHT
-    std::string product_string; // Product string
+    static bool chirality; // 0 LEFT, 1 RIGHT
+    static std::string product_string; // Product string
     //       //
     TC_PSFE();
     ~TC_PSFE();
@@ -99,9 +99,10 @@ class TC_PSFE
     int pogo_selftest(st_mode);
     int antenna_fc7(uint16_t,ant_channel); //arguments: Potentiometer value, Antenna channel
     private:
-    CP2130 cCP2130; // declare CP2130 object
-    char adg714_state=0; //saved state of adg714, during operation
-    uint16_t saved_pot_value=0; // saved value of potentiometer, during operation
+    static CP2130 cCP2130; // declare CP2130 object
+    static char adg714_state; //saved state of adg714, during operation
+    static uint16_t saved_pot_value; // saved value of potentiometer, during operation
+    static bool is_initialized; // initialization of test card only occurs once
     float ADC_VREF=1.25; // Vref for ADC
     const static uint8_t antenna_mask=0x0C; // mask for bits/switches corresponding to antenna channel control - the rest are for voltage control
     const static int fTempLookUpTableSize = 34;
