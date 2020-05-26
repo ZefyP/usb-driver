@@ -41,6 +41,7 @@ int TC_PSROH::toggle_SCI2C()
     char activate[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x01, 0b00000000}; 
     cCP2130.choose_spi(cCP2130.cs10);
     cCP2130.spi_write(activate,sizeof(activate));
+    return 0;
 }
 
 int TC_PSROH::adc_get(measurement m,float& output)
