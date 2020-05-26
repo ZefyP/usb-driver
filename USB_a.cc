@@ -1,7 +1,12 @@
 #include "USB_a.h"
-	
+
+bool TC_PSROH::is_initialized=false;
+CP2130 TC_PSROH::cCP2130; 
+std::string TC_PSROH::product_string;
+
 TC_PSROH::TC_PSROH()
 {
+    if(!is_initialized){
     cCP2130.initialize();
     product_string.resize(64,' ');
     cCP2130.get_product_string(&product_string[0]);
@@ -18,16 +23,25 @@ TC_PSROH::TC_PSROH()
     /////
     //%%%configure SPI to I2C chip%%%//
     char buf_IoConfig[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x00, 0b10101010}, // All GPIOs Push-Pull
-         buf_IoState[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x01, 0b00000000}, // All GPIOs to zero
+         buf_IoState[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x01, 0b00001001}, // All GPIOs to zero
          buf_I2cClock[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x02, 0b00000101}; // max speed I2C, 369KHz
     cCP2130.choose_spi(cCP2130.cs10);
     cCP2130.spi_write(buf_IoState,sizeof(buf_IoState));
     cCP2130.spi_write(buf_IoConfig,sizeof(buf_IoConfig));
     cCP2130.spi_write(buf_I2cClock,sizeof(buf_I2cClock));
     //sleep(1);
+    is_initialized=true;
+    }
 }
 
 TC_PSROH::~TC_PSROH() {}
+
+int TC_PSROH::toggle_SCI2C()
+{
+    char activate[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x01, 0b00000000}; 
+    cCP2130.choose_spi(cCP2130.cs10);
+    cCP2130.spi_write(activate,sizeof(activate));
+}
 
 int TC_PSROH::adc_get(measurement m,float& output)
 {

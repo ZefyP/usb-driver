@@ -121,21 +121,23 @@ class TC_PSROH
                             _3V3,_2V55,_1V25,_1V25_REF,GROUND,_625mV_REF,ISEN_2V55,ISEN_3V3,ISEN_1V25};
     //Card Id// Full after creating a TC_PSFE object
     //char product_string[64]; // Product string
-	std::string product_string;
+    static std::string product_string;
     //       //
     TC_PSROH();
     ~TC_PSROH();
     int adc_get (measurement,float&);
     int dac_output();
     int toggle_led();
-    int fusing(); // mode 3 spi !!
+    int fusing(); // !!!NOT READY!!!
     int read_i2c(short int);
     int write_i2c(short int , char );
     int read_bridge_reg();
+    int toggle_SCI2C(); // PULL DOWN SC_I2C - writing a register using "write_i2c" of this library,  will undo this. 
     private:
-    CP2130 cCP2130; // declare CP2130 object    
+    static CP2130 cCP2130; // declare CP2130 object    
     bool test_led_state=0;
     float ADC_VREF=1.25; // Vref for ADC
+    static bool is_initialized; // initialization of test card only occurs once
 };
 
 
