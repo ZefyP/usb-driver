@@ -126,7 +126,7 @@ class TC_PSROH
     TC_PSROH();
     ~TC_PSROH();
     int adc_get (measurement,float&);
-    int dac_output();
+    int dac_output(uint16_t); // range: 0-4095  (0-1.25V)
     int toggle_led();
     int fusing(); // !!!NOT READY!!!
     int read_i2c(short int);

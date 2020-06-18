@@ -146,7 +146,7 @@ int TC_PSROH::read_i2c( short int address)
     cCP2130.spi_write(dummy_send,sizeof(dummy_send)); // send dummy receive data    
     int t_code=cCP2130.spi_read(&buffer,sizeof(buffer));
     std::cout << "i2c read= 0x" << std::hex << +(buffer&0xFF) << std::dec  << std::endl;
-    return 0;
+    return (buffer&0xFF);
 }
 
 int TC_PSROH::read_bridge_reg()
@@ -236,9 +236,15 @@ int TC_PSROH::fusing()
     return 0;
 }
 
-int TC_PSROH::dac_output()
+int TC_PSROH::dac_output(uint16_t level)
 {
-	char buf_s[]={0, 0, 1, 0, 2, 0, 0, 0, 0b00110000, 0b00000000};
+	if (level<0||level>4095){
+	std::cout << "Impossible voltage value : 0-4095 range" << std::endl;
+        exit(0);
+	}
+	char low = ( level & 0x00FF );
+   	char high= ( level & 0xFF00 ) >> 8;
+	char buf_s[]={0, 0, 1, 0, 2, 0, 0, 0, 0b00110000|high, low};
 	cCP2130.choose_spi(cCP2130.cs7);
 	cCP2130.spi_write(buf_s,sizeof(buf_s));
 	return 0;

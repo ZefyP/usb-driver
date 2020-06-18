@@ -10,13 +10,13 @@
 
 int main(){
 	TC_PSFE cTC_PSFE;
-	float result;
-/*
+
+
 	float result;
 	for (int i=0; i<=27; i++){
 	cTC_PSFE.adc_get(static_cast<TC_PSFE::measurement>(i),result);
 	}
-*/
+/*
 	std::cout << std::endl;
 	cTC_PSFE.adc_get(cTC_PSFE._1V,result );
 	cTC_PSFE.adc_get(cTC_PSFE._1V25, result);
@@ -50,5 +50,6 @@ int main(){
 	std::cout <<a.chirality<< std::endl;
 	}
 	std::cout <<cTC_PSFE.chirality<< std::endl;
+*/
     return 0;
 }
