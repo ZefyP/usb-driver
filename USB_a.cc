@@ -126,8 +126,7 @@ int TC_PSROH::write_i2c(short int address, char value)
     cCP2130.spi_write(activate,sizeof(activate));
     cCP2130.spi_write(data,sizeof(data));
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    read_i2c(address);
-    return 0;
+    return read_i2c(address);
 }
 
 int TC_PSROH::read_i2c( short int address)
@@ -146,7 +145,8 @@ int TC_PSROH::read_i2c( short int address)
     cCP2130.spi_write(dummy_send,sizeof(dummy_send)); // send dummy receive data    
     int t_code=cCP2130.spi_read(&buffer,sizeof(buffer));
     std::cout << "i2c read= 0x" << std::hex << +(buffer&0xFF) << std::dec  << std::endl;
-    return (buffer&0xFF);
+    return +(buffer&0xFF);
+
 }
 
 int TC_PSROH::read_bridge_reg()
