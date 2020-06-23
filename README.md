@@ -9,4 +9,6 @@ To install and use with Ph2_ACF:
 -Run: sudo udevadm control --reload-rules && sudo udevadm trigger
 -If you experience problems, PC restart or logging out and back in along with usb disconnection and then reconnection updates the permissions.
 
-usb_main.cc contains examples of library use
+psfeh & psroh scripts  contain examples of library use
+
+Questions to angelos.zografos@cern.ch
