@@ -11,12 +11,12 @@
 int main(){
 	TC_PSFE cTC_PSFE;
 
-
-	float result;
+	//cTC_PSFE.antenna_fc7(800,cTC_PSFE._2); //512 positive
+/*	float result;
 	for (int i=0; i<=27; i++){
 	cTC_PSFE.adc_get(static_cast<TC_PSFE::measurement>(i),result);
 	}
-/*
+
 	std::cout << std::endl;
 	cTC_PSFE.adc_get(cTC_PSFE._1V,result );
 	cTC_PSFE.adc_get(cTC_PSFE._1V25, result);
