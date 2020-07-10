@@ -253,7 +253,8 @@ int TC_PSROH::dac_output(uint16_t level)
 
 
 
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
+
 //init static members of PSFE
 char TC_PSFE::adg714_state=0;
 uint16_t TC_PSFE::saved_pot_value=0; 
@@ -285,6 +286,7 @@ TC_PSFE::TC_PSFE()
     int t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc));
     /////
     cCP2130.get_gpio_value(cCP2130.cs10,chirality);
+    antenna_fc7(512 , NONE); // default state of antenna
     is_initialized=true;
     }
 }
@@ -458,9 +460,11 @@ int TC_PSFE::pogo_selftest(st_mode m)
 int TC_PSFE::antenna_fc7(uint16_t pot_value,ant_channel c)
 {
     cCP2130.gpio_set_output(cCP2130.cs5,0); //should be default configuration
-    char ant_state=0;
-    if(pot_value!=saved_pot_value){
-    char buf_s[11]= {0, 0, 1, 0, 3, 0, 0, 0, 0xB0, ((pot_value&0x300) >> 8), (pot_value & 0xFF)};
+    char ant_state=0, buf_s[11]={0, 0, 1, 0, 3, 0, 0, 0, 0xB0, 0, 0};
+    if(pot_value!=saved_pot_value||c==NONE){
+    if(c==NONE) pot_value=512;
+    buf_s[9]= ((pot_value&0x300) >> 8);
+    buf_s[10]= (pot_value & 0xFF);
     cCP2130.choose_spi(cCP2130.cs2);
     cCP2130.spi_write(buf_s,sizeof(buf_s));
     saved_pot_value=pot_value;
@@ -485,15 +489,15 @@ int TC_PSFE::antenna_fc7(uint16_t pot_value,ant_channel c)
         break;
     }
     adg714_state=(adg714_state&(~antenna_mask))|ant_state;
-    char buf_s[9]={0, 0, 1, 0, 1, 0, 0, 0, adg714_state};
+    char buf_s2[9]={0, 0, 1, 0, 1, 0, 0, 0, adg714_state};
     cCP2130.choose_spi(cCP2130.cs0);
-    cCP2130.spi_write(buf_s,sizeof(buf_s));
+    cCP2130.spi_write(buf_s2,sizeof(buf_s2));
     return 0;
 }
 
 
 
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
 TC_2SFE::TC_2SFE()
 {
     cCP2130.initialize();
