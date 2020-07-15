@@ -12,7 +12,7 @@ int main(){
 	TC_PSFE cTC_PSFE;
 	float result;
 	cTC_PSFE.adc_get(cTC_PSFE.ANT_PULL,result );
-	cTC_PSFE.antenna_fc7(512,cTC_PSFE._1); //512 positive
+	cTC_PSFE.antenna_fc7(800,cTC_PSFE._1); //512 positive
 	cTC_PSFE.adc_get(cTC_PSFE.ANT_PULL,result );
 	cTC_PSFE.antenna_fc7(800,cTC_PSFE.NONE); //512 positive
 	cTC_PSFE.adc_get(cTC_PSFE.ANT_PULL,result );

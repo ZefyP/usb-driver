@@ -97,7 +97,7 @@ class TC_PSFE
     int set_voltage(v_control, v_control);// arguments: 1V_CONTROL, 1V25_CONTROL
     int mode_control(mode); 
     int pogo_selftest(st_mode);
-    int antenna_fc7(uint16_t,ant_channel); //arguments: Potentiometer value, Antenna channel
+    int antenna_fc7(uint16_t,ant_channel); //arguments: Potentiometer value, Antenna channel , -2430 + 4.76*dacValue = PULLUP(mV)
     private:
     static CP2130 cCP2130; // declare CP2130 object
     static char adg714_state; //saved state of adg714, during operation

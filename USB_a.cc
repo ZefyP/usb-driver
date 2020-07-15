@@ -275,6 +275,7 @@ TC_PSFE::TC_PSFE()
     cCP2130.gpio_set_output(cCP2130.cs7,0);
     cCP2130.gpio_set_output(cCP2130.cs8,0);
     cCP2130.gpio_set_output(cCP2130.cs9,0);
+    cCP2130.gpio_set_input(cCP2130.cs10);
     cCP2130.configure_spi(cCP2130.cs0,cCP2130.ADG714);
     cCP2130.configure_spi(cCP2130.cs2,cCP2130.AD5231);
     cCP2130.configure_spi(cCP2130.cs4,cCP2130.SI8902);
@@ -639,7 +640,7 @@ void CP2130::close()
 
 int CP2130::gpio_set_input(cs_line c)
 {
-    char data[3]={c,0,0};
+    char data[3]={(char)c,0,0};
     int result=usb_control_msg(fUsbHandle, 0x40, 0x23, 0, 0,  data, sizeof(data), fUsbTimeout);
     return 0;
 }
