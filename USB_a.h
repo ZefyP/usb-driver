@@ -136,6 +136,7 @@ class TC_PSROH
     private:
     static CP2130 cCP2130; // declare CP2130 object    
     bool test_led_state=0;
+    static bool fuse_active;
     float ADC_VREF=1.25; // Vref for ADC
     static bool is_initialized; // initialization of test card only occurs once
 };

@@ -1,8 +1,10 @@
 #include "USB_a.h"
 
-bool TC_PSROH::is_initialized=false;
+bool TC_PSROH::is_initialized=false, TC_PSROH::fuse_active=false;
 CP2130 TC_PSROH::cCP2130; 
 std::string TC_PSROH::product_string;
+
+
 
 TC_PSROH::TC_PSROH()
 {
@@ -162,6 +164,13 @@ int TC_PSROH::read_bridge_reg()
 
 int TC_PSROH::fusing()
 {
+    char fuse[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x01, 0b00000000}; 
+    fuse[10]=(fuse_active)? 0b00001101 : 0b00001011 ;
+    fuse_active=!fuse_active; 
+    cCP2130.choose_spi(cCP2130.cs10);
+    cCP2130.spi_write(fuse,sizeof(fuse));
+
+	/*
     //setup SPI device to communicate with SC18IS600
     char activate[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x01, 0b00001001}; // turn on led
     char buf_s2[15]={0,0,1,0,7,0,0,0,0x02,2,1,0b11100000,0b10101000,0,0b11100001}; //read from register
@@ -170,7 +179,7 @@ int TC_PSROH::fusing()
     char read_bridge_reg[11]={0,0,2,0,3,0,0,0,0x21,0x04,0xFF};
     cCP2130.choose_spi(cCP2130.cs10);
     cCP2130.spi_write(activate,sizeof(activate));
-	/*//
+	//
 	char change_I2CADDR[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x05, 0b00000000};		
 	cCP2130.spi_write(change_I2CADDR,sizeof(change_I2CADDR));
 	//
@@ -178,18 +187,18 @@ int TC_PSROH::fusing()
     cCP2130.spi_write(read_bridge_reg,sizeof(read_bridge_reg));
     int t_this=cCP2130.spi_read(egw,sizeof(egw));
     for (int i=0; i<sizeof(egw); i++){
-    std::cout << "buffer= " << std::bitset<8>(egw[i])  << std::endl;} */
+    std::cout << "buffer= " << std::bitset<8>(egw[i])  << std::endl;} 
     char dokimh[14]={0,0,1,0,6,0,0,0,0x00,3,0b11100000,0b01010010,0,0b11111111}; // write to register
 	cCP2130.spi_write(dokimh,sizeof(dokimh));
-    /*cCP2130.spi_write(read_bridge_reg,sizeof(read_bridge_reg));
+    cCP2130.spi_write(read_bridge_reg,sizeof(read_bridge_reg));
     t_this=cCP2130.spi_read(egw,sizeof(egw));
     for (int i=0; i<sizeof(egw); i++){
-    std::cout << "buffer= " << std::bitset<8>(egw[i])  << std::endl;}*/
+    std::cout << "buffer= " << std::bitset<8>(egw[i])  << std::endl;}
 	sleep(1);
-    /*cCP2130.spi_write(read_bridge_reg,sizeof(read_bridge_reg));
+    cCP2130.spi_write(read_bridge_reg,sizeof(read_bridge_reg));
     t_this=cCP2130.spi_read(egw,sizeof(egw));
     for (int i=0; i<sizeof(egw); i++){
-    std::cout << "buffer= " << std::bitset<8>(egw[i])  << std::endl;}*/
+    std::cout << "buffer= " << std::bitset<8>(egw[i])  << std::endl;}
 	dokimh[11]=0b01010011;
 	cCP2130.spi_write(dokimh,sizeof(dokimh));
 	sleep(1);
@@ -201,7 +210,7 @@ int TC_PSROH::fusing()
 	sleep(1);
 	//dokimh[11]=0b01010110;  
 	//cCP2130.spi_write(dokimh,sizeof(dokimh));     
-/*
+
     sleep(1);
     cCP2130.spi_write(buf_s2,sizeof(buf_s2)); // read register
     sleep(1);
@@ -229,10 +238,10 @@ int TC_PSROH::fusing()
     std::cout << t_code << std::endl;
     for (int i=0; i<sizeof(buff_r); i++){
     std::cout << "buffer= " << std::bitset<8>(buff_r[i])  << std::endl;}
-*/
     //setup SC18IS600 - 1.set gpio outputs, 2.clock freq, 3.i2c timeout, read sth to make sure it works
     //make writeANDread I2c transactions
     // read some lpGBT registers
+	*/
     return 0;
 }
 
