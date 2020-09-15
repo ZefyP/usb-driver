@@ -128,7 +128,8 @@ class TC_PSROH
     int adc_get (measurement,float&);
     int dac_output(uint16_t); // range: 0-4095  (0-1.25V)
     int toggle_led();
-    int fusing(); // !!!NOT READY!!!
+    int toggle_2v5(); 
+    int fuse(short int , char, char, char, char ); //format: starting address of block to be burned, 4 register content
     int read_i2c(short int);
     int write_i2c(short int , char );
     int read_bridge_reg();

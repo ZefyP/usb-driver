@@ -119,16 +119,17 @@ int TC_PSROH::write_i2c(short int address, char value)
 {
     char low = ( address & 0x00FF );
     char high= ( address & 0xFF00 ) >> 8;
-    //std::cout << std::bitset<8>(high) << std::bitset<8>(low) << std::endl;
+    std::cout << std::bitset<8>(high) << std::bitset<8>(low) << std::endl;
     std::cout << "address= 0x" << std::hex<< +(address) << std::dec << " " ;
     std::cout << "write_value= 0x" << std::hex<< +(value&0xFF) << std::dec  << " ";
     char activate[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x01, 0b00001001}; // turn on led
     char data[14]={0,0,1,0,6,0,0,0,0x00,3,0b11100000,low,high,value}; // write to register
     cCP2130.choose_spi(cCP2130.cs10);
-    cCP2130.spi_write(activate,sizeof(activate));
+    //cCP2130.spi_write(activate,sizeof(activate));
     cCP2130.spi_write(data,sizeof(data));
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     return read_i2c(address);
+    //return 0;	
 }
 
 int TC_PSROH::read_i2c( short int address)
@@ -141,9 +142,9 @@ int TC_PSROH::read_i2c( short int address)
     char buffer=0;
     cCP2130.choose_spi(cCP2130.cs10);
     cCP2130.spi_write(read_reg,sizeof(read_reg)); // read register
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     cCP2130.spi_write(command_rb,sizeof(command_rb)); // command to read buffer
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     cCP2130.spi_write(dummy_send,sizeof(dummy_send)); // send dummy receive data    
     int t_code=cCP2130.spi_read(&buffer,sizeof(buffer));
     std::cout << "i2c read= 0x" << std::hex << +(buffer&0xFF) << std::dec  << std::endl;
@@ -162,87 +163,35 @@ int TC_PSROH::read_bridge_reg()
 }
 
 
-int TC_PSROH::fusing()
+int TC_PSROH::toggle_2v5()
 {
     char fuse[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x01, 0b00000000}; 
     fuse[10]=(fuse_active)? 0b00001101 : 0b00001011 ;
     fuse_active=!fuse_active; 
     cCP2130.choose_spi(cCP2130.cs10);
     cCP2130.spi_write(fuse,sizeof(fuse));
-
-	/*
-    //setup SPI device to communicate with SC18IS600
-    char activate[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x01, 0b00001001}; // turn on led
-    char buf_s2[15]={0,0,1,0,7,0,0,0,0x02,2,1,0b11100000,0b10101000,0,0b11100001}; //read from register
-    char buff_s[14] = {0, 0, 2, 0, 6, 0, 0, 0, 0x06, 0xFF, 0xFF,0xFF,0xFF,0xFF}, buff_r[6] ={0}; // com buffers for AD
-    char buf_s3[14]={0,0,1,0,6,0,0,0,0x00,3,0b11100000,0b10101000,0b00000000,0b11111111}; // write to register
-    char read_bridge_reg[11]={0,0,2,0,3,0,0,0,0x21,0x04,0xFF};
-    cCP2130.choose_spi(cCP2130.cs10);
-    cCP2130.spi_write(activate,sizeof(activate));
-	//
-	char change_I2CADDR[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x05, 0b00000000};		
-	cCP2130.spi_write(change_I2CADDR,sizeof(change_I2CADDR));
-	//
-    char egw[3]={0};
-    cCP2130.spi_write(read_bridge_reg,sizeof(read_bridge_reg));
-    int t_this=cCP2130.spi_read(egw,sizeof(egw));
-    for (int i=0; i<sizeof(egw); i++){
-    std::cout << "buffer= " << std::bitset<8>(egw[i])  << std::endl;} 
-    char dokimh[14]={0,0,1,0,6,0,0,0,0x00,3,0b11100000,0b01010010,0,0b11111111}; // write to register
-	cCP2130.spi_write(dokimh,sizeof(dokimh));
-    cCP2130.spi_write(read_bridge_reg,sizeof(read_bridge_reg));
-    t_this=cCP2130.spi_read(egw,sizeof(egw));
-    for (int i=0; i<sizeof(egw); i++){
-    std::cout << "buffer= " << std::bitset<8>(egw[i])  << std::endl;}
-	sleep(1);
-    cCP2130.spi_write(read_bridge_reg,sizeof(read_bridge_reg));
-    t_this=cCP2130.spi_read(egw,sizeof(egw));
-    for (int i=0; i<sizeof(egw); i++){
-    std::cout << "buffer= " << std::bitset<8>(egw[i])  << std::endl;}
-	dokimh[11]=0b01010011;
-	cCP2130.spi_write(dokimh,sizeof(dokimh));
-	sleep(1);
-	dokimh[11]=0b01010100;  
-	cCP2130.spi_write(dokimh,sizeof(dokimh));
-	sleep(1);
-	dokimh[11]=0b01010101;  
-	cCP2130.spi_write(dokimh,sizeof(dokimh));
-	sleep(1);
-	//dokimh[11]=0b01010110;  
-	//cCP2130.spi_write(dokimh,sizeof(dokimh));     
-
-    sleep(1);
-    cCP2130.spi_write(buf_s2,sizeof(buf_s2)); // read register
-    sleep(1);
-    cCP2130.spi_write(buff_s,sizeof(buff_s)); // read buffer
-    int t_code=cCP2130.spi_read(buff_r,sizeof(buff_r));
-    std::cout << t_code << std::endl;
-    for (int i=0; i<sizeof(buff_r); i++){
-    std::cout << "buffer= " << std::bitset<8>(buff_r[i])  << std::endl;}
-    cCP2130.spi_write(buf_s3,sizeof(buf_s3)); //write register
-    sleep(1);
-    cCP2130.spi_write(buf_s3,sizeof(buf_s2)); // read register
-    sleep(1);
-    cCP2130.spi_write(buff_s,sizeof(buff_s)); // read buffer
-    t_code=cCP2130.spi_read(buff_r,sizeof(buff_r));
-    std::cout << t_code << std::endl;
-    for (int i=0; i<sizeof(buff_r); i++){
-    std::cout << "buffer= " << std::bitset<8>(buff_r[i])  << std::endl;}
-    buf_s3[13]=0b01010100;
-    cCP2130.spi_write(buf_s3,sizeof(buf_s3)); //write register
-    sleep(1);
-    cCP2130.spi_write(buf_s3,sizeof(buf_s2)); // read register
-    sleep(1);
-    cCP2130.spi_write(buff_s,sizeof(buff_s)); // read buffer
-    t_code=cCP2130.spi_read(buff_r,sizeof(buff_r));
-    std::cout << t_code << std::endl;
-    for (int i=0; i<sizeof(buff_r); i++){
-    std::cout << "buffer= " << std::bitset<8>(buff_r[i])  << std::endl;}
-    //setup SC18IS600 - 1.set gpio outputs, 2.clock freq, 3.i2c timeout, read sth to make sure it works
-    //make writeANDread I2c transactions
-    // read some lpGBT registers
-	*/
     return 0;
+}
+
+int TC_PSROH::fuse(short int address, char A, char B, char C, char D )
+{
+    char low = ( address & 0x00FF );
+    char high= ( address & 0xFF00 ) >> 8;
+    this->write_i2c(0x110,0xA3);//toggle_2v5 magic number
+    this->write_i2c(0x109,0xC0); //toggle_2v5 control
+    this->write_i2c(0x10E,high); // Address high of 32bit block to be fused
+    this->write_i2c(0x10F,low); // Address low of 32bit block to be fused
+    this->write_i2c(0x10A,A); 
+    this->write_i2c(0x10B,B); 
+    this->write_i2c(0x10C,C); 
+    this->write_i2c(0x10D,D);
+    this->toggle_2v5(); //enable 2v5
+    std::this_thread::sleep_for (std::chrono::milliseconds (1) ); 
+    this->write_i2c(0x109,0xC1); //toggle_2v5 control on
+    int i=0;
+    while(!(this->read_i2c(0x1A1)&0b00000010) && i<2 ) {std::cout << "toggle_2v5 in progress\n"; i++;}
+    this->toggle_2v5(); //disable 2v5
+    this->write_i2c(0x109,0xC0); //toggle_2v5 control off
 }
 
 int TC_PSROH::dac_output(uint16_t level)
