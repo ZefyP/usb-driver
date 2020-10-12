@@ -119,17 +119,17 @@ int TC_PSROH::write_i2c(short int address, char value)
 {
     char low = ( address & 0x00FF );
     char high= ( address & 0xFF00 ) >> 8;
-    std::cout << std::bitset<8>(high) << std::bitset<8>(low) << std::endl;
-    std::cout << "address= 0x" << std::hex<< +(address) << std::dec << " " ;
-    std::cout << "write_value= 0x" << std::hex<< +(value&0xFF) << std::dec  << " ";
+    //std::cout << std::bitset<8>(high) << std::bitset<8>(low) << std::endl;
+    //std::cout << "address= 0x" << std::hex<< +(address) << std::dec << " " ;
+    //std::cout << "write_value= 0x" << std::hex<< +(value&0xFF) << std::dec  << " ";
     char activate[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x01, 0b00001001}; // turn on led
     char data[14]={0,0,1,0,6,0,0,0,0x00,3,0b11100000,low,high,value}; // write to register
     cCP2130.choose_spi(cCP2130.cs10);
     //cCP2130.spi_write(activate,sizeof(activate));
     cCP2130.spi_write(data,sizeof(data));
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    return read_i2c(address);
-    //return 0;	
+    //return read_i2c(address);
+    return 0;	
 }
 
 int TC_PSROH::read_i2c( short int address)
@@ -147,7 +147,7 @@ int TC_PSROH::read_i2c( short int address)
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
     cCP2130.spi_write(dummy_send,sizeof(dummy_send)); // send dummy receive data    
     int t_code=cCP2130.spi_read(&buffer,sizeof(buffer));
-    std::cout << "i2c read= 0x" << std::hex << +(buffer&0xFF) << std::dec  << std::endl;
+    //std::cout << "i2c read= 0x" << std::hex << +(buffer&0xFF) << std::dec  << std::endl;
     return +(buffer&0xFF);
 
 }
@@ -368,6 +368,7 @@ int TC_PSFE::set_voltage(v_control c1, v_control c2)
         case _1000mV: volt_state=0b00010000; break;
         case _1050mV: volt_state=0b01010000; break;
         case _1100mV: volt_state=0b00110000; break;
+        case _1150mV: volt_state=0b01110000; break;
         default: 
         std::cout << "Impossible voltage value - Check test card manual" << std::endl;
         exit(0);

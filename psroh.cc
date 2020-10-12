@@ -28,6 +28,11 @@ std::vector<std::pair<int,int>> read_lpgbt_min_config(std::string file)
 int main(){
 
 	TC_PSROH cTC_PSROH;
+	
+	while(1){
+	std::cout <<cTC_PSROH.read_i2c(0x1C7)<<"\n";
+	}	
+
 	/*
 	std::cout << cTC_PSROH.read_i2c(0x1A1)<< "\n";
 	cTC_PSROH.write_i2c(0x12C,0x00); 	
@@ -53,10 +58,14 @@ int main(){
         cTC_PSROH.write_i2c(reg.first,reg.second);
 	}
 	std::cout << "PUSM after def config \n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C7)<<"\n";
+	
+	while(cTC_PSROH.read_i2c(0x1C7)!=18){
+	std::this_thread::sleep_for (std::chrono::milliseconds (1) ); 
+	}	
+	std::cout <<cTC_PSROH.read_i2c(0x1C7)<<"\n";
 	*/
-
-	std::cout << cTC_PSROH.read_i2c(0x1C7) << "\n";
-	sleep(4);
+	//sleep(4);
 	//fusing%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	/*
 	cTC_PSROH.write_i2c(0x110,0xA3);//toggle_2v5 magic number
