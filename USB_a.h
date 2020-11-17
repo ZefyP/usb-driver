@@ -32,10 +32,9 @@ class CP2130
     int get_gpio_value(cs_line, bool&);
     int set_usb_config();
     int get_usb_config();
-
+    void reset_usb();
     private:
-    usb_dev_handle* fUsbHandle;
-    
+    usb_dev_handle* fUsbHandle;    
     usb_dev_handle* find_usb_handle();
     usb_dev_handle* setup_libusb_access();
     
@@ -46,7 +45,7 @@ class CP2130
 
     const static int fUsbEndpointBulkIn = 0x82;  // usb endpoint 0x82 address for USB IN bulk transfers
     const static int fUsbEndpointBulkOut = 0x01;  // usb endpoint 0x01 address for USB OUT bulk transfers
-    const static int fUsbTimeout = 1000;  // usb operation timeout in ms
+    const static int fUsbTimeout = 300;  // usb operation timeout in ms
 };
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//

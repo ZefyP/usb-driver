@@ -293,14 +293,20 @@ int TC_PSFE::adc_get(measurement m, float& output)
     }
     cCP2130.choose_spi(cCP2130.cs6);
     cCP2130.spi_write(buff_s_mux,sizeof(buff_s_mux));
-	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	std::this_thread::sleep_for(std::chrono::milliseconds(30));
     cCP2130.choose_spi(cCP2130.cs4);
     cCP2130.spi_write (buff_s_adc,sizeof(buff_s_adc));
     t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc));
     if (t_code != 4 )
     {
-        printf ("USB Transaction ERROR!\n");
-        return -1000.0;
+	
+	cCP2130.reset_usb();
+	cCP2130.choose_spi(cCP2130.cs4);
+    	cCP2130.spi_write (buff_s_adc,sizeof(buff_s_adc));
+    	t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc)); 
+	if (t_code != 4 ) return -1000.0;
+	printf ("recovered from USB transaction error\n");
+        ADC_value = ( ( (buff_r_adc[2] & 0x0F) << 6) + ( (buff_r_adc[3] >> 1) & 0x3F) );
     }
     else if (buff_r_adc[1] != buff_s_adc[8])
     {
@@ -597,6 +603,11 @@ void CP2130::close()
     delete fUsbHandle;
 }
 
+void CP2130::reset_usb()
+{
+     usb_reset ( fUsbHandle );
+}
+
 int CP2130::gpio_set_input(cs_line c)
 {
     char data[3]={(char)c,0,0};
@@ -612,7 +623,6 @@ int CP2130::gpio_set_output(cs_line c, bool level)
 }
 int CP2130::choose_spi(cs_line c)
 {
-    
     char data[2]={c,2};
     int result = usb_control_msg(fUsbHandle, 0x40, 0x25, 0, 0, data, sizeof(data), fUsbTimeout);
     return 0;
