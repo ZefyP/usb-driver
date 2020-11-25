@@ -28,11 +28,24 @@ std::vector<std::pair<int,int>> read_lpgbt_min_config(std::string file)
 int main(){
 
 	TC_PSROH cTC_PSROH;
-	
-	while(1){
 	std::cout <<cTC_PSROH.read_i2c(0x1C7)<<"\n";
-	}	
-
+	/* ////////////////////////////////////////ADC measurements///////////////////////
+	cTC_PSROH.write_i2c(0x113,0b00000000);
+	cTC_PSROH.write_i2c(0x112,0b00111111);
+	int dacout=2000;
+	for (dacout=0;dacout<4000;dacout=dacout+50){
+	cTC_PSROH.dac_output(dacout);
+	std::cout << dacout*1.25/4.096<< "	";
+	cTC_PSROH.write_i2c(0x111,0b11101110);////////////////////mux
+	cTC_PSROH.write_i2c(0x113,0b00000100);
+	cTC_PSROH.write_i2c(0x01c,1<<7);
+        std::this_thread::sleep_for (std::chrono::milliseconds (10) ); 
+	cTC_PSROH.write_i2c(0x113,0b10000100);
+        std::this_thread::sleep_for (std::chrono::milliseconds (10) ); 
+	//std::cout <<cTC_PSROH.read_i2c(0x1b8)<< "	"<<cTC_PSROH.read_i2c(0x1b9)<<"	";
+	std::cout << (cTC_PSROH.read_i2c(0x1b8)&(0b00000011))*256+cTC_PSROH.read_i2c(0x1b9)<< "\n";	
+	}
+	*/
 	/*
 	std::cout << cTC_PSROH.read_i2c(0x1A1)<< "\n";
 	cTC_PSROH.write_i2c(0x12C,0x00); 	
@@ -60,7 +73,7 @@ int main(){
 	std::cout << "PUSM after def config \n";
 	std::cout <<cTC_PSROH.read_i2c(0x1C7)<<"\n";
 	
-	while(cTC_PSROH.read_i2c(0x1C7)!=18){
+	while(cTC_PSROH.read_i2c(0x1C7)==18){
 	std::this_thread::sleep_for (std::chrono::milliseconds (1) ); 
 	}	
 	std::cout <<cTC_PSROH.read_i2c(0x1C7)<<"\n";
@@ -242,12 +255,12 @@ int main(){
 	//I2C MASTERS CKECK END//
 	*/
 	//FCMD check//
-/*
+
 	cTC_PSROH.write_i2c(0x11D,0xFF);
-	cTC_PSROH.write_i2c(0x11E,0xC1);
-	cTC_PSROH.write_i2c(0x11F,0xC1);
-	cTC_PSROH.write_i2c(0x120,0xC1);
-	cTC_PSROH.write_i2c(0x121,0xC1);
+	cTC_PSROH.write_i2c(0x11E,0xAA);
+	cTC_PSROH.write_i2c(0x11F,0xAA);
+	cTC_PSROH.write_i2c(0x120,0xAA);
+	cTC_PSROH.write_i2c(0x121,0xAA);
 	cTC_PSROH.write_i2c(0x0A7,0xFF);
 	cTC_PSROH.write_i2c(0x0A9,0xFF);
 	cTC_PSROH.write_i2c(0x0AA,0xFF);
@@ -255,15 +268,15 @@ int main(){
 	cTC_PSROH.write_i2c(0x0B0,0x07);
 	cTC_PSROH.write_i2c(0x0B4,0x07);
 	cTC_PSROH.write_i2c(0x0B8,0x07);
-*/
+
 	
 	//CLK OUT TEST//
-/*	
-	cTC_PSROH.write_i2c(0x06E,0b00111100);
-	cTC_PSROH.write_i2c(0x0A0,0b01111100);
-	cTC_PSROH.write_i2c(0x078,0b00111101);
-	cTC_PSROH.write_i2c(0x082,0b01111101);
-*/
+	
+	cTC_PSROH.write_i2c(0x06E,0b00111011);
+	cTC_PSROH.write_i2c(0x0A0,0b01111011);
+	cTC_PSROH.write_i2c(0x078,0b00111011);
+	cTC_PSROH.write_i2c(0x082,0b01111011);
+
 /*
 
 	cTC_PSROH.dac_output(0);
