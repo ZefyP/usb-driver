@@ -75,25 +75,32 @@ switch (m)
     }
     cCP2130.choose_spi(cCP2130.cs6);
     cCP2130.spi_write(buff_s_mux,sizeof(buff_s_mux));
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    std::this_thread::sleep_for(std::chrono::milliseconds(30));
     cCP2130.choose_spi(cCP2130.cs4);
     cCP2130.spi_write (buff_s_adc,sizeof(buff_s_adc));
     t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc));
+    bool recover=false;
     if (t_code != 4 )
     {
-        printf ("USB Transaction ERROR!\n");
+	std::cout <<"recovering ..."<< std::endl;
+        std::cout << t_code << std::endl;
+	cCP2130.reset_usb();
+	cCP2130.choose_spi(cCP2130.cs0);
+	cCP2130.choose_spi(cCP2130.cs4);
+    	cCP2130.spi_write (buff_s_adc,sizeof(buff_s_adc));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    	t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc));
+	recover=true;
+    }
+    if (t_code != 4 ) exit(-113);
+    if(recover) std::cout <<"recovered from USB transaction error"<< std::endl;
+    if (buff_r_adc[1] != buff_s_adc[8])
+    {
+        std::cout <<"SPI Transaction ERROR!"<< std::endl;
         return -1000.0;
     }
-    else if (buff_r_adc[1] != buff_s_adc[8])
-    {
-        printf ("SPI Transaction ERROR!\n");
-        return -1000.0;
-    }
-    else
-    {
         ADC_value = ( ( (buff_r_adc[2] & 0x0F) << 6) + ( (buff_r_adc[3] >> 1) & 0x3F) );
-        //std::cout << ADC_value << std::endl;
-    }
+   float pADC_value=(float)ADC_value;
     switch(m)
     {
         case THERM_SENSE: break; // conversion to temperature
@@ -293,31 +300,31 @@ int TC_PSFE::adc_get(measurement m, float& output)
     }
     cCP2130.choose_spi(cCP2130.cs6);
     cCP2130.spi_write(buff_s_mux,sizeof(buff_s_mux));
-	std::this_thread::sleep_for(std::chrono::milliseconds(30));
+    std::this_thread::sleep_for(std::chrono::milliseconds(30));
     cCP2130.choose_spi(cCP2130.cs4);
     cCP2130.spi_write (buff_s_adc,sizeof(buff_s_adc));
     t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc));
+    bool recover=false;
     if (t_code != 4 )
     {
-	
+	std::cout <<"recovering ..."<< std::endl;
+        std::cout << t_code << std::endl;
 	cCP2130.reset_usb();
+	cCP2130.choose_spi(cCP2130.cs0);
 	cCP2130.choose_spi(cCP2130.cs4);
     	cCP2130.spi_write (buff_s_adc,sizeof(buff_s_adc));
-    	t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc)); 
-	if (t_code != 4 ) return -1000.0;
-	printf ("recovered from USB transaction error\n");
-        ADC_value = ( ( (buff_r_adc[2] & 0x0F) << 6) + ( (buff_r_adc[3] >> 1) & 0x3F) );
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    	t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc));
+	recover=true;
     }
-    else if (buff_r_adc[1] != buff_s_adc[8])
+    if (t_code != 4 ) exit(-113);
+    if(recover) std::cout <<"recovered from USB transaction error"<< std::endl;
+    if (buff_r_adc[1] != buff_s_adc[8])
     {
-        printf ("SPI Transaction ERROR!\n");
+        std::cout <<"SPI Transaction ERROR!"<< std::endl;
         return -1000.0;
     }
-    else
-    {
         ADC_value = ( ( (buff_r_adc[2] & 0x0F) << 6) + ( (buff_r_adc[3] >> 1) & 0x3F) );
-        //std::cout << ADC_value << std::endl;
-    }
    float pADC_value=(float)ADC_value;
     switch(m)
     {
@@ -611,6 +618,7 @@ void CP2130::reset_usb()
 int CP2130::gpio_set_input(cs_line c)
 {
     char data[3]={(char)c,0,0};
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     int result=usb_control_msg(fUsbHandle, 0x40, 0x23, 0, 0,  data, sizeof(data), fUsbTimeout);
     return 0;
 }
@@ -618,13 +626,16 @@ int CP2130::gpio_set_input(cs_line c)
 int CP2130::gpio_set_output(cs_line c, bool level)
 {
     char data[3]={(char)c,2,level};
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     int result=usb_control_msg(fUsbHandle, 0x40, 0x23, 0, 0,  data, sizeof(data), fUsbTimeout);
     return 0;
 }
 int CP2130::choose_spi(cs_line c)
 {
     char data[2]={c,2};
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     int result = usb_control_msg(fUsbHandle, 0x40, 0x25, 0, 0, data, sizeof(data), fUsbTimeout);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     return 0;
     
 
@@ -640,8 +651,8 @@ int CP2130::configure_spi(cs_line c, device d)
         data[1]=0b00111101; // ADC SI8902
         {
         char spi_delay[8] = {c, 0x0F,0, 1, 0, 0, 0, 1};
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
         int result2 = usb_control_msg (fUsbHandle, 0x40, 0x33, 0, 0, spi_delay, sizeof(spi_delay), fUsbTimeout);
-        sleep(0.1);
         }
         break; 
         case ADG714: case ADG1414:
@@ -654,22 +665,26 @@ int CP2130::configure_spi(cs_line c, device d)
         data[1]=0b00111011; // SPI TO I2C bridge
         {
         char spi_delay[8] = {c, 0b00001111,0, 0, 0, 0, 0, 0}; 
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
         int result2 = usb_control_msg (fUsbHandle, 0x40, 0x33, 0, 0, spi_delay, sizeof(spi_delay), fUsbTimeout);
-        sleep(0.1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         break;
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     int result = usb_control_msg (fUsbHandle, 0x40, 0x31, 0, 0,  data , sizeof (data), fUsbTimeout );
     return 0;
 }
 
 int CP2130::spi_write(char* data, int size)
 {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     return usb_bulk_write(fUsbHandle, fUsbEndpointBulkOut, data, size, fUsbTimeout );
 }
 
 int CP2130::spi_read(char* data, int size)
 {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     return usb_bulk_read (fUsbHandle, fUsbEndpointBulkIn, data, size, fUsbTimeout);
 }
 
@@ -683,6 +698,7 @@ int CP2130::get_product_string(char* data)
 int CP2130::get_gpio_value(cs_line c, bool& level)
 {
     char data[2]={0,0};
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     int result = usb_control_msg (fUsbHandle, 0xC0, 0x20, 0, 0, data, 0x02, fUsbTimeout);
     switch(c){
         case cs0:
@@ -714,12 +730,14 @@ int CP2130::get_gpio_value(cs_line c, bool& level)
 int CP2130::set_usb_config()
 {
     char data[10]={0,0,0,0,0,0x00,0,0,0,0b11111111};
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     int result = usb_control_msg (fUsbHandle, 0x40, 0x61, 0, 0, data, 0x0A, fUsbTimeout);
     return 0;
 }
 int CP2130::get_usb_config()
 {
     char data[9]={0};
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     int result = usb_control_msg (fUsbHandle, 0xC0, 0x60, 0, 0, &data[0], 0x09, fUsbTimeout);
     return 0;
 	//printf ("%c\n",data[5]);
