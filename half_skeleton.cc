@@ -29,10 +29,77 @@ int main(){
 
 	TC_PSROH cTC_PSROH;
 	//std::cout <<cTC_PSROH.read_i2c(0x1C7)<<"\n";
+
 	cTC_PSROH.write_i2c(0x12c,0x00);
 	cTC_PSROH.write_i2c(0x12c,0x07);
 	cTC_PSROH.write_i2c(0x12c,0x00);
+	int errors=0, repet=0, trials=0;
+	unsigned int w1=3,w2=4,w3=5,w4=6;
+	//enable clocks
+	
+	/*
+	cTC_PSROH.write_i2c(0x06E,0b00111011);
+	cTC_PSROH.write_i2c(0x0A0,0b00111011);
+	cTC_PSROH.write_i2c(0x078,0b00111011);
+	cTC_PSROH.write_i2c(0x082,0b00111011);
+	*/
+	cTC_PSROH.write_i2c(0x06E,0b01010100);
+	cTC_PSROH.write_i2c(0x0A0,0b01010100);
+	cTC_PSROH.write_i2c(0x078,0b01010100);
+	cTC_PSROH.write_i2c(0x082,0b01010100);
+	
+	// enable front end chips
+	cTC_PSROH.write_i2c(0x053,0b00000000);
+	cTC_PSROH.write_i2c(0x05b,0b11111111);
+	cTC_PSROH.write_i2c(0x055,0b11111111);
+        std::this_thread::sleep_for (std::chrono::milliseconds (100) ); 
+	cTC_PSROH.write_i2c(0x053,0b00001011);
+	//cTC_PSROH.write_i2c(0x053,0b00000001);
 
+	/*
+	cTC_PSROH.write_i2c(0x113,0b00000000);
+	cTC_PSROH.write_i2c(0x112,0b00111111);
+	int dacout=2000;
+	for (dacout=0;dacout<4000;dacout=dacout+50){
+	cTC_PSROH.dac_output(dacout);
+	std::cout << dacout*1.25/4.096<< "	";
+	cTC_PSROH.write_i2c(0x111,0b00111111);////////////////////mux
+	cTC_PSROH.write_i2c(0x113,0b00000100);
+	cTC_PSROH.write_i2c(0x01c,1<<7|25);
+        std::this_thread::sleep_for (std::chrono::milliseconds (10) ); 
+	cTC_PSROH.write_i2c(0x113,0b10000100);
+        std::this_thread::sleep_for (std::chrono::milliseconds (10) ); 
+	//std::cout <<cTC_PSROH.read_i2c(0x1b8)<< "	"<<cTC_PSROH.read_i2c(0x1b9)<<"	";
+	std::cout << (cTC_PSROH.read_i2c(0x1b8)&(0b00000011))*256+cTC_PSROH.read_i2c(0x1b9)<< "\n";
+	}
+	*/
+
+	
+	
+
+	while(1){
+
+	cTC_PSROH.write_i2c(0x111,0b00011111);////////////////1V
+	//cTC_PSROH.write_i2c(0x111,0b01101111);////////////////////1v25 measure
+	cTC_PSROH.write_i2c(0x113,0b00000100);
+	cTC_PSROH.write_i2c(0x01c,1<<7|45);
+        std::this_thread::sleep_for (std::chrono::milliseconds (10) ); 
+	cTC_PSROH.write_i2c(0x113,0b10000100);
+        std::this_thread::sleep_for (std::chrono::milliseconds (10) ); 
+	std::cout << "1V at panasonic connector=";
+	std::cout << ((cTC_PSROH.read_i2c(0x1b8)&(0b00000011))*256+cTC_PSROH.read_i2c(0x1b9))/1.024<< "\n";
+
+
+	cTC_PSROH.write_i2c(0x111,0b01101111);////////////////////1v25 measure
+	cTC_PSROH.write_i2c(0x113,0b00000100);
+	cTC_PSROH.write_i2c(0x01c,1<<7|45);
+        std::this_thread::sleep_for (std::chrono::milliseconds (10) ); 
+	cTC_PSROH.write_i2c(0x113,0b10000100);
+        std::this_thread::sleep_for (std::chrono::milliseconds (10) ); 
+	std::cout << "1V25 @lpGBT=";
+	std::cout << ((cTC_PSROH.read_i2c(0x1b8)&(0b00000011))*256+cTC_PSROH.read_i2c(0x1b9))*1.55/1.024<< "\n";
+	/*
+	std::cout << "Vtrx+ com"<< "\n";
 	cTC_PSROH.write_i2c(0x0F8,0x50);//slave address
 	cTC_PSROH.write_i2c(0x0F9,0b00010011); //control data
 	cTC_PSROH.write_i2c(0x0FD,0x0);
@@ -42,90 +109,211 @@ int main(){
 	cTC_PSROH.write_i2c(0x0FC,0x0);
 
 	cTC_PSROH.write_i2c(0x0FD,0x2); //single byte write to start reading from 0x0
-	std::cout <<cTC_PSROH.read_i2c(0x176)<< "\n"; //status
+	//std::cout <<cTC_PSROH.read_i2c(0x176)<< "\n"; //status
+	if(cTC_PSROH.read_i2c(0x176)!=4) errors++;	
 	cTC_PSROH.write_i2c(0x0FD,0xD); //multi read
-	std::cout <<cTC_PSROH.read_i2c(0x176)<< "\n"; //status
-	for(int a=0x185; a<=0x188 ; a++){
+	//std::cout <<cTC_PSROH.read_i2c(0x176)<< "\n"; //status
+	if(cTC_PSROH.read_i2c(0x176)!=4) errors++;	
+	for(int a=0x186; a<=0x188 ; a++){
 	std::cout << "read back=";
 	std::cout <<cTC_PSROH.read_i2c(a)<< "\n";
 	}
 
 	
 	cTC_PSROH.write_i2c(0x0F9,0x00);
-	cTC_PSROH.write_i2c(0x0FA,0x11);
-	cTC_PSROH.write_i2c(0x0FB,0x12);
-	cTC_PSROH.write_i2c(0x0FC,0x13);
+	cTC_PSROH.write_i2c(0x0FA,w1);
+	cTC_PSROH.write_i2c(0x0FB,w2);
+	cTC_PSROH.write_i2c(0x0FC,w3);
 	cTC_PSROH.write_i2c(0x0FD,0x8); //store bytes to send
-	cTC_PSROH.write_i2c(0x0F9,0x14);
-	cTC_PSROH.write_i2c(0x0FD,0x9); //store bytes to send
 	cTC_PSROH.write_i2c(0x0FD,0xC); //multi send
-	std::cout <<cTC_PSROH.read_i2c(76)<< "\n"; //status
-
+	//std::cout <<cTC_PSROH.read_i2c(76)<< "\n"; //status
+	if(cTC_PSROH.read_i2c(0x176)!=4) errors++;
 	
-	cTC_PSROH.write_i2c(0x0F8,0x50);//slave address
-	cTC_PSROH.write_i2c(0x0FD,0x0);
+
 	cTC_PSROH.write_i2c(0x0F9,0x0);
 	cTC_PSROH.write_i2c(0x0FA,0x0);
 	cTC_PSROH.write_i2c(0x0FB,0x0);
 	cTC_PSROH.write_i2c(0x0FC,0x0);
 
 	cTC_PSROH.write_i2c(0x0FD,0x2); //single byte write to start reading from 0x0
-	std::cout <<cTC_PSROH.read_i2c(0x176)<< "\n"; //status
+	//std::cout <<cTC_PSROH.read_i2c(0x176)<< "\n"; //status
+	if(cTC_PSROH.read_i2c(0x176)!=4) errors++;	
 	cTC_PSROH.write_i2c(0x0FD,0xD); //multi read
-	std::cout <<cTC_PSROH.read_i2c(0x176)<< "\n"; //status
-	for(int a=0x185; a<=0x188 ; a++){
+	//std::cout <<cTC_PSROH.read_i2c(0x176)<< "\n"; //status
+	if(cTC_PSROH.read_i2c(0x176)!=4) errors++;	
+	for(int a=0x186; a<=0x188 ; a++){
 	std::cout << "read back=";
 	std::cout <<cTC_PSROH.read_i2c(a)<< "\n";
 	}
-
-	//enable clocks
-	cTC_PSROH.write_i2c(0x06E,0b10111100);
-	cTC_PSROH.write_i2c(0x0A0,0b10111100);
-	cTC_PSROH.write_i2c(0x078,0b10111100);
-	cTC_PSROH.write_i2c(0x082,0b10111100);
-
-	// enable front end chips
-	cTC_PSROH.write_i2c(0x053,0b00001011);
-	cTC_PSROH.write_i2c(0x05b,0b11111111);
-	cTC_PSROH.write_i2c(0x055,0b11111111);
-
-
-	int address=39;
-	for (int a=0;a<=10000;a++){
-	std::cout << "PSFEHL"<< "\n";
+	if(cTC_PSROH.read_i2c(0x186)!=w3||cTC_PSROH.read_i2c(0x187)!=w2||cTC_PSROH.read_i2c(0x188)!=w1){
+ 	errors++;
+	std::cout <<" vTRX+ write-read mismatch"<< "\n";}
+	*/
+	
+	int address=32;
+	
+	std::cout << "PSFEHL com"<< "\n";
 	cTC_PSROH.write_i2c(0x0F1,address);//slave address
 	cTC_PSROH.write_i2c(0x0F2,0b00010011); //control data
 	cTC_PSROH.write_i2c(0x0F6,0x0);
 
 	cTC_PSROH.write_i2c(0x0F2,0b00000011);
 	cTC_PSROH.write_i2c(0x0F3,0b00000011);
-	cTC_PSROH.write_i2c(0x0F4,12);//
-	cTC_PSROH.write_i2c(0x0F5,9);//
+	cTC_PSROH.write_i2c(0x0F4,w1);//
+	cTC_PSROH.write_i2c(0x0F5,w2);//
 	cTC_PSROH.write_i2c(0x0F6,0x8); //store bytes to send
 	cTC_PSROH.write_i2c(0x0F6,0xC); //multi byte write to start reading from 0x0
-	std::cout <<cTC_PSROH.read_i2c(0x161)<< "\n"; //status
+        //std::this_thread::sleep_for (std::chrono::milliseconds (100) ); 
+	//std::cout <<cTC_PSROH.read_i2c(0x161)<< "\n"; //status
+	//if(cTC_PSROH.read_i2c(0x161)!=4) {errors++;std::cout <<cTC_PSROH.read_i2c(0x161)<< "\n";}
+	trials=0;
+	while(cTC_PSROH.read_i2c(0x161)!=4 && trials<1000) {trials++;}
+	if(trials==100){errors++;}
 
 	cTC_PSROH.write_i2c(0x0F2,0b00001011); //control data
 	cTC_PSROH.write_i2c(0x0F6,0x0);
 
 	cTC_PSROH.write_i2c(0x0F2, 0b00000011);
-	cTC_PSROH.write_i2c(0x0F3, 0b00000101);
+	cTC_PSROH.write_i2c(0x0F3, 0b00000011);
 	cTC_PSROH.write_i2c(0x0F6,0x8); //store bytes to send
 	cTC_PSROH.write_i2c(0x0F6,0xC); //multi byte write to start reading from 0x0
-	std::cout <<cTC_PSROH.read_i2c(0x161)<< "\n"; //status
+        std::this_thread::sleep_for (std::chrono::milliseconds (100) ); 
+	//std::cout <<cTC_PSROH.read_i2c(0x161)<< "\n"; //status
+	//if(cTC_PSROH.read_i2c(0x161)!=4) {errors++;std::cout <<cTC_PSROH.read_i2c(0x161)<< "\n";}
+        trials=0;
+	while(cTC_PSROH.read_i2c(0x161)!=4 && trials<1000) {trials++;}
+	if(trials==100){errors++;}
 
 	cTC_PSROH.write_i2c(0x0F1,address);//slave address
-	cTC_PSROH.write_i2c(0x0F2,0b00000011); //control data
+	cTC_PSROH.write_i2c(0x0F2,0b01000011); //control data
 	cTC_PSROH.write_i2c(0x0F6,0x0);
 
 	cTC_PSROH.write_i2c(0x0F6,0xD); //multi read
-	std::cout <<cTC_PSROH.read_i2c(0x161)<< "\n"; //status
+        std::this_thread::sleep_for (std::chrono::milliseconds (100) ); 
+	//std::cout <<cTC_PSROH.read_i2c(0x161)<< "\n"; //status
+	//if(cTC_PSROH.read_i2c(0x161)!=4) {errors++;std::cout <<cTC_PSROH.read_i2c(0x161)<< "\n";}
+	trials=0;
+	while(cTC_PSROH.read_i2c(0x161)!=4 && trials<1000) {trials++;}
+	if(trials==100){errors++;}
 
-	for(int a=0x173; a<=0x173 ; a++){
+	for(int k=0x171; k<=0x173 ; k++){
 	std::cout << "read back=";
-	std::cout <<cTC_PSROH.read_i2c(a)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(k)<< "\n";
 	}
-}
+	if(cTC_PSROH.read_i2c(0x172)!=w2||cTC_PSROH.read_i2c(0x173)!=w1){
+ 	errors++;
+	std::cout <<"SSA FARAWAY write-read mismatch"<< "\n";}
+
+	address=39;
+	
+	std::cout << "PSFEHL com"<< "\n";
+	cTC_PSROH.write_i2c(0x0F1,address);//slave address
+	cTC_PSROH.write_i2c(0x0F2,0b00010011); //control data
+	cTC_PSROH.write_i2c(0x0F6,0x0);
+
+	cTC_PSROH.write_i2c(0x0F2,0b00000011);
+	cTC_PSROH.write_i2c(0x0F3,0b00000011);
+	cTC_PSROH.write_i2c(0x0F4,w1);//
+	cTC_PSROH.write_i2c(0x0F5,w2);//
+	cTC_PSROH.write_i2c(0x0F6,0x8); //store bytes to send
+	cTC_PSROH.write_i2c(0x0F6,0xC); //multi byte write to start reading from 0x0
+        //std::this_thread::sleep_for (std::chrono::milliseconds (100) ); 
+	//std::cout <<cTC_PSROH.read_i2c(0x161)<< "\n"; //status
+	//if(cTC_PSROH.read_i2c(0x161)!=4) {errors++;std::cout <<cTC_PSROH.read_i2c(0x161)<< "\n";}
+	trials=0;
+	while(cTC_PSROH.read_i2c(0x161)!=4 && trials<1000) {trials++;}
+	if(trials==100){errors++;}
+
+	cTC_PSROH.write_i2c(0x0F2,0b00001011); //control data
+	cTC_PSROH.write_i2c(0x0F6,0x0);
+
+	cTC_PSROH.write_i2c(0x0F2, 0b00000011);
+	cTC_PSROH.write_i2c(0x0F3, 0b00000011);
+	cTC_PSROH.write_i2c(0x0F6,0x8); //store bytes to send
+	cTC_PSROH.write_i2c(0x0F6,0xC); //multi byte write to start reading from 0x0
+        std::this_thread::sleep_for (std::chrono::milliseconds (100) ); 
+	//std::cout <<cTC_PSROH.read_i2c(0x161)<< "\n"; //status
+	//if(cTC_PSROH.read_i2c(0x161)!=4) {errors++;std::cout <<cTC_PSROH.read_i2c(0x161)<< "\n";}
+        trials=0;
+	while(cTC_PSROH.read_i2c(0x161)!=4 && trials<1000) {trials++;}
+	if(trials==100){errors++;}
+
+	cTC_PSROH.write_i2c(0x0F1,address);//slave address
+	cTC_PSROH.write_i2c(0x0F2,0b01000011); //control data
+	cTC_PSROH.write_i2c(0x0F6,0x0);
+
+	cTC_PSROH.write_i2c(0x0F6,0xD); //multi read
+        std::this_thread::sleep_for (std::chrono::milliseconds (100) ); 
+	//std::cout <<cTC_PSROH.read_i2c(0x161)<< "\n"; //status
+	//if(cTC_PSROH.read_i2c(0x161)!=4) {errors++;std::cout <<cTC_PSROH.read_i2c(0x161)<< "\n";}
+	trials=0;
+	while(cTC_PSROH.read_i2c(0x161)!=4 && trials<1000) {trials++;}
+	if(trials==100){errors++;}
+
+	for(int k=0x171; k<=0x173 ; k++){
+	std::cout << "read back=";
+	std::cout <<cTC_PSROH.read_i2c(k)<< "\n";
+	}
+	if(cTC_PSROH.read_i2c(0x172)!=w2||cTC_PSROH.read_i2c(0x173)!=w1){
+ 	errors++;
+	std::cout <<"SSA CLOSE write-read mismatch"<< "\n";}
+	
+	address=96;
+	cTC_PSROH.write_i2c(0x0F0,0b00101000);//i2c config
+	cTC_PSROH.write_i2c(0x0F1,address);//slave address
+	cTC_PSROH.write_i2c(0x0F2,0b00010011); //control data
+	cTC_PSROH.write_i2c(0x0F6,0x0);
+
+	cTC_PSROH.write_i2c(0x0F2,0b00000000);
+	cTC_PSROH.write_i2c(0x0F3,0b00000000);
+	cTC_PSROH.write_i2c(0x0F4,w1);//
+	cTC_PSROH.write_i2c(0x0F5,w2);//
+	cTC_PSROH.write_i2c(0x0F6,0x8); //store bytes to send
+	cTC_PSROH.write_i2c(0x0F6,0xC); //multi byte write to start reading from 0x0
+
+	//std::cout <<cTC_PSROH.read_i2c(0x161)<< "\n"; //status
+        trials=0;
+	while(cTC_PSROH.read_i2c(0x161)!=4 && trials<1000) {trials++;}
+	if(trials==100){errors++;}
+	cTC_PSROH.write_i2c(0x0F2,0b00001011); //control data
+	cTC_PSROH.write_i2c(0x0F6,0x0);
+
+	cTC_PSROH.write_i2c(0x0F2, 0b00000000);
+	cTC_PSROH.write_i2c(0x0F3, 0b00000000);
+	cTC_PSROH.write_i2c(0x0F6,0x8); //store bytes to send
+	cTC_PSROH.write_i2c(0x0F6,0xC); //multi byte write to start reading from 0x0
+	//std::cout <<cTC_PSROH.read_i2c(0x161)<< "\n"; //status
+	trials=0;
+	while(cTC_PSROH.read_i2c(0x161)!=4 && trials<1000) {trials++;}
+	if(trials==100){errors++;}
+
+	cTC_PSROH.write_i2c(0x0F1,address);//slave address
+	cTC_PSROH.write_i2c(0x0F2,0b01000011); //control data
+	cTC_PSROH.write_i2c(0x0F6,0x0);
+
+	cTC_PSROH.write_i2c(0x0F6,0xD); //multi read
+	//std::cout <<cTC_PSROH.read_i2c(0x161)<< "\n"; //status
+	trials=0;
+	while(cTC_PSROH.read_i2c(0x161)!=4 && trials<1000) {trials++;}
+	if(trials==100){errors++;}
+
+	for(int k=0x172; k<=0x173 ; k++){
+	std::cout << "read back=";
+	std::cout <<cTC_PSROH.read_i2c(k)<< "\n";
+	}
+
+	if(cTC_PSROH.read_i2c(0x172)!=w2||cTC_PSROH.read_i2c(0x173)!=w1){
+ 	errors++;
+	std::cout <<"CIC write-read mismatch"<< "\n";}
+	std::cout <<"\n";
+	
+	repet++;
+	std::cout <<"repet="<< repet<< "\n";
+	std::cout <<"errors="<< errors<< "\n";
+	w1++;w2++;w3++;;w4++;
+	if (w1>15) w1=0; if (w2>15) w2=0; if (w3>15) w3=0; if (w4>15) w4=0;
+	
+	}
 
 	/*for (int a=0;a<=123;a++){
 	std::cout << "PSFEHL"<< "\n";
