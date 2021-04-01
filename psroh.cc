@@ -4,6 +4,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <vector>
 
 std::vector<std::pair<int,int>> read_lpgbt_min_config(std::string file)
 {

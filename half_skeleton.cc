@@ -4,6 +4,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <vector>
 
 std::vector<std::pair<int,int>> read_lpgbt_min_config(std::string file)
 {
@@ -79,8 +80,9 @@ int main(){
 
 	while(1){
 
-	cTC_PSROH.write_i2c(0x111,0b00011111);////////////////1V
-	//cTC_PSROH.write_i2c(0x111,0b01101111);////////////////////1v25 measure
+	//cTC_PSROH.write_i2c(0x111,0b00011111);////////////////1V
+	cTC_PSROH.write_i2c(0x111,0b10011111);////////////////////1v25 measure
+	cTC_PSROH.write_i2c(0x112, 0xFF);
 	cTC_PSROH.write_i2c(0x113,0b00000100);
 	cTC_PSROH.write_i2c(0x01c,1<<7|45);
         std::this_thread::sleep_for (std::chrono::milliseconds (10) ); 
@@ -662,6 +664,62 @@ int main(){
 	cTC_PSROH.read_i2c(0x1b8);
 	cTC_PSROH.read_i2c(0x1b9);
 */
+
+/*
+	cTC_PSROH.write_i2c(0x053,0b00001011);
+	cTC_PSROH.write_i2c(0x05b,0b11111111);
+	cTC_PSROH.write_i2c(0x053,0b00000001);
+        std::this_thread::sleep_for (std::chrono::milliseconds (100) ); 
+	while(1){
+	cTC_PSROH.write_i2c(0x053,0b00000000);
+        std::this_thread::sleep_for (std::chrono::milliseconds (2000) ); 
+	cTC_PSROH.write_i2c(0x053,0b00000001);
+	}
+	///////////////////// Internal pattern and pattern checker//////////////////////////
+	cTC_PSROH.write_i2c(0x119,0b00000100);// ULG0DS
+	cTC_PSROH.write_i2c(0x11E,0xAA); //PATTERN TO TRANSMIT
+	cTC_PSROH.write_i2c(0x11F,0xAA);
+	cTC_PSROH.write_i2c(0x120,0xAA);
+	cTC_PSROH.write_i2c(0x121,0xAA);
+	cTC_PSROH.write_i2c(0x126,0x17); // bert source group zero
+	cTC_PSROH.write_i2c(0x127,0x00);//refresh
+	cTC_PSROH.write_i2c(0x128,0xA0);//
+	cTC_PSROH.write_i2c(0x129,0xA0);//
+	cTC_PSROH.write_i2c(0x12A,0xA0);//
+	cTC_PSROH.write_i2c(0x12B,0xA0);//
+	cTC_PSROH.write_i2c(0x127,0x91);//START MEASUREMENT
+        std::this_thread::sleep_for (std::chrono::milliseconds (10) ); 
+	std::cout << "status=";
+	std::cout <<cTC_PSROH.read_i2c(0x1BF)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C0)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C1)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C2)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C3)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C4)<< "\n";
+std::this_thread::sleep_for (std::chrono::milliseconds (10) ); 
+	std::cout << "status=";
+	std::cout <<cTC_PSROH.read_i2c(0x1BF)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C0)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C1)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C2)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C3)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C4)<< "\n";
+std::this_thread::sleep_for (std::chrono::milliseconds (10) ); 
+	std::cout << "status=";
+	std::cout <<cTC_PSROH.read_i2c(0x1BF)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C0)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C1)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C2)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C3)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C4)<< "\n";
+std::this_thread::sleep_for (std::chrono::milliseconds (10) ); 
+	std::cout << "status=";
+	std::cout <<cTC_PSROH.read_i2c(0x1BF)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C0)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C1)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C2)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C3)<< "\n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C4)<< "\n";
 
     return 0;
 }
