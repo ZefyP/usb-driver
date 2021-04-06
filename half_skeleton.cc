@@ -720,7 +720,7 @@ std::this_thread::sleep_for (std::chrono::milliseconds (10) );
 	std::cout <<cTC_PSROH.read_i2c(0x1C2)<< "\n";
 	std::cout <<cTC_PSROH.read_i2c(0x1C3)<< "\n";
 	std::cout <<cTC_PSROH.read_i2c(0x1C4)<< "\n";
-
+*/
     return 0;
 }
 
