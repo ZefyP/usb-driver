@@ -59,17 +59,24 @@ class TC_2SFE
     TC_2SFE();
     ~TC_2SFE();
     //Card Id// Full after creating a TC_2SFE object
-	std::string product_string;
+    static std::string product_string; // Product string
     //       //
     int adc_get(measurement,float&);
     int toggle_led();   
-    int antenna_fc7(uint16_t,ant_channel);
-
+    int antenna_fc7(uint16_t,ant_channel); //arguments: Potentiometer value, Antenna channel , -2430 + 4.76*dacValue = PULLUP(mV)
     private:
-    CP2130 cCP2130;
-    uint16_t saved_pot_value=0; // saved value of potentiometer, during operation
+    static CP2130 cCP2130; // declare CP2130 object
+    static char adg714_state; //saved state of adg714, during operation
+    static uint16_t saved_pot_value; // saved value of potentiometer, during operation
+    static bool is_initialized; // initialization of test card only occurs once
     float ADC_VREF=1.25;
-    bool test_led_state=0;
+    static bool test_led_state;
+    const static uint8_t antenna_mask=0x0F; // mask for bits/switches corresponding to antenna channel control - the rest are for voltage control
+    const static int fTempLookUpTableSize = 34;
+    float fTempLookUpTable[fTempLookUpTableSize] = {848, 804, 755, 701, 643, 584, 525, // 848 corresponds to -40 deg C, steps every 5 degree
+                                                    467, 413, 362, 315, 273, 236, 203, 175, 150, 129, 111, 95,
+                                                    82, 71, 61, 53, 46, 40, 35, 31, 27, 24, 21, 18, 16, 14, 13
+                                                   }; // 13 corresponds to 125 deg C
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//

@@ -471,8 +471,17 @@ int TC_PSFE::antenna_fc7(uint16_t pot_value,ant_channel c)
 
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
+//init static members of 2SFE
+char TC_2SFE::adg714_state=0;
+uint16_t TC_2SFE::saved_pot_value=0; 
+bool TC_2SFE::is_initialized=false;
+CP2130 TC_2SFE::cCP2130; 
+std::string TC_2SFE::product_string;
+bool TC_2SFE::test_led_state=0;
+
 TC_2SFE::TC_2SFE()
 {
+    if(!is_initialized){
     cCP2130.initialize();
     product_string.resize(64,' ');
     cCP2130.get_product_string(&product_string[0]);
@@ -489,48 +498,71 @@ TC_2SFE::TC_2SFE()
     cCP2130.spi_write (buff_s_adc,sizeof(buff_s_adc));
     int t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc));
     /////
+    is_initialized=true;
+    }
 }
 TC_2SFE::~TC_2SFE(){}
 
 int TC_2SFE::adc_get(measurement m, float& output)
 {
-    cCP2130.choose_spi(cCP2130.cs4);
-    sleep(0.1);
-    char buff_s[12] = {0, 0, 2, 0, 4, 0, 0, 0, 0, 0xFF, 0xFF,0xFF}, buff_r[4] ={0};
+    char buff_s_adc[12] = {0, 0, 2, 0, 4, 0, 0, 0, 0, 0xFF, 0xFF,0xFF}, buff_r_adc[4] ={0}; // com buffers for ADC
+    uint16_t ADC_value;    
     int t_code;
-    uint16_t ADC_value;
+    float conv=1;
     switch (m)
     {
-        case AMUX: buff_s[8]=0b11000011; break;
-        case ISEN: buff_s[8]=0b11010011; break;
-        case THERM_SENSE: buff_s[8]=0b11100011; break;
+        case AMUX: buff_s_adc[8]=0b11000011;		break;
+        case ISEN: buff_s_adc[8]=0b11010011; 		break;
+        case THERM_SENSE: buff_s_adc[8]=0b11100011; 	break;
     }
-    cCP2130.spi_write (buff_s,sizeof(buff_s));
-    t_code=cCP2130.spi_read(buff_r,sizeof(buff_r));
+    cCP2130.choose_spi(cCP2130.cs4);
+    cCP2130.spi_write (buff_s_adc,sizeof(buff_s_adc));
+    t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc));
+    bool recover=false;
     if (t_code != 4 )
     {
-        printf ("USB Transaction ERROR!\n");
+	std::cout <<"recovering ..."<< std::endl;
+        std::cout << t_code << std::endl;
+	cCP2130.reset_usb();
+	cCP2130.choose_spi(cCP2130.cs0);
+	cCP2130.choose_spi(cCP2130.cs4);
+    	cCP2130.spi_write (buff_s_adc,sizeof(buff_s_adc));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    	t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc));
+	recover=true;
+    }
+    if (t_code != 4 ) exit(-113);
+    if(recover) std::cout <<"recovered from USB transaction error"<< std::endl;
+    if (buff_r_adc[1] != buff_s_adc[8])
+    {
+        std::cout <<"SPI Transaction ERROR!"<< std::endl;
         return -1000.0;
     }
-    else if (buff_r[1] != buff_s[8])
-    {
-        printf ("SPI Transaction ERROR!\n");
-        return -1000.0;
-    }
-    else
-    {
-        ADC_value = ( ( (buff_r[2] & 0x0F) << 6) + ( (buff_r[3] >> 1) & 0x3F) );
-        std::cout << ADC_value << std::endl;
-    }
+    ADC_value = ( ( (buff_r_adc[2] & 0x0F) << 6) + ( (buff_r_adc[3] >> 1) & 0x3F) );
+    float pADC_value=(float)ADC_value;
     switch(m)
     {
         case THERM_SENSE:
+    	if (pADC_value >= fTempLookUpTable[0]) output=-40.0;
+    	else if (pADC_value <= fTempLookUpTable[fTempLookUpTableSize - 1]) output=125.0;
+    	else
+    	{
+	int i = 1;
+        while ( i < fTempLookUpTableSize)
+        	{
+        if (pADC_value > fTempLookUpTable[i]){
+	output= (5 * i - 40 - 5 * (pADC_value - fTempLookUpTable[i]) / (fTempLookUpTable[i - 1] - fTempLookUpTable[i]) );
+	break;
+			}
+	i++;
+        	}
+    	}
+	break; // conversion to temperature
+	default:
+        output = ( (ADC_value * ADC_VREF) * 1000 * conv ) / 1023;
         break;
-        default:
-        output = ( (ADC_value * ADC_VREF) * 1000) / 1023;
-        std::cout << output << std::endl;
-        break;
-    }
+ 	}
+
     return 0;
 
 }
@@ -538,13 +570,16 @@ int TC_2SFE::adc_get(measurement m, float& output)
 int TC_2SFE::antenna_fc7(uint16_t pot_value,ant_channel c)
 {
     cCP2130.gpio_set_output(cCP2130.cs5,0); //should be default configuration
-    char ant_state=0;
-    if(pot_value!=saved_pot_value){
-    char buf_s[11]= {0, 0, 1, 0, 3, 0, 0, 0, 0xB0, ((pot_value&0x300) >> 8), (pot_value & 0xFF)};
+    char ant_state=0, buf_s[11]={0, 0, 1, 0, 3, 0, 0, 0, 0xB0, 0, 0};
+    if(pot_value!=saved_pot_value||c==NONE){
+    if(c==NONE) pot_value=512;
+    buf_s[9]= ((pot_value&0x300) >> 8);
+    buf_s[10]= (pot_value & 0xFF);
     cCP2130.choose_spi(cCP2130.cs2);
     cCP2130.spi_write(buf_s,sizeof(buf_s));
     saved_pot_value=pot_value;
     }
+    
     switch(c)
     {
         case NONE:
@@ -572,14 +607,16 @@ int TC_2SFE::antenna_fc7(uint16_t pot_value,ant_channel c)
         ant_state=0b00001111;
         break;
     }
-    char buf_s[9]={0, 0, 1, 0, 1, 0, 0, 0, ant_state};
+    adg714_state=(adg714_state&(~antenna_mask))|ant_state;
+    char buf_s2[9]={0, 0, 1, 0, 1, 0, 0, 0, adg714_state};
     cCP2130.choose_spi(cCP2130.cs0);
-    cCP2130.spi_write(buf_s,sizeof(buf_s));
+    cCP2130.spi_write(buf_s2,sizeof(buf_s2));
     return 0;
 }
 int TC_2SFE::toggle_led()
 {
     cCP2130.gpio_set_output(cCP2130.cs6,!test_led_state);
+    test_led_state=!test_led_state;
     return 0;
 } 
 
