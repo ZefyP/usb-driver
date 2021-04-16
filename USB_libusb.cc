@@ -33,18 +33,27 @@ TC_2SSEH::TC_2SSEH()
     is_initialized=true;
     AMUX_R_set=0;
     AMUX_L_set=0;
-    
+    load2_enable=false;
+    load1_path=false;
+    load2_path=false;
+    load1_setvalue=0;
+    load2_setvalue=0;
+
+    HV_relay=false;
+    HVMONX7_relay=false;
+    HVMONX8_relay=false;
+    HVDAC_setvalue=0;
     }
 }
 
 
 int TC_2SSEH::read_temperature(temperatureMeasurement m, float& output)
 {   //unsigned int supply_value[4]; // dummy result to exercise data handling
-    float convFactor=1;
+    
     unsigned char writeread_command_buf[] = {0x00,0x00, 0x02, 0x00, 
-    0x08, 0x00, 0x00, 0x00,
-    0x03,0x00,0x00,0x08,
-    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+    0x09, 0x00, 0x00, 0x00,
+    0x03,0x00,0x00,0x09,
+    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
     };
     unsigned char read_input_buf[64];   
                                                                                         //Temperature[0]: Temp1 MSB; Temperature[1]: Temp1 LSB		
@@ -53,29 +62,40 @@ int TC_2SSEH::read_temperature(temperatureMeasurement m, float& output)
 																						//Temperature[6]: Temp SEH MSB; Temperature[7]: Temp SEH LSB
 																			
  
-    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf);
-    unsigned int temp=read_input_buf[m*2+4]<<(8) | read_input_buf[5+m*2];
-    std::cout<<resetMeasurementName[m]<<": " <<"0x" << std::hex << (int) temp <<std::endl;
-    
-    for(unsigned short int i = 0; i < sizeof(read_input_buf); i++){
-        std::cout << std::hex << (int) read_input_buf[i] << std::dec << ' ';
+    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf,false);
+    if (m!=3){
+        signed short temp=read_input_buf[m*2+4]<<(8) | read_input_buf[5+m*2];
+        output=(temp>>2)*temperatureConvFactor[m];
+        std::cout<<temperatureMeasurementName[m]<<": " <<"0x" << std::hex << (signed short) temp << " ; " << output << " °C" <<std::endl;
     }
-    std::cout << std::endl;
+    else{
+        short temp=read_input_buf[m*2+4]<<(8) | read_input_buf[5+m*2];
+        output=(temp>>1)/32.-256;
+        std::cout<<temperatureMeasurementName[m]<<": " <<"0x" << std::hex << (signed short) temp << " ; " << output << " °C" <<std::endl;
+    }
     
-    output=temp*convFactor;
+    
+    
+    // for(unsigned short int i = 0; i < sizeof(read_input_buf); i++){
+    //     std::cout << std::hex << (int) read_input_buf[i] << std::dec << ' ';
+    // }
+    // std::cout << std::endl;
+    
+    
     return 0;
 
 }
 
 int TC_2SSEH::read_supply(supplyMeasurement m, float& output) {
     //unsigned int supply_value[4]; // dummy result to exercise data handling
-    float convFactor=1;
+    //float convFactor[10]={1.25e-3,20e-6,1.25e-3,50e-6,1.25e-3,30e-6,1.25e-3,30e-6,1.25e-3,80e-6};
+    
     unsigned char writeread_command_buf[] = {0x00,0x00, 0x02, 0x00, 
-    0x14, 0x00, 0x00, 0x00,
-    0x00,0x03,0x00,0x14,
+    0x15, 0x00, 0x00, 0x00,
+    0x00,0x03,0x00,0x15,
     0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
     0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-    0x00,0x00,0x00,0x00};
+    0x00,0x00,0x00,0x00,0x00};
     unsigned char read_input_buf[64];   
                                 //UI_supply[0]: U P5V MSB; UI_supply[1]: U P5V LSB
  								//UI_supply[2]: I P5V MSB; UI_supply[3]: I P5V LSB
@@ -87,15 +107,24 @@ int TC_2SSEH::read_supply(supplyMeasurement m, float& output) {
  								//UI_supply[14]: I P1V25 MSB; UI_supply[15]: I P1V25 LSB
  								//UI_supply[16]: U SEH MSB; UI_supply[17]: U SEH LSB
  								//UI_supply[18]: I SEH MSB; UI_supply[19]: I SEH LSB
+
+                                //Calibration Register INA226 - P5V; Imax = 0,5A; LSB: 20uA; Calibration Register 12800 (0x3200)                                          
+                                //Calibration Register INA226 - P3V3; Imax = 1,6A; LSB: 50uA; Calibration Register 5120 (0x1400)
+                                //Calibration Register INA226 - P2V5; Imax = 0,983A; LSB: 30uA; Calibration Register 8533 (0x2155)
+                                //Calibration Register INA226 - P1V25; Imax = 0,983A; LSB: 30uA; Calibration Register 8533 (0x2155)
+                                //Calibration Register INA226 - U_SEH; Imax = 2,6A; LSB: 80uA; Calibration Register 3200 (0x0C80)
+                                //Calibration Register INA226 - Load1; Imax = 2,6A; LSB: 80uA; Calibration Register 3200 (0x0C80)
+                                //Calibration Register INA226 - Load2; Imax = 2,6A; LSB: 80uA; Calibration Register 3200 (0x0C80)
+
     
-    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf);
-    int temp=read_input_buf[m*2+4]<<(8) | read_input_buf[5+m*2];
-    std::cout<<supplyMeasurementName[m]<<": " <<"0x" << std::hex << (int) temp <<std::endl;
-    for(unsigned short int i = 0; i < sizeof(read_input_buf); i++){
-        std::cout << std::hex << (int) read_input_buf[i] << std::dec << ' ';
-    }
-    std::cout << std::endl;
-    output=temp*convFactor;
+    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf,false);
+    signed short temp=read_input_buf[m*2+4]<<(8) | read_input_buf[5+m*2];
+    std::cout<<supplyMeasurementName[m]<<": " <<"0x" << std::hex << (signed short) temp <<" ; " << (float) temp*supplyConvFactor[m]<<" " << supplyUnit[m%2]<<std::endl;
+    // for(unsigned short int i = 0; i < sizeof(read_input_buf); i++){
+    //     std::cout << std::hex << (int) read_input_buf[i] << std::dec << ' ';
+    // }
+    //std::cout << std::endl;
+    output=(float)temp*supplyConvFactor[m];
     return 0;
 
 }
@@ -104,36 +133,40 @@ int TC_2SSEH::read_load(loadMeasurement m, float& output) {
     //unsigned int supply_value[4]; // dummy result to exercise data handling
     float convFactor=1;
     unsigned char writeread_command_buf[] = {0x00,0x00, 0x02, 0x00, 
-    0x08, 0x00, 0x00, 0x00,
-    0x00,0x0C,0x00,0x08,
-    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+    0x09, 0x00, 0x00, 0x00,
+    0x00,0x0C,0x00,0x09,
+    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
     };
     unsigned char read_input_buf[64];   
                                                                                         //UI_load[0]: U P1V2 R MSB; UI_load[1]: U P1V2 R LSB
 																						//UI_load[2]: I P1V2 R MSB; UI_load[3]: I P1V2 R LSB
 																						//UI_load[4]: U P1V2 L MSB; UI_load[5]: U P1V2 L LSB
 																						//UI_load[6]: I P1V2 L MSB; UI_load[7]: I P1V2 L LSB
+                                                                                        //Calibration Register INA226 - Load1; Imax = 2,6A; LSB: 80uA; Calibration Register 3200 (0x0C80)
+                                                                                        //Calibration Register INA226 - Load2; Imax = 2,6A; LSB: 80uA; Calibration Register 3200 (0x0C80)
+
     
-    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf);
-    unsigned int temp=read_input_buf[m*2+4]<<(8) | read_input_buf[5+m*2];
-    std::cout<<loadMeasurementName[m]<<": " <<"0x" << std::hex << (int) temp <<std::endl;
+    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf,false);
     
-    for(unsigned short int i = 0; i < sizeof(read_input_buf); i++){
-        std::cout << std::hex << (int) read_input_buf[i] << std::dec << ' ';
-    }
-    std::cout << std::endl;
-    output=temp*convFactor;
+    signed short temp=read_input_buf[m*2+4]<<(8) | read_input_buf[5+m*2];
+    std::cout<<loadMeasurementName[m]<<": " <<"0x" << std::hex << (signed short) temp <<" ; " << (float) temp*loadConvFactor[m]<<" " << loadUnit[m%2]<<std::endl;
+    // for(unsigned short int i = 0; i < sizeof(read_input_buf); i++){
+    //     std::cout << std::hex << (int) read_input_buf[i] << std::dec << ' ';
+    // }
+    // std::cout << std::endl;
+    output=(float)temp*loadConvFactor[m];
+
     return 0;
 
 }
 
 int TC_2SSEH::read_hvmon(hvmonMeasurement m, float& output) {
     //unsigned int supply_value[4]; // dummy result to exercise data handling
-    float convFactor=1;
+    
     unsigned char writeread_command_buf[] = {0x00,0x00, 0x02, 0x00, 
-    0x08, 0x00, 0x00, 0x00,
-    0x20,0x20,0x00,0x08,
-    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+    0x09, 0x00, 0x00, 0x00,
+    0x20,0x20,0x00,0x09,
+    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
     };
     unsigned char read_input_buf[64];   
                                                                                         //HVMON[0]: Mon MSB; HVMON[1]: Mon LSB
@@ -141,15 +174,24 @@ int TC_2SSEH::read_hvmon(hvmonMeasurement m, float& output) {
 																						//HVMON[4]: VHVJ7 MSB; HVMON[5]: VHVJ7 LSB
 																						//HVMON[6]: VHVJ8 MSB; HVMON[7]: VHVJ8 LSB
     
-    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf);
-    unsigned int temp=read_input_buf[4+m*2]<<(8) | read_input_buf[5+m*2];
-    std::cout<<hvmonMeasurementName[m]<<": " <<"0x" << std::hex << (int) temp <<std::endl;
-    
-    for(unsigned short int i = 0; i < sizeof(read_input_buf); i++){
-        std::cout << std::hex << (int) read_input_buf[i] << std::dec << ' ';
+    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf,false);
+    if (m != 1){
+        unsigned int temp=read_input_buf[4+m*2]<<(8) | read_input_buf[5+m*2];
+        output=(temp&0x0fff)*hvmonConvFactor[m];
+        std::cout<<hvmonMeasurementName[m]<<": " <<"0x" << std::hex << (int) temp <<" ; " << output<<" " << hvmonUnit[m]<<std::endl;
+        
+    }else{
+        unsigned int temp=read_input_buf[4+m*2]<<(8) | read_input_buf[5+m*2];
+        output=temp*hvmonConvFactor[m]-HV_measOffset;
+        std::cout<<hvmonMeasurementName[m]<<": " <<"0x" << std::hex << temp <<" ; " << output<<" " << hvmonUnit[m]<<std::endl;
     }
-    std::cout << std::endl;
-    output=temp*convFactor;
+    
+    
+    // for(unsigned short int i = 0; i < sizeof(read_input_buf); i++){
+    //      std::cout << std::hex << (int) read_input_buf[i] << std::dec << ' ';
+    // }
+    // std::cout << std::endl;
+    
     return 0;
 
 }
@@ -159,9 +201,9 @@ int TC_2SSEH::read_reset(resetMeasurement m, float& output) {
     //unsigned int supply_value[4]; // dummy result to exercise data handling
     float convFactor=1;
     unsigned char writeread_command_buf[] = {0x00,0x00, 0x02, 0x00, 
-    0x08, 0x00, 0x00, 0x00,
-    0x00,0xC0,0x00,0x08,
-    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+    0x09, 0x00, 0x00, 0x00,
+    0x00,0xC0,0x00,0x09,
+    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
     };
     unsigned char read_input_buf[64];   
                                                                                         //RST[0]: RST_CBC_R MSB; RST[1]: RST_CBC_R LSB	
@@ -170,14 +212,19 @@ int TC_2SSEH::read_reset(resetMeasurement m, float& output) {
 																						//RST[6]: RST_CIC_L MSB; RST[7]: RST_CIC_L LSB	
 																						
  
-    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf);
+    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf,false);
     unsigned int temp=read_input_buf[m*2+4]<<(8) | read_input_buf[5+m*2];
-    std::cout<<resetMeasurementName[m]<<": " <<"0x" << std::hex << (int) temp <<std::endl;
+    output=(temp&0x0fff)*muControllerConversionFactor;
+    std::cout<<resetMeasurementName[m]<<": " <<"0x" << std::hex << (int) temp <<" ; " << output<<" V"<<std::endl;
     
-    for(unsigned short int i = 0; i < sizeof(read_input_buf); i++){
-        std::cout << std::hex << (int) read_input_buf[i] << std::dec << ' ';
-    }
-    std::cout << std::endl;
+    // unsigned int temp=read_input_buf[4+m*2]<<(8) | read_input_buf[5+m*2];
+        
+    //     std::cout<<hvmonMeasurementName[m]<<": " <<"0x" << std::hex << (int) temp <<" ; " << output<<" " << hvmonUnit[m]<<std::endl;
+
+    // for(unsigned short int i = 0; i < sizeof(read_input_buf); i++){
+    //     std::cout << std::hex << (int) read_input_buf[i] << std::dec << ' ';
+    // }
+    // std::cout << std::endl;
     output=temp*convFactor;
     return 0;
 
@@ -185,9 +232,9 @@ int TC_2SSEH::read_reset(resetMeasurement m, float& output) {
 
 int TC_2SSEH::read_state(state s, bool& output) {
     unsigned char writeread_command_buf[] = {0x00,0x00, 0x02, 0x00, 
-    0x03, 0x00, 0x00, 0x00,
-    0x08,0x08,0x00,0x03,
-    0x00,0x00,0x00,
+    0x04, 0x00, 0x00, 0x00,
+    0x08,0x08,0x00,0x04,
+    0x00,0x00,0x00,0x00,
     };
     unsigned char read_input_buf[64];   
                                                                                          //TestCardState[0]: Bit0: "1" -> P5V overvoltage
@@ -210,7 +257,7 @@ int TC_2SSEH::read_state(state s, bool& output) {
 																						//					Bit1: "1" -> 
 																						//					Bit2: "1" -> 																				
  
-    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf);
+    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf,false);
     
     unsigned char temp=(read_input_buf[s/8+4]&(0x80>>(7-(s%8))))>>(s%8);
     // quite a lot of bit suffeling going on to select the right bit for each status
@@ -226,10 +273,10 @@ int TC_2SSEH::read_state(state s, bool& output) {
      
     std::cout<<stateName[s]<<": " <<output <<std::endl;
     
-    for(unsigned short int i = 0; i < sizeof(read_input_buf); i++){
-        std::cout << std::hex << (int) read_input_buf[i] << std::dec << ' ';
-    }
-    std::cout << std::endl;
+    // for(unsigned short int i = 0; i < sizeof(read_input_buf); i++){
+    //     std::cout << std::hex << (int) read_input_buf[i] << std::dec << ' ';
+    // }
+    // std::cout << std::endl;
     // for(unsigned short int i = 0; i < sizeof(supply_value); i++){
     // supply_value[i]=(read_input_buf[0+i*5]<<(8*4)) | (read_input_buf[1+i*5]<<(8*3)) |(read_input_buf[2+i*5]<<(8*2)) |(read_input_buf[3+i*5]<<(8*1)) |(read_input_buf[4+i*5])     ;
     // }
@@ -248,10 +295,10 @@ int TC_2SSEH::read_limit(limit l, float& output) {
     //unsigned int supply_value[4]; // dummy result to exercise data handling
     float convFactor=1;
     unsigned char writeread_command_buf[] = {0x00,0x00, 0x02, 0x00, 
-    0x10, 0x00, 0x00, 0x00,
-    0x04,0x04,0x00,0x10,
+    0x11, 0x00, 0x00, 0x00,
+    0x04,0x04,0x00,0x11,
     0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
     };
     unsigned char read_input_buf[64];   
                                                                 //P5V Voltage tolerance default +-100mV
@@ -285,7 +332,7 @@ int TC_2SSEH::read_limit(limit l, float& output) {
 																						//limitValues[12]: Temperature3 max; 1Bit=+1°C
 																						//limitValues[13]: Temperature3 min; 1Bit=-1°C
 
-    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf);
+    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf,false);
     unsigned int temp=read_input_buf[l+4];
     std::cout<<limitName[l]<<": " <<"0x" << std::hex << (int) temp <<std::endl;
     
@@ -305,27 +352,83 @@ int TC_2SSEH::readI2C(unsigned char regMSB, unsigned char regLSB, unsigned char&
     unsigned char read_input_buf[64]; 
     
     cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf);
+    //request the µC to read the specified register from the lpgbt
 
     unsigned char writeread_command_buf2[] = {0x00,0x00, 0x02, 0x00, 
-    0x03, 0x00, 0x00, 0x00,
-    0x40,0x02,0x00,0x03,
-    0x00,0x00,0x00};
+    0x04, 0x00, 0x00, 0x00,
+    0x40,0x02,0x00,0x04,
+    0x00,0x00,0x00,0x00};
     unsigned char read_input_buf2[64]; 
-    sleep(2);
-    cCP2130.spi_writeRead(writeread_command_buf2,sizeof(writeread_command_buf2),read_input_buf2);
-    //int temp=read_input_buf[m*2]<<(8) | read_input_buf[1+m*2];
-    //std::cout<<supplyMeasurementName[m]<<": " <<"0x" << std::hex << (int) temp <<std::endl;
+    std::this_thread::sleep_for (std::chrono::milliseconds (10) ); // give the µC some time get the value, required delay not optimized (needs to be done) 
+    cCP2130.spi_writeRead(writeread_command_buf2,sizeof(writeread_command_buf2),read_input_buf2,false);
+    // read the register 
+
+    
+    std::cout<<"Read from register " <<"0x" << std::hex << read_input_buf2[5] <<" (MSB) 0x" << std::hex << read_input_buf2[4] <<" (LSB) the value 0x" << std::hex << read_input_buf2[6] <<std::endl;
     for(unsigned short int i = 0; i < sizeof(read_input_buf2); i++){
         std::cout << std::hex << (int) read_input_buf2[i] << std::dec << ' ';
     }
     std::cout << std::endl;
-    
+    value = read_input_buf2[6];
     
     return 0;
 
 
 }
 
+int TC_2SSEH::read_i2c(unsigned short int address){
+    unsigned char writeread_command_buf[] = {0x00,0x00, 0x02, 0x00, 
+    0x02, 0x00, 0x00, 0x00,
+    0x80,0x01,0x00,0x02,
+    address & 0xff,(address & 0xff00) >> 8,0xFF};
+    unsigned char read_input_buf[64]; 
+    
+    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf);
+    //request the µC to read the specified register from the lpgbt
+
+    unsigned char writeread_command_buf2[] = {0x00,0x00, 0x02, 0x00, 
+    0x04, 0x00, 0x00, 0x00,
+    0x40,0x02,0x00,0x04,
+    0x00,0x00,0x00,0x00};
+    unsigned char read_input_buf2[64]; 
+    std::this_thread::sleep_for (std::chrono::milliseconds (10) );; // give the µC some time get the value, required delay not optimized (needs to be done) 
+    cCP2130.spi_writeRead(writeread_command_buf2,sizeof(writeread_command_buf2),read_input_buf2,false);
+    // read the register 
+
+    
+    std::cout<<"Read from register " <<"0x" << std::hex << +read_input_buf2[5] <<" (MSB) 0x" << std::hex << +read_input_buf2[4] <<" (LSB) the value 0x" << std::hex << +read_input_buf2[6] <<std::endl;
+    // for(unsigned short int i = 0; i < sizeof(read_input_buf2); i++){
+    //     std::cout << std::hex << (int) read_input_buf2[i] << std::dec << ' ';
+    // }
+    // std::cout << std::endl;
+    
+    
+    return  read_input_buf2[6];
+
+
+}
+
+int TC_2SSEH::write_i2c(unsigned short int address, unsigned char value){
+    unsigned char writeread_command_buf[] = {0x00,0x00, 0x02, 0x00, 
+    0x03, 0x00, 0x00, 0x00,
+    0x80,0x80,0x00,0x03,
+    address & 0xff,(address & 0xff00) >> 8,value,0xff};
+    unsigned char read_input_buf[64]; 
+    
+    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf);
+
+    
+    // for(unsigned short int i = 0; i < sizeof(read_input_buf); i++){
+    //     std::cout << std::hex << (int) read_input_buf[i] << std::dec << ' ';
+    // }
+    // std::cout << std::endl;
+    std::cout<<"Wrote to register " <<"0x" << std::hex << +address <<" the value 0x" << std::hex << +value  <<std::endl;
+    
+    
+    return 0;
+
+
+}
 
 int TC_2SSEH::writeI2C(unsigned char regMSB, unsigned char regLSB, unsigned char value){
     unsigned char writeread_command_buf[] = {0x00,0x00, 0x02, 0x00, 
@@ -341,6 +444,7 @@ int TC_2SSEH::writeI2C(unsigned char regMSB, unsigned char regLSB, unsigned char
         std::cout << std::hex << (int) read_input_buf[i] << std::dec << ' ';
     }
     std::cout << std::endl;
+    std::cout<<"Wrote to register " <<"0x" << std::hex << regMSB <<" (MSB) 0x" << std::hex << regLSB <<" (LSB) the value 0x" << std::hex << value  <<std::endl;
     
     
     return 0;
@@ -389,13 +493,13 @@ int TC_2SSEH::set_limit(limit l, unsigned char value) {
 																						//limitValues[12]: Temperature3 max; 1Bit=+1°C
 																						//limitValues[13]: Temperature3 min; 1Bit=-1°C
 
-    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf);
+    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf,false);
     unsigned int temp=read_input_buf[l+4];
     std::cout<<limitName[l]<<": " <<"0x" << std::hex << (int) temp <<std::endl;
-    for(unsigned short int i = 0; i < sizeof(read_input_buf); i++){
-        std::cout << std::hex << (int) read_input_buf[i] << std::dec << ' ';
-    }
-    std::cout << std::endl;
+    // for(unsigned short int i = 0; i < sizeof(read_input_buf); i++){
+    //     std::cout << std::hex << (int) read_input_buf[i] << std::dec << ' ';
+    // }
+    // std::cout << std::endl;
     unsigned char writeread_command_buf2[] = {0x00,0x00, 0x02, 0x00, 
     0x11, 0x00, 0x00, 0x00,
     0x02,0x02,0x00,0x10,
@@ -440,6 +544,26 @@ int TC_2SSEH::set_AMUX(unsigned int rightValue=AMUX_R_set, unsigned int leftValu
 
 }
 
+int TC_2SSEH::set_P1V25_L_Sense(P1V25SenseState state) {
+    unsigned char writeread_command_buf[] = {0x00,0x00, 0x02, 0x00, 
+    0x02, 0x00, 0x00, 0x00,
+    0x20,0x04,0x00,0x01,state
+        ,0xFF 
+    
+    };
+    //Bit 0: "0" -> P1V25_L_Sense OFF; "1" -> P1V25_L_Sense ON
+	unsigned char read_input_buf[64];   
+    
+    cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf);
+    
+    std::cout <<"Set State of P1V25_L_Sense to: " <<state << std::endl;
+    
+    return 0;
+
+}
+
+
+
 int TC_2SSEH::set_SehSupply(sehSupplyState state) {
     //unsigned int supply_value[4]; // dummy result to exercise data handling
     //float convFactor;
@@ -461,20 +585,25 @@ int TC_2SSEH::set_SehSupply(sehSupplyState state) {
 }
 
 int TC_2SSEH::set_load1(bool enable=load1_enable,bool path=load1_path, unsigned int value=load1_setvalue ){
+if (value>0xfff)
+{
+    std::cout <<"Load1 was NOT set, choose a value between 0x0 and 0xfff" << std::endl;
     
+    return -1;
+}
+
 unsigned char writeread_command_buf[] = {0x00,0x00, 0x02, 0x00, 
     0x03, 0x00, 0x00, 0x00,
     0x30,0x00,0x00,0x02,
     (unsigned char)((unsigned char)((enable?1:0)<<7)|(unsigned char)((path?1:0)<<6)|((unsigned char)((value>>8)&0x0f))),
     (unsigned char)value,0xFF 
-    };
+    }; 
                                                                                         //Load1_control[0]: Bit 7: "0" -> Load1 OFF; "1" -> Load1 ON
-																						//					Bit 6: "0" -> Loar1 intern; "1" -> Load1 extern
+																						//					Bit 6: "0" -> Load1 intern; "1" -> Load1 extern
 																						//					Bit 0 to 3: -> current value MSB
 																						//Load1_control[1]: current value LSB		
 																						
-    
-    
+   
 	unsigned char read_input_buf[64];   
     
     cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf);
@@ -486,7 +615,13 @@ unsigned char writeread_command_buf[] = {0x00,0x00, 0x02, 0x00,
 
 }
 
-int TC_2SSEH::set_load2(bool enable=load2_enable,bool path=load2_path, unsigned int value=load2_setvalue ){   
+int TC_2SSEH::set_load2(bool enable=load2_enable,bool path=load2_path, unsigned int value=load2_setvalue ){ 
+    if (value>0xfff)
+{
+    std::cout <<"Load2 was NOT set, choose a value between 0x0 and 0xfff" << std::endl;
+    
+    return -1;
+}  
 unsigned char writeread_command_buf[] = {0x00,0x00, 0x02, 0x00, 
     0x03, 0x00, 0x00, 0x00,
     0xC0,0x00,0x00,0x02,
@@ -511,10 +646,16 @@ unsigned char writeread_command_buf[] = {0x00,0x00, 0x02, 0x00,
 }
 
 int TC_2SSEH::set_HV(bool hvRelay=HV_relay,bool hvmonx7Relay=HVMONX7_relay,bool hvmonx8Relay=HVMONX8_relay, unsigned int value=HVDAC_setvalue ){   
+if (value>0xfff)//now 12 bit DAC
+{
+    std::cout <<"HV was NOT set, choose a value between 0x0 and 0xfff" << std::endl;
+    
+    return -1;
+}
 unsigned char writeread_command_buf[] = {0x00,0x00, 0x02, 0x00, 
     0x03, 0x00, 0x00, 0x00,
     0x01,0x01,0x00,0x02,
-    (unsigned char)((unsigned char)((hvRelay?1:0)<<7)|(unsigned char)((hvmonx7Relay?1:0)<<6)|(unsigned char)((hvmonx8Relay?1:0)<<5)|((unsigned char)((value>>8)&0x03))),
+    (unsigned char)((unsigned char)((hvRelay?1:0)<<7)|(unsigned char)((hvmonx7Relay?1:0)<<6)|(unsigned char)((hvmonx8Relay?1:0)<<5)|((unsigned char)((value>>8)&0x0f))),
     (unsigned char)value,0xFF 
     };
                                                                                         //HV[0]: Bit 7: "0" -> HV OFF; "1" -> HV ON
@@ -528,7 +669,10 @@ unsigned char writeread_command_buf[] = {0x00,0x00, 0x02, 0x00,
 	unsigned char read_input_buf[64];   
     
     cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf);
-    std::cout <<"Set HV: HV Relay? " <<hvRelay<<" HVMONX7 Relay? "<<hvmonx7Relay<<" HVMONX8 Relay? "<<hvmonx8Relay<<" Value 0x"<<std::hex<<(value&0x03ff) << std::endl;
+    float Uout=(value/4095.)*4.096;
+    float UHV=Uout/4.096*1200.;
+
+    std::cout <<"Set HV: HV Relay? " <<hvRelay<<" HVMONX7 Relay? "<<hvmonx7Relay<<" HVMONX8 Relay? "<<hvmonx8Relay<<" Value 0x"<<std::hex<<(value&0x03ff) <<" using Uout = "<<Uout<<" V gives "<<UHV<<" V"<< std::endl;
     HV_relay=hvRelay;
     HVMONX7_relay=hvmonx7Relay;
     HVMONX8_relay=hvmonx8Relay;
@@ -547,14 +691,40 @@ int TC_2SSEH::set_fuse(bool value) {
     };
     //Bit0: "0" -> deactivate FUSE, "1" -> activate Fuse
     unsigned char read_input_buf[64];   
-   
-
+   for(unsigned short int i = 0; i < sizeof(writeread_command_buf); i++){
+        std::cout << std::hex << (int) writeread_command_buf[i] << std::dec << ' ';
+    }
+    std::cout << std::endl;
     cCP2130.spi_writeRead(writeread_command_buf,sizeof(writeread_command_buf),read_input_buf);
    
     std::cout<<"Wrote Fuse: " << value <<std::endl;
     
     return 0;
 }
+
+int TC_2SSEH::fuse(short int address, char A, char B, char C, char D )
+{
+    char low = ( address & 0x00FF );
+    char high= ( address & 0xFF00 ) >> 8;
+    this->write_i2c(0x110,0xA3);//toggle_2v5 magic number
+    this->write_i2c(0x109,0xC0); //toggle_2v5 control
+    this->write_i2c(0x10E,high); // Address high of 32bit block to be fused
+    this->write_i2c(0x10F,low); // Address low of 32bit block to be fused
+    this->write_i2c(0x10A,A); 
+    this->write_i2c(0x10B,B); 
+    this->write_i2c(0x10C,C); 
+    this->write_i2c(0x10D,D);
+    this->set_fuse(true); //enable 2v5; 2v5en auf dem Hybrid?
+    std::this_thread::sleep_for (std::chrono::milliseconds (1) ); 
+    this->write_i2c(0x109,0xC1); //toggle_2v5 control on
+    int i=0;
+    while(!(this->read_i2c(0x1A1)&0b00000010) && i<2 ) {std::cout << "toggle_2v5 in progress\n"; i++;}
+    this-set_fuse(false); //disable 2v5
+    this->write_i2c(0x109,0xC0); //toggle_2v5 control off
+}
+
+
+
 
 int TC_2SSEH::sendLPGBTconfig(unsigned char* buffer,int bufSize) {
     
@@ -586,7 +756,7 @@ int CP2130_2S::initialize()
         exit ( -1 ); 
      }
      //get_usb_config();
-     //libusb_reset_device ( fUsbHandle ); // MISO doesn't work wihthout this...
+     //libusb_reset_device ( fUsbHandle ); // MISO doesn't work without this...
      return 0;
 }
 
@@ -662,13 +832,13 @@ int CP2130_2S::configure_spi(cs_line c, spiDevice d)
                 std::cout << "ERROR: Error in control transfer" << std::endl;
                 return -1;
             }
-            unsigned char control_buf_in_delay[8] = {0, 0b00000000,0, 0, 0, 0, 0, 0}; 
+            unsigned char control_buf_in_delay[8] = {c, 0b00000001,0, 1, 0, 0, 0, 0}; 
             if (libusb_control_transfer(fUsbHandle, 0x40, 0x33, 0x0000, 0x0000, control_buf_in_delay, sizeof(control_buf_in_delay), fUsbTimeout) != sizeof(control_buf_in_delay))
             {
                 std::cout << "ERROR: Error in control transfer" << std::endl;
                 return -1;
             }
-            std::cout << "Configured muC" << std::endl;
+            std::cout << "Configured muC, delay" << std::endl;
             
         
         break;
@@ -684,9 +854,10 @@ int CP2130_2S::configure_spi(cs_line c, spiDevice d)
 //     return usb_bulk_write(fUsbHandle, fUsbEndpointBulkOut, data, size, fUsbTimeout );
 // }
 
-int CP2130_2S::spi_writeRead(unsigned char* writeread_command_buf, int size_of_buf, unsigned char* read_input_buf)
+int CP2130_2S::spi_writeRead(unsigned char* writeread_command_buf, int size_of_buf, unsigned char* read_input_buf,bool write)
 {
     // This example shows how to implement a CP2130 WriteRead operation using bulk write and read requests
+   for (int i = 0; i < 10; i++) {
 
     
     // unsigned char writeread_command_buf[] = {
@@ -727,7 +898,7 @@ int CP2130_2S::spi_writeRead(unsigned char* writeread_command_buf, int size_of_b
     // std::cout << std::endl;
     // std::cout << sizeof(writeread_command_buf) << std::endl;
     // std::cout << size_of_buf << std::endl;
-    // Use bulk Write to send the WriteRead command and appended test data
+    //Use bulk Write to send the WriteRead command and appended test data
    
      
     //for(unsigned short int i = 0; i < sizeof(writeread_command_buf); i++){
@@ -738,9 +909,10 @@ int CP2130_2S::spi_writeRead(unsigned char* writeread_command_buf, int size_of_b
         std::cout << "ERROR: Error in bulk write part of WriteRead operation" << std::endl;
         return -1;
     }
-    std::cout << "Successfully wrote to SPI MOSI, number of bytes written = " << std::dec << bytesWritten << std::endl;
+    //std::cout << "Successfully wrote to SPI MOSI, number of bytes written = " << std::dec << bytesWritten << std::endl;
 
-   
+
+   //std::this_thread::sleep_for (std::chrono::milliseconds (100) );
 
     // Use bulk read to read data from CP2130
     if (libusb_bulk_transfer(fUsbHandle, readEp, read_input_buf, size_of_buf-8, &bytesRead, usbTimeout))
@@ -748,15 +920,25 @@ int CP2130_2S::spi_writeRead(unsigned char* writeread_command_buf, int size_of_b
         std::cout << "ERROR: Error in bulk read part of WriteRead operation" << std::endl;
         return -1;
     }
-    std::cout << "Successfully read from SPI MISO, number of bytes read = " << std::dec << bytesRead << std::endl;
+    //std::cout << "Successfully read from SPI MISO, number of bytes read = " << std::dec << bytesRead << std::endl;
     if(bytesRead != size_of_buf-8)
     {
         std::cout << "*** UNEXPECTED NUMBER OF BYTES READ:  NUM_BYTES_TO_READ =  " << std::dec << bytesRead << "bytesRead =  " << std::endl;
     }
-    // for(unsigned short int i = 0; i < sizeof(read_input_buf); i++){
+    // for(unsigned short int i = 0; i < size_of_buf-8; i++){
     // std::cout << std::hex << (int) read_input_buf[i] << std::dec << ' ';
     // }
     // std::cout << std::endl;
+    if (write){
+        //std::cout << "write" << std::endl;
+        break;}
+    if (read_input_buf[size_of_buf-9]==0x47){
+        //std::cout << "Successfull read" << std::endl;
+        break;
+    }
+    std::cout <<" Unsuccessfull read " << i << "\n";
+
+   }
     return 0;
 
 }

@@ -27,7 +27,7 @@ class CP2130_2S
     // //read chip select enable state for a channel
     int choose_spi(cs_line);
     int configure_spi(cs_line,spiDevice);
-    int spi_writeRead(unsigned char*, int, unsigned char*);
+    int spi_writeRead(unsigned char*, int, unsigned char*,bool=true);
     //int get_product_string(unsigned char*);
     // int get_gpio_value(cs_line, bool&);
     // int set_usb_config();
@@ -61,24 +61,37 @@ class CP2130_2S
 class TC_2SSEH
 {
     public:
+
+    enum temperatureMeasurement:char{Temp1,Temp2,Temp3,Temp_SEH};
+    const char *temperatureMeasurementName[4] ={"Temp1","Temp2","Temp3","Temp_SEH"};
+    float temperatureConvFactor[4]={0.03125,0.03125,0.03125,1};
+
     enum supplyMeasurement:char{U_P5V, I_P5V,U_P3V3, I_P3V3,U_P2V5, I_P2V5,U_P1V25, I_P1V25,U_SEH, I_SEH};
     const char *supplyMeasurementName[10] ={"U_P5V", "I_P5V","U_P3V3", "I_P3V3","U_P2V5", "I_P2V5","U_P1V25", "I_P1V25","U_SEH", "I_SEH"};
+    float supplyConvFactor[10]={1.25e-3,20e-6,1.25e-3,50e-6,1.25e-3,30e-6,1.25e-3,30e-6,1.25e-3,80e-6};
+    const char *supplyUnit[2]={"V","A"};
 
     enum loadMeasurement:char{U_P1V2_R,I_P1V2_R,U_P1V2_L,I_P1V2_L};
     const char *loadMeasurementName[4] ={"U_P1V2_R","I_P1V2_R","U_P1V2_L","I_P1V2_L"};
-    
-    enum amuxSelect:char{right,left};
-    const char *amuxSelectName[2] ={"AMUX right","AMUX left"};
-    
-    enum resetMeasurement:char{RST_CBC_R,RST_CIC_R,RST_CBC_L,RST_CIC_L};
-    const char *resetMeasurementName[4] ={"RST_CBC_R","RST_CIC_R","RST_CBC_L","RST_CIC_L"};
-    
-    enum temperatureMeasurement:char{Temp1,Temp2,Temp3,Temp_SEH};
-    const char *temperatureMeasurementName[4] ={"Temp1","Temp2","Temp3","Temp_SEH"};
-    
+    float loadConvFactor[10]={1.25e-3,80e-6,1.25e-3,80e-6};
+    const char *loadUnit[2]={"V","A"};
+
     enum hvmonMeasurement:char{Mon,HV_meas,VHVJ7,VHVJ8};
     const char *hvmonMeasurementName[4] ={"Mon","HV_meas","VHVJ7","VHVJ8"};
+    double muControllerConversionFactor=2.048/4095;
+    double hvmonConvFactor[4]={muControllerConversionFactor,1e9/(65536-1)*5/201.4/4.99/1e4,muControllerConversionFactor,muControllerConversionFactor};
+    double HV_measOffset=0.5*5/201.4/4.99/1e4*1e9;
+    const char *hvmonUnit[4]={"V","nA","V","V"};
 
+    enum resetMeasurement:char{RST_CBC_R,RST_CIC_R,RST_CBC_L,RST_CIC_L};
+    const char *resetMeasurementName[4] ={"RST_CBC_R","RST_CIC_R","RST_CBC_L","RST_CIC_L"};
+
+    //enum amuxSelect:char{right,left};
+    //const char *amuxSelectName[2] ={"AMUX right","AMUX left"};
+    
+    
+    
+    
     enum limit:char{U_P5V_tolerance, I_P5V_max,U_P3V3_tolerance, I_P3V3_max,U_P2V5_tolerance, I_P2V5_max,U_P1V25_tolerance, I_P1V25_max,T1_max,T1_min,T2_max,T2_min,T3_max,T3_min,T_SEH_max,T_SEH_min};
     const char *limitName[16] ={"U_P5V_tolerance","I_P5V_max","U_P3V3_tolerance","I_P3V3_max","U_P2V5_tolerance","I_P2V5_max","U_P1V25_tolerance","I_P1V25_max","T1_max","T1_min","T2_max","T2_min","T3_max","T3_min","T_SEH_max","T_SEH_min"};
 
@@ -87,6 +100,7 @@ class TC_2SSEH
     
     
     enum sehSupplyState:char{sehSupply_Off,sehSupply_On};
+    enum P1V25SenseState:char{P1V25SenseState_Off,P1V25SenseState_On};
 
     static std::string product_string;
     //       //
@@ -99,7 +113,10 @@ class TC_2SSEH
     int read_limit(limit,float&);
     int read_hvmon(hvmonMeasurement,float&);
     int read_state(state,bool &);
+
     int set_AMUX(unsigned int, unsigned int);
+    int set_P1V25_L_Sense(P1V25SenseState);
+
     int read_reset(resetMeasurement,float&);
     int set_SehSupply(sehSupplyState);
     int set_load1(bool, bool, unsigned int);
@@ -107,10 +124,12 @@ class TC_2SSEH
 
     int set_HV(bool, bool, bool,unsigned int);
     int set_limit(limit,unsigned char); //carefull with temperature limits, require signed char
-
+    int fuse(short int , char, char, char, char ); //format: starting address of block to be burned, 4 register content
     int set_fuse(bool);
     int writeI2C(unsigned char, unsigned char, unsigned char);
     int readI2C(unsigned char, unsigned char, unsigned char&);
+    int write_i2c(unsigned short int, unsigned char); //ROH syntax compatible 
+    int read_i2c(unsigned short int);                 //ROH syntax compatible 
     int sendLPGBTconfig(unsigned char*,int);
     private:
     static CP2130_2S cCP2130; // declare CP2130 object    
