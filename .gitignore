@@ -2,4 +2,4 @@
 *.so
 *.out
 .vscode
-cp2130_example
+.vscode/settings.json

@@ -29,16 +29,16 @@ std::vector<std::pair<int,int>> read_lpgbt_min_config(std::string file)
 
 int main(){
     auto cRegs = read_lpgbt_min_config("lpgbt_minimal_config.txt");
-    unsigned char reg_value_buf[333]={0x00,0x00,0x02,0x00,
-                                        0x41,0x01,0x00,0x00,
-                                        0x40,0x40,0x01,0x41};
-    for(unsigned short int i = 0; i < 317; i++){
-    reg_value_buf[i+12]=cRegs[i].second;
-    }
-    for (int reg_value : reg_value_buf)
-    {
-        std::cout << reg_value <<  std::endl;
-    }
+    // unsigned char reg_value_buf[333]={0x00,0x00,0x02,0x00,
+    //                                     0x41,0x01,0x00,0x00,
+    //                                     0x40,0x40,0x01,0x41};
+    // for(unsigned short int i = 0; i < 317; i++){
+    // reg_value_buf[i+12]=cRegs[i].second;
+    // }
+    // for (int reg_value : reg_value_buf)
+    // {
+    //     std::cout << reg_value <<  std::endl;
+    // }
     float k;
     int m=0;
     bool wahr;
@@ -83,24 +83,67 @@ int main(){
 
     //cTC_2SSEH.writeI2C(0x00,0x53,0x20);
     //cTC_2SSEH.writeI2C(0x00,0x53,0x20);
-    cTC_2SSEH.readI2C(0x00,0x53,l);
+    //cTC_2SSEH.readI2C(0x00,0x53,l);
 
     //cTC_2SSEH.sendLPGBTconfig(reg_value_buf,sizeof(reg_value_buf));
-    //cTC_2SSEH.read_temperature(cTC_2SSEH.Temp_SEH,k);
-    //cTC_2SSEH.read_supply(cTC_2SSEH.U_P5V,k);
-    //cTC_2SSEH.read_load(cTC_2SSEH.U_P1V2_R,k);
+    //-------------------------------------------
+//     while(true){
+//         cTC_2SSEH.read_hvmon(cTC_2SSEH.VHVJ8,k);
+//         std::this_thread::sleep_for (std::chrono::milliseconds (200) );
+//     }
+//     cTC_2SSEH.read_temperature(cTC_2SSEH.Temp1,k);
+//     cTC_2SSEH.read_temperature(cTC_2SSEH.Temp2,k);
+//     cTC_2SSEH.read_temperature(cTC_2SSEH.Temp3,k);
+//     cTC_2SSEH.read_temperature(cTC_2SSEH.Temp_SEH,k);
+    
+//     cTC_2SSEH.read_supply(cTC_2SSEH.U_P5V,k);
+//     cTC_2SSEH.read_supply(cTC_2SSEH.I_P5V,k);
+//     cTC_2SSEH.read_supply(cTC_2SSEH.U_P3V3,k);
+//     cTC_2SSEH.read_supply(cTC_2SSEH.I_P3V3,k);
+//     cTC_2SSEH.read_supply(cTC_2SSEH.U_P2V5,k);
+//     cTC_2SSEH.read_supply(cTC_2SSEH.I_P2V5,k);
+//     cTC_2SSEH.read_supply(cTC_2SSEH.U_P1V25,k);
+//     cTC_2SSEH.read_supply(cTC_2SSEH.I_P1V25,k);
+//     cTC_2SSEH.read_supply(cTC_2SSEH.U_SEH,k);
+//     cTC_2SSEH.read_supply(cTC_2SSEH.I_SEH,k);
+
+//     cTC_2SSEH.read_load(cTC_2SSEH.U_P1V2_R,k);
+//     cTC_2SSEH.read_load(cTC_2SSEH.I_P1V2_R,k);
+//     cTC_2SSEH.read_load(cTC_2SSEH.U_P1V2_L,k);
+//     cTC_2SSEH.read_load(cTC_2SSEH.I_P1V2_L,k);
+    
+//     cTC_2SSEH.read_hvmon(cTC_2SSEH.Mon,k);
+//     cTC_2SSEH.read_temperature(cTC_2SSEH.Temp1,k);
+//     cTC_2SSEH.read_hvmon(cTC_2SSEH.HV_meas,k);
+//     cTC_2SSEH.read_temperature(cTC_2SSEH.Temp1,k);
+//     cTC_2SSEH.read_hvmon(cTC_2SSEH.VHVJ7,k);
+//     cTC_2SSEH.read_temperature(cTC_2SSEH.Temp1,k);
+//     cTC_2SSEH.read_hvmon(cTC_2SSEH.VHVJ8,k);
+
+//     cTC_2SSEH.read_state(cTC_2SSEH.P5V_overvoltage,wahr);
+    
+//     cTC_2SSEH.read_state(cTC_2SSEH.P5V_undervoltage,wahr);
+//     cTC_2SSEH.read_reset(cTC_2SSEH.RST_CBC_L,k);
+//     cTC_2SSEH.read_reset(cTC_2SSEH.RST_CBC_R,k);
+//     cTC_2SSEH.read_reset(cTC_2SSEH.RST_CIC_L,k);
+//     cTC_2SSEH.read_reset(cTC_2SSEH.RST_CIC_R,k);
+
+//     cTC_2SSEH.set_HV(false,false,true,0x155);//0x155=100V
+//     cTC_2SSEH.set_SehSupply(cTC_2SSEH.sehSupply_Off);
+//     cTC_2SSEH.set_fuse(false);
+//  cTC_2SSEH.read_i2c(0x00);
     //cTC_2SSEH.set_AMUX(0x3f01,0x7f01);
     //cTC_2SSEH.read_reset(cTC_2SSEH.RST_CBC_L,k);
     //cTC_2SSEH.toggle_led(); 
     //cTC_2SSEH.set_SehSupply(cTC_2SSEH.sehSupply_On);
-    //cTC_2SSEH.set_load1(true,false, 0x555);
-    //cTC_2SSEH.set_load2(true,false, 0x555);
+    cTC_2SSEH.set_load1(true,false, 0x555);
+    //cTC_2SSEH.set_load2(false,false, 0x00);
     //cTC_2SSEH.set_HV(true,true,true,0x55);
     //cTC_2SSEH.read_state(cTC_2SSEH.T_SEH_error,wahr);
     //cTC_2SSEH.set_limit(cTC_2SSEH.I_P1V25_max,0x34);
     //cTC_2SSEH.read_limit(cTC_2SSEH.I_P1V25_max,k);
     //cTC_2SSEH.set_fuse(false);
-    //cTC_2SSEH.read_hvmon(cTC_2SSEH.Mon,k);
+    
     //a test
     return 0;
 }
