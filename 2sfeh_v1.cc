@@ -9,8 +9,12 @@
 
 
 int main(){
-	TC_2SFE cTC_2SFE;
-	std::cout << cTC_2SFE.product_string << std::endl;
+	TC_2SFE cTC_2SFE(1,32);
+        const char* al=cTC_2SFE.get_product_string();
+	for (int i=0; i<50; i++){
+	std::cout << *(al+i);
+	}
+	std::cout << std::endl;
 	float result;
 	while(1){
 	cTC_2SFE.adc_get(cTC_2SFE.ISEN,result);

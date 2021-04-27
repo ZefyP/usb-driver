@@ -1,10 +1,18 @@
 #include "USB_a.h"
 
+
+
+
+
+
+
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
+
+//init static members of PSFE
 bool TC_PSROH::is_initialized=false, TC_PSROH::fuse_active=false;
 CP2130 TC_PSROH::cCP2130; 
 std::string TC_PSROH::product_string;
-
-
 
 TC_PSROH::TC_PSROH()
 {
@@ -26,7 +34,37 @@ TC_PSROH::TC_PSROH()
     //%%%configure SPI to I2C chip%%%//
     char buf_IoConfig[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x00, 0b10101010}, // All GPIOs Push-Pull
          buf_IoState[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x01, 0b00001001}, // All GPIOs to zero
-         buf_I2cClock[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x02, 0b00000101}; // max speed I2C, 369KHz
+         buf_I2cClock[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x02, 0b00010011}; // max speed I2C, 369KHz
+    cCP2130.choose_spi(cCP2130.cs10);
+    cCP2130.spi_write(buf_IoState,sizeof(buf_IoState));
+    cCP2130.spi_write(buf_IoConfig,sizeof(buf_IoConfig));
+    cCP2130.spi_write(buf_I2cClock,sizeof(buf_I2cClock));
+    //sleep(1);
+    is_initialized=true;
+    }
+}
+
+TC_PSROH::TC_PSROH(uint32_t bus,uint8_t device)
+{
+    if(!is_initialized){
+    cCP2130.initialize(bus,device);
+    product_string.resize(64,' ');
+    cCP2130.get_product_string(&product_string[0]);
+    cCP2130.gpio_set_output(cCP2130.cs9,test_led_state);
+    cCP2130.configure_spi(cCP2130.cs4,cCP2130.SI8902);
+    cCP2130.configure_spi(cCP2130.cs6,cCP2130.ADG731);
+    cCP2130.configure_spi(cCP2130.cs7,cCP2130.MCP4921);
+    cCP2130.configure_spi(cCP2130.cs10,cCP2130.SC18IS600);
+    /////
+    cCP2130.choose_spi(cCP2130.cs4);
+    char buff_s_adc[12] = {0, 0, 2, 0, 4, 0, 0, 0, 0, 0xFF, 0xFF,0xFF}, buff_r_adc[4] ={0}; // com buffers for ADC
+    cCP2130.spi_write (buff_s_adc,sizeof(buff_s_adc));
+    int t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc));
+    /////
+    //%%%configure SPI to I2C chip%%%//
+    char buf_IoConfig[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x00, 0b10101010}, // All GPIOs Push-Pull
+         buf_IoState[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x01, 0b00001001}, // All GPIOs to zero
+         buf_I2cClock[11]={0, 0, 1, 0, 3, 0, 0, 0, 0x20, 0x02, 0b00010011}; // max speed I2C, 369KHz
     cCP2130.choose_spi(cCP2130.cs10);
     cCP2130.spi_write(buf_IoState,sizeof(buf_IoState));
     cCP2130.spi_write(buf_IoConfig,sizeof(buf_IoConfig));
@@ -135,8 +173,8 @@ int TC_PSROH::write_i2c(short int address, char value)
     //cCP2130.spi_write(activate,sizeof(activate));
     cCP2130.spi_write(data,sizeof(data));
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    //return read_i2c(address);
-    return 0;	
+    return read_i2c(address);
+    //return 0;	
 }
 
 int TC_PSROH::read_i2c( short int address)
@@ -215,6 +253,10 @@ int TC_PSROH::dac_output(uint16_t level)
 	return 0;
 }
 
+const char* TC_PSROH::get_product_string()
+{
+return product_string.data();
+}
 
 
 
@@ -232,6 +274,35 @@ TC_PSFE::TC_PSFE()
 {
     if(!is_initialized){
     cCP2130.initialize();
+    product_string.resize(64,' ');
+    cCP2130.get_product_string(&product_string[0]);
+    cCP2130.gpio_set_output(cCP2130.cs1,0);
+    cCP2130.gpio_set_output(cCP2130.cs3,1);
+    cCP2130.gpio_set_output(cCP2130.cs5,0);
+    cCP2130.gpio_set_output(cCP2130.cs7,0);
+    cCP2130.gpio_set_output(cCP2130.cs8,0);
+    cCP2130.gpio_set_output(cCP2130.cs9,0);
+    cCP2130.gpio_set_input(cCP2130.cs10);
+    cCP2130.configure_spi(cCP2130.cs0,cCP2130.ADG714);
+    cCP2130.configure_spi(cCP2130.cs2,cCP2130.AD5231);
+    cCP2130.configure_spi(cCP2130.cs4,cCP2130.SI8902);
+    cCP2130.configure_spi(cCP2130.cs6,cCP2130.ADG731);
+        /////
+    cCP2130.choose_spi(cCP2130.cs4);
+    char buff_s_adc[12] = {0, 0, 2, 0, 4, 0, 0, 0, 0, 0xFF, 0xFF,0xFF}, buff_r_adc[4] ={0}; // com buffers for ADC
+    cCP2130.spi_write (buff_s_adc,sizeof(buff_s_adc));
+    int t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc));
+    /////
+    cCP2130.get_gpio_value(cCP2130.cs10,chirality);
+    antenna_fc7(512 , NONE); // default state of antenna
+    is_initialized=true;
+    }
+}
+
+TC_PSFE::TC_PSFE(uint32_t bus,uint8_t device)
+{
+    if(!is_initialized){
+    cCP2130.initialize(bus,device);
     product_string.resize(64,' ');
     cCP2130.get_product_string(&product_string[0]);
     cCP2130.gpio_set_output(cCP2130.cs1,0);
@@ -468,6 +539,11 @@ int TC_PSFE::antenna_fc7(uint16_t pot_value,ant_channel c)
     return 0;
 }
 
+const char* TC_PSFE::get_product_string()
+{
+return product_string.data();
+}
+
 
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
@@ -483,6 +559,29 @@ TC_2SFE::TC_2SFE()
 {
     if(!is_initialized){
     cCP2130.initialize();
+    product_string.resize(64,' ');
+    cCP2130.get_product_string(&product_string[0]);
+    cCP2130.gpio_set_output(cCP2130.cs1,0);
+    cCP2130.gpio_set_output(cCP2130.cs3,1);
+    cCP2130.gpio_set_output(cCP2130.cs5,0);
+    cCP2130.configure_spi(cCP2130.cs4,cCP2130.SI8902);
+    cCP2130.configure_spi(cCP2130.cs0,cCP2130.ADG1414);
+    cCP2130.configure_spi(cCP2130.cs2,cCP2130.AD5231);
+    cCP2130.configure_spi(cCP2130.cs3,cCP2130.LTC6903);
+    /////
+    cCP2130.choose_spi(cCP2130.cs4);
+    char buff_s_adc[12] = {0, 0, 2, 0, 4, 0, 0, 0, 0, 0xFF, 0xFF,0xFF}, buff_r_adc[4] ={0}; // com buffers for ADC
+    cCP2130.spi_write (buff_s_adc,sizeof(buff_s_adc));
+    int t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc));
+    /////
+    is_initialized=true;
+    }
+}
+
+TC_2SFE::TC_2SFE(uint32_t bus,uint8_t device)
+{
+    if(!is_initialized){
+    cCP2130.initialize(bus,device);
     product_string.resize(64,' ');
     cCP2130.get_product_string(&product_string[0]);
     cCP2130.gpio_set_output(cCP2130.cs1,0);
@@ -567,6 +666,12 @@ int TC_2SFE::adc_get(measurement m, float& output)
 
 }
 
+const char* TC_2SFE::get_product_string()
+{
+return product_string.data();
+}
+
+
 int TC_2SFE::antenna_fc7(uint16_t pot_value,ant_channel c)
 {
     cCP2130.gpio_set_output(cCP2130.cs5,0); //should be default configuration
@@ -629,6 +734,20 @@ CP2130::~CP2130(){
 }
 int CP2130::initialize()
 {
+     if ( ( fUsbHandle = setup_libusb_access() ) == NULL )
+     {
+        std::cout << "Failed to connect with CP2130, check if it is plugged in the USB port." << std::endl;
+        exit ( -1 ); 
+     }
+     get_usb_config();
+     usb_reset ( fUsbHandle ); // MISO doesn't work wihthout this...
+     return 0;
+}
+
+int CP2130::initialize(uint32_t bus,uint8_t device)
+{
+     busnum=(int64_t)bus; 
+     dvcnum=(int16_t)device;     
      if ( ( fUsbHandle = setup_libusb_access() ) == NULL )
      {
         std::cout << "Failed to connect with CP2130, check if it is plugged in the USB port." << std::endl;
@@ -706,6 +825,8 @@ int CP2130::configure_spi(cs_line c, device d)
         int result2 = usb_control_msg (fUsbHandle, 0x40, 0x33, 0, 0, spi_delay, sizeof(spi_delay), fUsbTimeout);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
+	case ATSAMD51P20A0A_PSPOH:
+	data[1]=0b00101101; break;
         break;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -790,7 +911,8 @@ usb_dev_handle* CP2130::find_usb_handle()
         for ( dev = bus->devices; dev; dev = dev->next )
         {
             if ( dev->descriptor.idVendor == VENDOR_ID &&
-                    dev->descriptor.idProduct == PRODUCT_ID )
+                    dev->descriptor.idProduct == PRODUCT_ID 
+			&& ((dev->devnum==dvcnum && bus->location ==busnum)||dvcnum<0))
             {
                 usb_dev_handle* handle;
 

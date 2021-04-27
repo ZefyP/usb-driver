@@ -1,4 +1,4 @@
-#include <cstring>
+ #include <cstring>
 #include "USB_a.h"
 #include <fstream>
 #include <iostream>
@@ -29,7 +29,141 @@ std::vector<std::pair<int,int>> read_lpgbt_min_config(std::string file)
 int main(){
 
 	TC_PSROH cTC_PSROH;
+	std::cout <<cTC_PSROH.read_i2c(0x020)<<"\n";
+	std::cout <<cTC_PSROH.read_i2c(0x021)<<"\n";
+	std::cout <<cTC_PSROH.read_i2c(0x022)<<"\n";
+	std::cout <<cTC_PSROH.read_i2c(0x023)<<"\n";
+	std::cout <<cTC_PSROH.read_i2c(0x024)<<"\n";
+	std::cout <<cTC_PSROH.read_i2c(0x029)<<"\n";
+	std::cout <<cTC_PSROH.read_i2c(0x02C)<<"\n";
+	std::cout <<cTC_PSROH.read_i2c(0x031)<<"\n";
+	std::cout <<cTC_PSROH.read_i2c(0x035)<<"\n";
+	std::cout <<cTC_PSROH.read_i2c(0x0EF)<<"\n";
 	std::cout <<cTC_PSROH.read_i2c(0x1C7)<<"\n";
+
+	/*
+	auto cRegs = read_lpgbt_min_config("lpgbt_minimal_config.txt");
+	for( auto reg : cRegs )
+	{
+        std::cout <<cTC_PSROH.write_i2c(reg.first,reg.second)<<"\n";
+	}
+	std::cout << "PUSM after def config \n";
+	std::cout <<cTC_PSROH.read_i2c(0x1C7)<<"\n";
+	sleep(10);
+cTC_PSROH.write_i2c(0x110,0xA3);//toggle_2v5 magic number
+	cTC_PSROH.write_i2c(0x109,0xC0); //toggle_2v5 control
+	cTC_PSROH.write_i2c(0x10E,0x00); // Address high of 32bit block to be fused
+	cTC_PSROH.write_i2c(0x10F,0x20); // Address low of 32bit block to be fused
+	cTC_PSROH.write_i2c(0x10A,0xF8); 
+	cTC_PSROH.write_i2c(0x10B,0x24); 
+	cTC_PSROH.write_i2c(0x10C,0x44); 
+	cTC_PSROH.write_i2c(0x10D,0x55);
+	cTC_PSROH.toggle_2v5(); //enable 2v5
+        std::this_thread::sleep_for (std::chrono::milliseconds (1) ); 
+	cTC_PSROH.write_i2c(0x109,0xC1); //toggle_2v5 control on
+	int i=0;
+	while(!(cTC_PSROH.read_i2c(0x1A1)&0b00000010) && i<2 ) {std::cout << "toggle_2v5 in progress\n"; i++;std::cout << cTC_PSROH.read_i2c(0x1A1) << "\n";}
+	cTC_PSROH.toggle_2v5(); //disable 2v5
+	cTC_PSROH.write_i2c(0x109,0xC0); //toggle_2v5 control off
+
+	cTC_PSROH.write_i2c(0x10E,0x00); // Address high of 32bit block to be fused
+	cTC_PSROH.write_i2c(0x10F,0x24); // Address low of 32bit block to be fused
+	cTC_PSROH.write_i2c(0x10A,0x55); 
+	cTC_PSROH.write_i2c(0x10B,0x55); 
+	cTC_PSROH.write_i2c(0x10C,0x55); 
+	cTC_PSROH.write_i2c(0x10D,0x55);
+	cTC_PSROH.toggle_2v5(); //enable 2v5
+        std::this_thread::sleep_for (std::chrono::milliseconds (1) ); 
+	cTC_PSROH.write_i2c(0x109,0xC1); //toggle_2v5 control on
+	i=0;
+	while(!(cTC_PSROH.read_i2c(0x1A1)&0b00000010) && i<2 ) {std::cout << "toggle_2v5 in progress\n"; i++;std::cout << cTC_PSROH.read_i2c(0x1A1) << "\n";}
+	cTC_PSROH.toggle_2v5(); //disable 2v5
+	cTC_PSROH.write_i2c(0x109,0xC0); //toggle_2v5 control off
+
+	cTC_PSROH.write_i2c(0x10E,0x00); // Address high of 32bit block to be fused
+	cTC_PSROH.write_i2c(0x10F,0x28); // Address low of 32bit block to be fused
+	cTC_PSROH.write_i2c(0x10A,0x0F); 
+	cTC_PSROH.write_i2c(0x10B,0x36); 
+	cTC_PSROH.write_i2c(0x10C,0x00); 
+	cTC_PSROH.write_i2c(0x10D,0x00);
+	cTC_PSROH.toggle_2v5(); //enable 2v5
+        std::this_thread::sleep_for (std::chrono::milliseconds (1) ); 
+	cTC_PSROH.write_i2c(0x109,0xC1); //toggle_2v5 control on
+	i=0;
+	while(!(cTC_PSROH.read_i2c(0x1A1)&0b00000010) && i<2 ) {std::cout << "toggle_2v5 in progress\n"; i++;std::cout << cTC_PSROH.read_i2c(0x1A1) << "\n";}
+	cTC_PSROH.toggle_2v5(); //disable 2v5
+	cTC_PSROH.write_i2c(0x109,0xC0); //toggle_2v5 control off
+
+	cTC_PSROH.write_i2c(0x10E,0x00); // Address high of 32bit block to be fused
+	cTC_PSROH.write_i2c(0x10F,0x2C); // Address low of 32bit block to be fused
+	cTC_PSROH.write_i2c(0x10A,0xA0); 
+	cTC_PSROH.write_i2c(0x10B,0x89); 
+	cTC_PSROH.write_i2c(0x10C,0x99); 
+	cTC_PSROH.write_i2c(0x10D,0x0A);
+	cTC_PSROH.toggle_2v5(); //enable 2v5
+        std::this_thread::sleep_for (std::chrono::milliseconds (1) ); 
+	cTC_PSROH.write_i2c(0x109,0xC1); //toggle_2v5 control on
+	i=0;
+	while(!(cTC_PSROH.read_i2c(0x1A1)&0b00000010) && i<2 ) {std::cout << "toggle_2v5 in progress\n"; i++;std::cout << cTC_PSROH.read_i2c(0x1A1) << "\n";}
+	cTC_PSROH.toggle_2v5(); //disable 2v5
+	cTC_PSROH.write_i2c(0x109,0xC0); //toggle_2v5 control off
+
+	cTC_PSROH.write_i2c(0x10E,0x00); // Address high of 32bit block to be fused
+	cTC_PSROH.write_i2c(0x10F,0x30); // Address low of 32bit block to be fused
+	cTC_PSROH.write_i2c(0x10A,0x1A); 
+	cTC_PSROH.write_i2c(0x10B,0x2A); 
+	cTC_PSROH.write_i2c(0x10C,0x3A); 
+	cTC_PSROH.write_i2c(0x10D,0x0A);
+	cTC_PSROH.toggle_2v5(); //enable 2v5
+        std::this_thread::sleep_for (std::chrono::milliseconds (1) ); 
+	cTC_PSROH.write_i2c(0x109,0xC1); //toggle_2v5 control on
+	i=0;
+	while(!(cTC_PSROH.read_i2c(0x1A1)&0b00000010) && i<2 ) {std::cout << "toggle_2v5 in progress\n"; i++;std::cout << cTC_PSROH.read_i2c(0x1A1) << "\n";}
+	cTC_PSROH.toggle_2v5(); //disable 2v5
+	cTC_PSROH.write_i2c(0x109,0xC0); //toggle_2v5 control off
+
+	cTC_PSROH.write_i2c(0x10E,0x00); // Address high of 32bit block to be fused
+	cTC_PSROH.write_i2c(0x10F,0x34); // Address low of 32bit block to be fused
+	cTC_PSROH.write_i2c(0x10A,0x64); 
+	cTC_PSROH.write_i2c(0x10B,0x00); 
+	cTC_PSROH.write_i2c(0x10C,0x80); 
+	cTC_PSROH.write_i2c(0x10D,0x18);
+	cTC_PSROH.toggle_2v5(); //enable 2v5
+        std::this_thread::sleep_for (std::chrono::milliseconds (1) ); 
+	cTC_PSROH.write_i2c(0x109,0xC1); //toggle_2v5 control on
+	i=0;
+	while(!(cTC_PSROH.read_i2c(0x1A1)&0b00000010) && i<2 ) {std::cout << "toggle_2v5 in progress\n"; i++;std::cout << cTC_PSROH.read_i2c(0x1A1) << "\n";}
+	cTC_PSROH.toggle_2v5(); //disable 2v5
+	cTC_PSROH.write_i2c(0x109,0xC0); //toggle_2v5 control off
+
+	cTC_PSROH.write_i2c(0x10E,0x00); // Address high of 32bit block to be fused
+	cTC_PSROH.write_i2c(0x10F,0x38); // Address low of 32bit block to be fused
+	cTC_PSROH.write_i2c(0x10A,0x00); 
+	cTC_PSROH.write_i2c(0x10B,0x40); 
+	cTC_PSROH.write_i2c(0x10C,0x20); 
+	cTC_PSROH.write_i2c(0x10D,0x03);
+	cTC_PSROH.toggle_2v5(); //enable 2v5
+        std::this_thread::sleep_for (std::chrono::milliseconds (1) ); 
+	cTC_PSROH.write_i2c(0x109,0xC1); //toggle_2v5 control on
+	i=0;
+	while(!(cTC_PSROH.read_i2c(0x1A1)&0b00000010) && i<2 ) {std::cout << "toggle_2v5 in progress\n"; i++;std::cout << cTC_PSROH.read_i2c(0x1A1) << "\n";}
+	cTC_PSROH.toggle_2v5(); //disable 2v5
+	cTC_PSROH.write_i2c(0x109,0xC0); //toggle_2v5 control off
+
+	cTC_PSROH.write_i2c(0x10E,0x00); // Address high of 32bit block to be fused
+	cTC_PSROH.write_i2c(0x10F,0xEC); // Address low of 32bit block to be fused
+	cTC_PSROH.write_i2c(0x10A,0x00); 
+	cTC_PSROH.write_i2c(0x10B,0x00); 
+	cTC_PSROH.write_i2c(0x10C,0x00); 
+	cTC_PSROH.write_i2c(0x10D,0x07);
+	cTC_PSROH.toggle_2v5(); //enable 2v5
+        std::this_thread::sleep_for (std::chrono::milliseconds (1) ); 
+	cTC_PSROH.write_i2c(0x109,0xC1); //toggle_2v5 control on
+	i=0;
+	while(!(cTC_PSROH.read_i2c(0x1A1)&0b00000010) && i<2 ) {std::cout << "toggle_2v5 in progress\n"; i++;std::cout << cTC_PSROH.read_i2c(0x1A1) << "\n";}
+	cTC_PSROH.toggle_2v5(); //disable 2v5
+	cTC_PSROH.write_i2c(0x109,0xC0); //toggle_2v5 control off
+	*/
 	/* ////////////////////////////////////////ADC measurements///////////////////////
 	cTC_PSROH.write_i2c(0x113,0b00000000);
 	cTC_PSROH.write_i2c(0x112,0b00111111);
