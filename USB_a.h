@@ -16,7 +16,7 @@ class CP2130
 {
     public:
     enum cs_line:char{cs0,cs1,cs2,cs3,cs4,cs5,cs6,cs7,cs8,cs9,cs10};
-    enum device:char{ADG731,SI8902,ADG714,ADG1414,AD5231,LTC6903,MCP4921,SC18IS600,ATSAMD51P20A0A_PSPOH};
+    enum device:char{ADG731,SI8902,ADG714,ADG1414,AD5231,LTC6903,MCP4921,SC18IS600,ADG738,ATSAMD51P20A0A_PSPOH};
     CP2130();
     ~CP2130();
     int initialize();
@@ -161,6 +161,57 @@ class TC_PSROH
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
 
 
+class TC_PSPOH
+{
+    public:
+    enum measurement:char{};
+    
+    TC_PSPOH();
+    TC_PSPOH(uint32_t,uint8_t); // constructor for multi usb applications // arguments : bus, device number (lsusb) // can be called only once and then revert to the empty one
+    ~TC_PSPOH();
+    const char* get_product_string(); // pointer to the ID product
+    private:
+    static CP2130 cCP2130; // declare CP2130 object    
+    //Card Id// Full after creating a TC_PSROH object
+    //char product_string[64]; // Product string
+    static std::string product_string;
+    //       //
+    static bool is_initialized; // initialization of test card only occurs once
+};
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
+
+class TC_2SFE_V2
+{
+    public:
+    enum measurement:char{AMUX,ISEN_1V4, ANT_PULL, _3V3, ISEN_3V3, _1V4, _1V25_REG, _1V25_HYB, THERM_SENSE}; // Available on-board measurements
+    enum ant_channel:char{NONE,_1,_2,_3,_4,ALL}; // Antenna Options
+    enum v_control:char{_800mV,_850mV,_900mV,_950mV,_1000mV,_1050mV,_1100mV,_1150mV,_1200mV,_1250mV,_1300mV,_1350mV,_1400mV}; // Voltage Control Options
+    TC_2SFE_V2();
+    TC_2SFE_V2(uint32_t,uint8_t); // constructor for multi usb applications // arguments : bus, device number (lsusb) // can be called only once and then revert to the empty one
+    ~TC_2SFE_V2();
+    int adc_get(measurement,float&);
+    int antenna_fc7(uint16_t,ant_channel); //arguments: Potentiometer value, Antenna channel , -2430 + 4.76*dacValue = PULLUP(mV)
+    int set_voltage(v_control);// argument: 1V25_CONTROL
+    int toggle_led();   
+    const char* get_product_string(); // pointer to the ID product
+    private:
+    static CP2130 cCP2130; // declare CP2130 object
+    static char adg714_state; //saved state of adg714, during operation
+    static uint16_t saved_pot_value; // saved value of potentiometer, during operation
+    static bool is_initialized; // initialization of test card only occurs once
+    float ADC_VREF=1.25;
+    static bool test_led_state;
+    const static uint8_t antenna_mask=0x0F; // mask for bits/switches corresponding to antenna channel control - the rest are for voltage control
+    //Card Id// Full after creating a TC_2SFE object
+    static std::string product_string; // Product string
+    //       //
+    const static int fTempLookUpTableSize = 34;
+    float fTempLookUpTable[fTempLookUpTableSize] = {848, 804, 755, 701, 643, 584, 525, // 848 corresponds to -40 deg C, steps every 5 degree
+                                                    467, 413, 362, 315, 273, 236, 203, 175, 150, 129, 111, 95,
+                                                    82, 71, 61, 53, 46, 40, 35, 31, 27, 24, 21, 18, 16, 14, 13
+                                                   }; // 13 corresponds to 125 deg C
+};
 
 
 #endif
