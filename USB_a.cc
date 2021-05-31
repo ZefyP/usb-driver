@@ -100,17 +100,17 @@ int TC_2SFE_V2::adc_get(measurement m, float& output)
     buff_s_adc[8]=0b11010011; buff_s_mux[8]=0b00000000;//default: Mux input for adc, all off for Mux
     switch (m)
     {
-        case AMUX:        buff_s_adc[8]=0b11000011;   break;
-        case THERM_SENSE: buff_s_adc[8]=0b11100011;   break;
-        case ISEN_1V4:    buff_s_mux[8]=2;  conv=2;   break;
-        case ANT_PULL:    buff_s_mux[8]=4;  conv=4;   break;
-        case _3V3:        buff_s_mux[8]=8;  conv=4;   break;
-        case ISEN_3V3:    buff_s_mux[8]=16; conv=4;   break;
-        case _1V4:        buff_s_mux[8]=32; conv=2;   break;
-        case _1V25_REG:   buff_s_mux[8]=64; conv=2;   break;
-        case _1V25_HYB:   buff_s_mux[8]=128;conv=2;   break;
+        case AMUX:        buff_s_adc[8]=0b11000011;           break;
+        case THERM_SENSE: buff_s_adc[8]=0b11100011;           break;
+        case ISEN_1V4:    buff_s_mux[8]=0b00000010; conv=2;   break;
+        case ANT_PULL:    buff_s_mux[8]=0b00000100; conv=4;   break;
+        case _3V3:        buff_s_mux[8]=0000001000; conv=4;   break;
+        case ISEN_3V3:    buff_s_mux[8]=0b00010000; conv=4;   break;
+        case _1V4:        buff_s_mux[8]=0b00100000; conv=2;   break;
+        case _1V25_REG:   buff_s_mux[8]=0b01000000; conv=2;   break;
+        case _1V25_HYB:   buff_s_mux[8]=0b10000000; conv=2;   break;
     }
-    cCP2130.choose_spi(cCP2130.cs6);
+    cCP2130.choose_spi(cCP2130.cs7);
     cCP2130.spi_write(buff_s_mux,sizeof(buff_s_mux));
     std::this_thread::sleep_for(std::chrono::milliseconds(30));
     cCP2130.choose_spi(cCP2130.cs4);
@@ -161,7 +161,7 @@ int TC_2SFE_V2::adc_get(measurement m, float& output)
         output = ( (ADC_value * ADC_VREF) * 1000 * conv ) / 1023;
         break;
     }
-        std::cout << output << std::endl;
+        //std::cout << output << std::endl;
     return 0;
 }
 
