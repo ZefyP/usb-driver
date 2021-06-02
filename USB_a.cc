@@ -1083,9 +1083,9 @@ int CP2130::configure_spi(cs_line c, device d)
         int result2 = usb_control_msg (fUsbHandle, 0x40, 0x33, 0, 0, spi_delay, sizeof(spi_delay), fUsbTimeout);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
+        break;
 	case ATSAMD51P20A0A_PSPOH:
 	data[1]=0b00101101; break;
-        break;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
     int result = usb_control_msg (fUsbHandle, 0x40, 0x31, 0, 0,  data , sizeof (data), fUsbTimeout );

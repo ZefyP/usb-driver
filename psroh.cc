@@ -29,17 +29,6 @@ std::vector<std::pair<int,int>> read_lpgbt_min_config(std::string file)
 int main(){
 
 	TC_PSROH cTC_PSROH;
-	std::cout <<cTC_PSROH.read_i2c(0x020)<<"\n";
-	std::cout <<cTC_PSROH.read_i2c(0x021)<<"\n";
-	std::cout <<cTC_PSROH.read_i2c(0x022)<<"\n";
-	std::cout <<cTC_PSROH.read_i2c(0x023)<<"\n";
-	std::cout <<cTC_PSROH.read_i2c(0x024)<<"\n";
-	std::cout <<cTC_PSROH.read_i2c(0x029)<<"\n";
-	std::cout <<cTC_PSROH.read_i2c(0x02C)<<"\n";
-	std::cout <<cTC_PSROH.read_i2c(0x031)<<"\n";
-	std::cout <<cTC_PSROH.read_i2c(0x035)<<"\n";
-	std::cout <<cTC_PSROH.read_i2c(0x0EF)<<"\n";
-	std::cout <<cTC_PSROH.read_i2c(0x1C7)<<"\n";
 
 	/*
 	auto cRegs = read_lpgbt_min_config("lpgbt_minimal_config.txt");
@@ -389,6 +378,8 @@ cTC_PSROH.write_i2c(0x110,0xA3);//toggle_2v5 magic number
 	//cTC_PSROH.read_i2c(0x176);
 	//I2C MASTERS CKECK END//
 	*/
+
+	/*
 	//FCMD check//
 
 	cTC_PSROH.write_i2c(0x11D,0xFF);
@@ -412,6 +403,7 @@ cTC_PSROH.write_i2c(0x110,0xA3);//toggle_2v5 magic number
 	cTC_PSROH.write_i2c(0x078,0b00111011);
 	cTC_PSROH.write_i2c(0x082,0b01111011);
 
+	*/
 /*
 
 	cTC_PSROH.dac_output(0);
