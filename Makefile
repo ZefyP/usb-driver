@@ -20,6 +20,7 @@ all: $(Objs)
 	#g++ -g -std=c++11 psroh.cc -Llib -lPh2_TCUSB -lusb-1.0 -o psroh.out
 	#g++ -g -std=c++11 2sfeh_v1.cc -Llib -lPh2_TCUSB -o 2sfeh_v1.out
 	#g++ -g -std=c++11 half_skeleton.cc -Llib -lPh2_TCUSB -o half_skeleton.out
+	g++ -g -std=c++11 pspoh.cc -Llib -lPh2_TCUSB -o pspoh.out
 
 clean:
 	rm -f *.o lib/*.so

@@ -238,30 +238,41 @@ TC_PSPOH::TC_PSPOH()
     if(!is_initialized){
     cCP2130.initialize();
     product_string.resize(64,' ');
-    cCP2130.get_product_string(&product_string[0]);
-    cCP2130.gpio_set_output(cCP2130.cs1,1);
-    cCP2130.gpio_set_output(cCP2130.cs2,1);
-    cCP2130.gpio_set_input(cCP2130.cs3);
-    cCP2130.configure_spi(cCP2130.cs0,cCP2130.SI8902);
+    cCP2130.get_product_string(&product_string[1]); //gets ID product descriptor
+    std::cout << "\n\nThe USB Descriptor is " << product_string << std::endl;
+    cCP2130.gpio_set_output(cCP2130.cs1,1); //SYS_RST*
+    cCP2130.gpio_set_output(cCP2130.cs2,1); //CPU_RST* 
+    cCP2130.gpio_set_output(cCP2130.cs8,1); //spi indicator light
+    cCP2130.gpio_set_input(cCP2130.cs3); //RTR ready to read
+    cCP2130.configure_spi(cCP2130.cs0,cCP2130.ATSAMD51P20A0A_PSPOH); //chip select
+
+    cCP2130.choose_spi(cCP2130.cs0);
+    char buff[6] = {'H','I','V','?','\n'}; // com buffer
+    //char buff[6] ={0,0,0,0,1,0,};
+    cCP2130.spi_write (buff,sizeof(buff));
+    std::cout << "\nI passed init spi write " << buff << std::endl;
+ 
+    /////
+    //cCP2130.get_gpio_value(cCP2130.cs10,result);
+ 
     is_initialized=true;
     }
 }
 
-TC_PSPOH::TC_PSPOH(uint32_t bus,uint8_t device)
+
+int TC_PSPOH::get_voltage(measurement m, float& output)
 {
-    if(!is_initialized){
-    cCP2130.initialize(bus,device);
-    product_string.resize(64,' ');
-    cCP2130.get_product_string(&product_string[0]);
-    cCP2130.gpio_set_output(cCP2130.cs1,1);
-    cCP2130.gpio_set_output(cCP2130.cs2,1);
-    cCP2130.gpio_set_input(cCP2130.cs3);
-    cCP2130.configure_spi(cCP2130.cs0,cCP2130.SI8902);
-    is_initialized=true;
-    }
+   //char buff_s_adc[12] = {0, 0, 2, 0, 4, 0, 0, 0, 0, 0xFF, 0xFF,0xFF}, buff_r_adc[4] ={0}; // com buffers for ADC
+   char buff[] ={'H','I','v','?','\r','\n'};
+   cCP2130.choose_spi(cCP2130.cs0);
+   cCP2130.spi_write(buff, sizeof(buff)); //write buffer using SPI
+   
+std::cout << "I passed get_voltagespi write " << buff << std::endl;
+   return 0;
+
 }
 
-TC_PSPOH::~TC_PSPOH() {}
+//TC_PSPOH::~TC_PSPOH() {} ??
 
 
 
@@ -301,6 +312,8 @@ TC_PSROH::TC_PSROH()
     is_initialized=true;
     }
 }
+
+
 
 TC_PSROH::TC_PSROH(uint32_t bus,uint8_t device)
 {
@@ -556,6 +569,7 @@ TC_PSFE::TC_PSFE()
     is_initialized=true;
     }
 }
+
 
 TC_PSFE::TC_PSFE(uint32_t bus,uint8_t device)
 {

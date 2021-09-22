@@ -164,20 +164,32 @@ class TC_PSROH
 class TC_PSPOH
 {
     public:
-    enum measurement:char{};
+    //Available on board measurements
+    enum measurement:char{_HIV,_1V25L,_1V25R,_1V25T,__1VL,_1VR,_2V55};
     
     TC_PSPOH();
-    TC_PSPOH(uint32_t,uint8_t); // constructor for multi usb applications // arguments : bus, device number (lsusb) // can be called only once and then revert to the empty one
-    ~TC_PSPOH();
+
+//    TC_PSPOH(uint32_t,uint8_t); // constructor for multi usb applications // arguments : bus, device number (lsusb) // can be called only once and then revert to the empty one
+
+
+
+    int get_voltage(measurement m, float&);
+
     const char* get_product_string(); // pointer to the ID product
+
     private:
-    static CP2130 cCP2130; // declare CP2130 object    
+    static CP2130 cCP2130; // declare CP2130 object   
+ 
     //Card Id// Full after creating a TC_PSROH object
     //char product_string[64]; // Product string
     static std::string product_string;
-    //       //
     static bool is_initialized; // initialization of test card only occurs once
+
+
+
 };
+
+
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
 
