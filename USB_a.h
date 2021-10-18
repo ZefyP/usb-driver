@@ -173,7 +173,7 @@ class TC_PSPOH
 
 
 
-    int get_voltage(measurement m, float&);
+    int control(measurement m, float&);
 
     const char* get_product_string(); // pointer to the ID product
 

@@ -243,14 +243,14 @@ TC_PSPOH::TC_PSPOH()
     cCP2130.gpio_set_output(cCP2130.cs1,1); //SYS_RST*
     cCP2130.gpio_set_output(cCP2130.cs2,1); //CPU_RST* 
     cCP2130.gpio_set_output(cCP2130.cs8,1); //spi indicator light
-    cCP2130.gpio_set_input(cCP2130.cs3); //RTR ready to read
+    cCP2130.gpio_set_input(cCP2130.cs3);    //RTR ready to read
     cCP2130.configure_spi(cCP2130.cs0,cCP2130.ATSAMD51P20A0A_PSPOH); //chip select
 
     cCP2130.choose_spi(cCP2130.cs0);
-    char buff[6] = {'H','I','V','?','\n'}; // com buffer
+    char buff[6] = {'H','I','V','?','\r','\n'}; // com buffer
     //char buff[6] ={0,0,0,0,1,0,};
     cCP2130.spi_write (buff,sizeof(buff));
-    std::cout << "\nI passed init spi write " << buff << std::endl;
+    std::cout << "\nEnd of initial spi write " << buff << std::endl;
  
     /////
     //cCP2130.get_gpio_value(cCP2130.cs10,result);
@@ -260,14 +260,104 @@ TC_PSPOH::TC_PSPOH()
 }
 
 
-int TC_PSPOH::get_voltage(measurement m, float& output)
+int TC_PSPOH::control(measurement m, float& output)
 {
-   //char buff_s_adc[12] = {0, 0, 2, 0, 4, 0, 0, 0, 0, 0xFF, 0xFF,0xFF}, buff_r_adc[4] ={0}; // com buffers for ADC
-   char buff[] ={'H','I','v','?','\r','\n'};
-   cCP2130.choose_spi(cCP2130.cs0);
-   cCP2130.spi_write(buff, sizeof(buff)); //write buffer using SPI
-   
-std::cout << "I passed get_voltagespi write " << buff << std::endl;
+   cCP2130.choose_spi(cCP2130.cs0); //chip select
+   //char buff[] ={'H','I','V','?','\r','\n'};
+   //cCP2130.spi_write(buff, sizeof(buff)); //send buffer using SPI
+   //std::cout << buff << std::endl;
+
+   std::string buff;
+   //Turn high input voltage on
+   //buff = {'H','I','V',' ','O', 'N', '\r','\n'};
+   buff = "hiv?\r\n";
+   cCP2130.spi_write(&buff[0], sizeof(buff));
+   std::cout << buff << std::endl;
+/*
+  //set load for all channels as percentage of nominal values
+   int  p = 0.5; 
+   char percentage_value = (char)p;
+   buff ={'S','E','T',':','L','O','A','D',' ', percentage_value,'\r','\n'}; //set load x
+   cCP2130.spi_write(buff, sizeof(buff));
+   std::cout << buff << std::endl;
+
+
+   //set load x
+   p = 0.05; //single load value in amps
+   char value = (char)p;
+   buff={'S','E','T',':','L','O','A','D',':','R','1','V','2','5','L',' ', value, '\r','\n'};
+   cCP2130.spi_write(buff, sizeof(buff));
+   std::cout << buff << std::endl;
+
+   //set load x
+   p = 0.05;
+   value = (char)p;
+   buff = {'S','E','T',':','L','O','A','D',':','R','1','V','2','5','R',' ', value, '\r','\n'}; 
+   cCP2130.spi_write(buff, sizeof(buff));
+   std::cout << buff << std::endl;
+
+   //set load x
+   p = 0.05;
+   value = (char)p;
+   buff[] ={'S','E','T',':','L','O','A','D',':','R','1','V','2','5','T',' ', value, '\r','\n'}; 
+   cCP2130.spi_write(buff, sizeof(buff));
+   std::cout << buff << std::endl;
+
+   //set load x
+   p = 0.05; 
+   value = (char)p;
+   buff[] ={'S','E','T',':','L','O','A','D',':','R','1','V','L',' ', value, '\r','\n'}; 
+   cCP2130.spi_write(buff, sizeof(buff));
+   std::cout << buff << std::endl;
+
+   //set load x
+   p = 0.05; //single load value in amps
+   value = (char)p;
+   buff[] ={'S','E','T',':','L','O','A','D',':','R','1','V','R',' ', value, '\r','\n'};
+   cCP2130.spi_write(buff, sizeof(buff));
+   std::cout << buff << std::endl;
+
+   //show load settings
+   buff[] ={'S','E','T',':','L','O','A','D','?','\r','\n'};
+   cCP2130.spi_write(buff, sizeof(buff));
+   std::cout << buff << std::endl;
+
+
+   //get voltage measurements
+   buff[] ={'m','e','a','s',':','h','i','v',':','i','n','?','\r','\n'}; 
+   cCP2130.spi_write(buff, sizeof(buff));
+   std::cout << buff << std::endl;
+   //get current measurements
+   buff[] ={'m','e','a','s',':','h','i','v',':','c','u','r','?','\r','\n'};
+   cCP2130.spi_write(buff, sizeof(buff))
+   std::cout << buff << std::endl;
+
+   //get power in
+   buff[] ={'m','e','a','s',':','P','i','n','?','\r','\n'}; 
+   cCP2130.spi_write(buff, sizeof(buff)); //send buffer using SPI
+   std::cout << buff << std::endl;
+
+   //get power out
+   buff[] ={'m','e','a','s',':','P','o','u','t','?','\r','\n'}; 
+   cCP2130.spi_write(buff, sizeof(buff));
+   std::cout << buff << std::endl;
+
+   //get efficiency
+   buff[] ={'m','e','a','s',':','e','f','f','?','\r','\n'}; 
+   cCP2130.spi_write(buff, sizeof(buff)); 
+   std::cout << buff << std::endl;
+
+   //get Ripples
+   buff[] ={'m','e','a','s',':','R','i','p','?','\r','\n'}; 
+   cCP2130.spi_write(buff, sizeof(buff));
+   std::cout << buff << std::endl; 
+
+   //get temp AMB,PCB,HYB,PTAT
+   buff[] ={'m','e','a','s',':','t','e','m','p','?','\r','\n'}; 
+   cCP2130.spi_write(buff, sizeof(buff));
+
+std::cout << "End of test procedure." << buff << std::endl;
+*/
    return 0;
 
 }

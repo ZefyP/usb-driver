@@ -14,7 +14,7 @@ DevFlags		= -D_GLIBCXX_USE_CXX11_ABI=0
 
 all: $(Objs)
 	$(CC) -std=c++11 -shared -L/usr/lib64/ -lusb -o libPh2_TCUSB.so $(Objs) -pthread
-	mv libPh2_TCUSB.so lib
+	cp libPh2_TCUSB.so lib
 	#g++ -g -std=c++11 2sseh.cc -Llib -lPh2_TCUSB -o 2sseh.out
 	#g++ -g -std=c++11 psfeh.cc -Llib -lPh2_TCUSB -o psfeh.out
 	#g++ -g -std=c++11 psroh.cc -Llib -lPh2_TCUSB -lusb-1.0 -o psroh.out
