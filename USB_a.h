@@ -160,38 +160,38 @@ class TC_PSROH
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
 
-
 class TC_PSPOH
 {
     public:
-    //Available on board measurements
-    enum measurement:char{_HIV,_1V25L,_1V25R,_1V25T,__1VL,_1VR,_2V55};
-    
-    TC_PSPOH();
+    //Public attributes
+    enum measurement:char{THERM_SENSE,_HIV,_1V25L,_1V25R,_1V25T,__1VL,_1VR,_2V55};
+    enum status:char{HIV_STATUS};
 
-//    TC_PSPOH(uint32_t,uint8_t); // constructor for multi usb applications // arguments : bus, device number (lsusb) // can be called only once and then revert to the empty one
-
-
-
+    //Public Fonctions
+    const char* get_product_string();
+    std::string getStattus(status);
     int control(measurement m, float&);
-
-    const char* get_product_string(); // pointer to the ID product
-
+    int toggle_led();
+    int turn_on_led();
+    int turn_off_led();
+    
+    //Constructors and destructors
+    TC_PSPOH();
+    TC_PSPOH(uint32_t,uint8_t); // constructor for multi usb applications // arguments : bus, device number (lsusb) // can be called only once and then revert to the empty one
+    ~TC_PSPOH();
+   
+    
     private:
-    static CP2130 cCP2130; // declare CP2130 object   
- 
-    //Card Id// Full after creating a TC_PSROH object
-    //char product_string[64]; // Product string
+    bool test_led_state = false;
+    //Static members
+    static CP2130 cCP2130;              //Cp2130 class instance
     static std::string product_string;
-    static bool is_initialized; // initialization of test card only occurs once
-
-
-
+    static bool is_initialized;
 };
 
-
-
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
+
+
 
 class TC_2SFE_V2
 {
