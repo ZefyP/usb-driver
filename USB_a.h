@@ -9,7 +9,7 @@
 #include <chrono>
 #include <thread>
 #include <bitset>
-
+#include <libusb-1.0/libusb.h>
 
 
 class CP2130
@@ -34,9 +34,10 @@ class CP2130
     int set_usb_config();
     int get_usb_config();
     void reset_usb();
-    private:
-    usb_dev_handle* fUsbHandle;    
     usb_dev_handle* find_usb_handle();
+    private:
+    usb_dev_handle* fUsbHandle;
+    //usb_dev_handle* find_usb_handle();
     usb_dev_handle* setup_libusb_access();
     int64_t busnum = -1;
     int16_t dvcnum = -1;

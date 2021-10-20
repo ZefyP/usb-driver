@@ -1147,6 +1147,7 @@ int CP2130::gpio_set_output(cs_line c, bool level)
     int result=usb_control_msg(fUsbHandle, 0x40, 0x23, 0, 0,  data, sizeof(data), fUsbTimeout);
     return 0;
 }
+
 int CP2130::choose_spi(cs_line c)
 {
     char data[2]={c,2};
@@ -1154,8 +1155,6 @@ int CP2130::choose_spi(cs_line c)
     int result = usb_control_msg(fUsbHandle, 0x40, 0x25, 0, 0, data, sizeof(data), fUsbTimeout);
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
     return 0;
-    
-
 }
 
 int CP2130::configure_spi(cs_line c, device d)
@@ -1189,49 +1188,113 @@ int CP2130::configure_spi(cs_line c, device d)
         break;
 
 	case ATSAMD51P20A0A_PSPOH:  //----------------------------------------------------------------------------------------------
+        int result2;
+        // char spi_delay[8] = {c, 0b00001111,0, 0, 0, 0, 0, 0}; 
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        // int result2 = usb_control_msg (fUsbHandle, 0x40, 0x33, 0, 0, spi_delay, sizeof(spi_delay), fUsbTimeout);
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
         
-        char spi_delay[8] = {c, 0b00001111,0, 0, 0, 0, 0, 0}; 
+        // data[0] = 0;
+      
+        // result2 = usb_control_msg (fUsbHandle, 0x40, 0x47, 0, 0, &data[0], sizeof(data[0]), fUsbTimeout);
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        // std::cout << "Set clock divider to "<< (uint(data[0]) & 0xFF) << ": " << result2 << std::endl;
+        reset_usb();
+        data[0] = 0x00;
+        data[1] = 0b00001000;
+        result2 = usb_control_msg(fUsbHandle, 0x40, 0x6F, 0xA5F1, 0, data, sizeof(data), fUsbTimeout);
+        std::cout << "Set Lock byte: " << result2 << " bytes write." << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        int result2 = usb_control_msg (fUsbHandle, 0x40, 0x33, 0, 0, spi_delay, sizeof(spi_delay), fUsbTimeout);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        
-        data[0] = 32;
 
-        result2 = usb_control_msg (fUsbHandle, 0x40, 0x47, 0, 0, &data[0], sizeof(data[0]), fUsbTimeout);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        
+        char w_data[20] = {0x03, 0x03, 0x03, 0x03, 0x00, 0x04, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+        result2 = usb_control_msg(fUsbHandle, 0x40, 0x6D, 0xA5F1, 0, w_data, sizeof(w_data), fUsbTimeout);
+        std::cout << "Set pin config: " << result2 << " bytes write." << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
         data[0] = 0;
-	    data[1]=0b00111101;
+	    data[1] = 0b00111111;
         break;
     }                           //----------------------------------------------------------------------------------------------
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    int result = usb_control_msg (fUsbHandle, 0x40, 0x31, 0, 0,  data , sizeof (data), fUsbTimeout );
-    
-    char r_data[11];
+    int result;
+    result = usb_control_msg (fUsbHandle, 0x40, 0x31, 0, 0,  data , sizeof (data), fUsbTimeout );
+
+    char r_data[20];
     usb_control_msg (fUsbHandle, 0xC0, 0x30, 0, 0, r_data, sizeof(r_data), fUsbTimeout);
-    std::cout << "SPI word CS0:" << int(r_data[0]) << std::endl;
+    std::cout << "SPI word CS0: " << (uint(r_data[0]) & 0xFF) << std::endl;
 
     usb_control_msg (fUsbHandle, 0xC0, 0x46, 0, 0, &r_data[0], sizeof(r_data[0]), fUsbTimeout);
-    std::cout << "Clock divider: " << int(r_data[0]) << std::endl;
+    std::cout << "Clock divider: " << (uint(r_data[0]) & 0xFF) << std::endl;
     
     usb_control_msg (fUsbHandle, 0xC0, 0x24, 0, 0, r_data, sizeof(r_data), fUsbTimeout);
-    std::cout << "channel CS enable cs0 : " << (int(r_data[1]) & 0x01) << std::endl << "pin CS enable cs0 : " << (int(r_data[3]>>3) & 0x01) << std::endl;
+    for (size_t i = 0; i < 8; i++)
+    {
+        std::cout << "Cs for channel " << i << ": " << (uint(r_data[1]) & (0x01<<i)) << std::endl;
+    }
+    for (size_t i = 0; i < 3; i++)
+    {
+        std::cout << "Cs for channel " << i+8 << ": " << (uint(r_data[0]) & (0x01<<i)) << std::endl;
+    }
+
+    for (size_t i = 0; i < 5; i++)
+    {
+        std::cout << "Cs for pin " << i << ": " << ((uint(r_data[3]) & (0x08<<i))>>3) << std::endl;
+    }
+    std::cout << "Cs for pin 5: " << (uint(r_data[2]) & 0x01) << std::endl;
+    for (size_t i = 0; i < 5; i++)
+    {
+        std::cout << "Cs for pin " << i+6 << ": " << (uint(r_data[2]) & (0x01<<i+2)) << std::endl;
+    }
+    // std::cout << "channel CS enable 1st : " << (uint(r_data[0]) & 0xFF) << std::endl ;
+    // std::cout << "channel CS enable 2nd : " << (uint(r_data[1]) & 0xFF) << std::endl ;
+    // std::cout << "pin CS enable 1st : " << (uint(r_data[2]) & 0xFF) << std::endl;
+    // std::cout << "pin CS enable 2nd : " << (uint(r_data[3]) & 0xFF) << std::endl << std::endl;
+
+    result = usb_control_msg (fUsbHandle, 0xC0, 0x6C, 0, 0, r_data, sizeof(r_data), fUsbTimeout);
+    std::cout << "Get pin config: " << result << " bytes read."<< std::endl;
+
+    for (size_t i = 0; i < 11; i++)
+    {
+        std::cout << "GPIO." << i << ": " << (uint(r_data[i]) & 0xFF) << std::endl;
+    }
+    std::cout << "Suspend level 1st: " << (uint(r_data[11]) & 0xFF) << std::endl;
+    std::cout << "Suspend level 2nd: " << (uint(r_data[12]) & 0xFF) << std::endl;
     
+    std::cout << "Suspend mode 1st: " << (uint(r_data[13]) & 0xFF) << std::endl;
+    std::cout << "Suspend mode 2nd: " << (uint(r_data[14]) & 0xFF) << std::endl;
+
+    std::cout << "Wakeup mask 1st: " << (uint(r_data[15]) & 0xFF) << std::endl;
+    std::cout << "Wakeup mask 2nd: " << (uint(r_data[16]) & 0xFF) << std::endl;
+    
+    std::cout << "Wakeup match 1st: " << (uint(r_data[17]) & 0xFF) << std::endl;
+    std::cout << "Wakeup match 2nd: " << (uint(r_data[18]) & 0xFF) << std::endl;
+
+    std::cout << "Divider: " << uint(r_data[19]) << std::endl << std::endl;
+
+    data[0] = 0x00;
+    data[1] = 0x08;
+    result = usb_control_msg(fUsbHandle, 0x40, 0x6F, 0xA5F1, 0, data, sizeof(data), fUsbTimeout);
+    std::cout << "Set Lock byte: " << result << " bytes write." << std::endl;
+
+    usb_control_msg(fUsbHandle, 0xC0, 0x6E, 0, 0, r_data, sizeof(r_data), fUsbTimeout);
+    
+    std::cout << "Lock byte 1st: " << (uint(r_data[0]) & 0xFF) << std::endl;
+    std::cout << "Lock byte 2nd: " << (uint(r_data[1]) & 0x0F) << std::endl;
     return 0;
 }
 
 int CP2130::spi_write(char* data, int size)
 {
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    return usb_bulk_write(fUsbHandle, fUsbEndpointBulkOut, data, size, fUsbTimeout );
+    return usb_bulk_write(fUsbHandle, fUsbEndpointBulkOut, data, size, fUsbTimeout);
 }
 
 int CP2130::spi_read(char* data, int size)
 {
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    return usb_bulk_read (fUsbHandle, fUsbEndpointBulkIn, data, size, fUsbTimeout);
+    return usb_bulk_read(fUsbHandle, fUsbEndpointBulkIn, data, size, fUsbTimeout);
+   // int usb_bulk_read(usb_dev_handle *dev, int ep, char *bytes, int size, int timeout);
 }
 
 
