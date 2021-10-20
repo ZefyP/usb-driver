@@ -227,7 +227,7 @@ int TC_2SFE_V2::toggle_led()
 
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
-
+/*
 //init static members of PSPOH
 bool TC_PSPOH::is_initialized=false;
 CP2130 TC_PSPOH::cCP2130; 
@@ -273,7 +273,6 @@ int TC_PSPOH::control(measurement m, float& output)
    buff = "hiv?\r\n";
    cCP2130.spi_write(&buff[0], sizeof(buff));
    std::cout << buff << std::endl;
-/*
   //set load for all channels as percentage of nominal values
    int  p = 0.5; 
    char percentage_value = (char)p;
@@ -357,14 +356,14 @@ int TC_PSPOH::control(measurement m, float& output)
    cCP2130.spi_write(buff, sizeof(buff));
 
 std::cout << "End of test procedure." << buff << std::endl;
-*/
+
    return 0;
 
 }
 
 //TC_PSPOH::~TC_PSPOH() {} ??
 
-
+*/
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
 
@@ -1178,7 +1177,7 @@ int CP2130::configure_spi(cs_line c, device d)
         case AD5231: case LTC6903:
         data[1]=0b00001101; break; // clock generator & digital potentiometer AD5231
         case MCP4921: 
-	data[1]=0b00001010; break; // 12-bit DAC 
+	    data[1]=0b00001010; break; // 12-bit DAC 
         case SC18IS600: 
         data[1]=0b00111011; // SPI TO I2C bridge
         {
@@ -1188,11 +1187,38 @@ int CP2130::configure_spi(cs_line c, device d)
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         break;
-	case ATSAMD51P20A0A_PSPOH:
-	data[1]=0b00101101; break;
-    }
+
+	case ATSAMD51P20A0A_PSPOH:  //----------------------------------------------------------------------------------------------
+        
+        char spi_delay[8] = {c, 0b00001111,0, 0, 0, 0, 0, 0}; 
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        int result2 = usb_control_msg (fUsbHandle, 0x40, 0x33, 0, 0, spi_delay, sizeof(spi_delay), fUsbTimeout);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        
+        data[0] = 32;
+
+        result2 = usb_control_msg (fUsbHandle, 0x40, 0x47, 0, 0, &data[0], sizeof(data[0]), fUsbTimeout);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        
+
+
+        data[0] = 0;
+	    data[1]=0b00111101;
+        break;
+    }                           //----------------------------------------------------------------------------------------------
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
     int result = usb_control_msg (fUsbHandle, 0x40, 0x31, 0, 0,  data , sizeof (data), fUsbTimeout );
+    
+    char r_data[11];
+    usb_control_msg (fUsbHandle, 0xC0, 0x30, 0, 0, r_data, sizeof(r_data), fUsbTimeout);
+    std::cout << "SPI word CS0:" << int(r_data[0]) << std::endl;
+
+    usb_control_msg (fUsbHandle, 0xC0, 0x46, 0, 0, &r_data[0], sizeof(r_data[0]), fUsbTimeout);
+    std::cout << "Clock divider: " << int(r_data[0]) << std::endl;
+    
+    usb_control_msg (fUsbHandle, 0xC0, 0x24, 0, 0, r_data, sizeof(r_data), fUsbTimeout);
+    std::cout << "channel CS enable cs0 : " << (int(r_data[1]) & 0x01) << std::endl << "pin CS enable cs0 : " << (int(r_data[3]>>3) & 0x01) << std::endl;
+    
     return 0;
 }
 
