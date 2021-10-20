@@ -118,8 +118,8 @@ int TC_PSPOH::cpu_reset(){
 }
 
 int TC_PSPOH::get_spi_word(char& word){
-    char r_data;
-    usb_control_msg (cCP2130.find_usb_handle(), 0xC0, 0x30, 0, 0, r_data, sizeof(r_data), fUsbTimeout);
+    char r_data[2];
+    usb_control_msg (cCP2130.find_usb_handle(), 0xC0, 0x30, 0, 0, r_data, sizeof(r_data), 300);
     std::cout << "SPI word CS0:" << int(r_data[0]) << std::endl;
 }
 //Destructor, better to declare it even if it is empty
