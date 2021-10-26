@@ -2,6 +2,7 @@
 #define DEF_TC_PSPOH
 
 #include "USB_a.h"
+#include <usb.h>
 #include <time.h>
 class TC_PSPOH
 {
@@ -21,7 +22,6 @@ class TC_PSPOH
     int system_reset();
     int cpu_reset();  //Doesn't work
 
-    int get_spi_word(char&); //may be done later, need to acces to fUSBHandle (private -> need getter)
     //Constructors and destructors
     TC_PSPOH();
     //TC_PSPOH(uint32_t,uint8_t); // constructor for multi usb applications // arguments : bus, device number (lsusb) // can be called only once and then revert to the empty one

@@ -7,33 +7,26 @@ bool TC_PSPOH::is_initialized=false;
 CP2130 TC_PSPOH::cCP2130; 
 string TC_PSPOH::product_string;
 
-void delay(int number_of_seconds)
-{
-    // Converting time into milli_seconds
-    int milli_seconds = 1000 * number_of_seconds;
-  
-    // Storing start time
-    clock_t start_time = clock();
-  
-    // looping till required time is not achieved
-    while (clock() < start_time + milli_seconds)
-        ;
-}
-
 //Default constructor
 TC_PSPOH::TC_PSPOH()
 {   
     if(!is_initialized){
         cCP2130.initialize();
-        product_string.resize(64,' ');
-        cCP2130.get_product_string(&product_string[1]);                     //gets ID product descriptor
-        cout << "\n\nThe USB Descriptor is " << product_string << endl;
-        cCP2130.gpio_set_output(cCP2130.cs1,1);                             //n_SYSRST
         
+        product_string.resize(64,' ');
+        cCP2130.get_product_string(&product_string[0]);                             //gets ID product descriptor
+        cout << "\n\nThe USB Descriptor is " << product_string << endl;
+        cCP2130.gpio_set_output(cCP2130.cs1,1);                                 //n_SYSRST
         turn_off_led();
-        //cCP2130.gpio_set_input(cCP2130.cs3);                                //RTR ready to read
-        cCP2130.configure_spi(cCP2130.cs0,cCP2130.ATSAMD51P20A0A_PSPOH); //chip select
+        //cCP2130.gpio_set_input(cCP2130.cs3);                                  //RTR ready to read
+        cCP2130.configure_spi(cCP2130.cs0,cCP2130.ATSAMD51P20A0A_PSPOH);        //chip select
+        //cCP2130.choose_spi(cCP2130.cs0);
 
+        // cCP2130.choose_spi(cCP2130.cs0);
+        // char buff_s_adc[12] = {0, 0, 2, 0, 4, 0, 0, 0, 0, 0xFF, 0xFF,0xFF}, buff_r_adc[4] ={0}; // com buffers for ADC
+        // cCP2130.spi_write (buff_s_adc,sizeof(buff_s_adc));
+        // int t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc));
+        
         is_initialized=true;
     }
 }
@@ -53,18 +46,29 @@ int TC_PSPOH::getStatus(status s, string &answer){
 
 int TC_PSPOH::getHV_status(string &answer){
     int w_status=0, r_status = 0;
-
-    char w_buff[6] = {'h','i','v','?',0x0D, 0x0A};
-    char r_buff[10] = {0 ,0 ,0 ,0, 0};
-
     cCP2130.choose_spi(cCP2130.cs0);
+    char w_buff[] = {
+        0x00, 0x00,             // Reserved
+        0x01,                   // Write command
+        0x00,                   // Reserved
+        0x06, 0x00, 0x00, 0x00, // Write 6 bytes, little-endian
+        'h', 'i', 'v', '?', '\r', '\n' // Test data, 6 bytes
+    };
+    string command = "hiv?\r\a";
+    // spitousbwrite(command);
+    // spiwrite()
+    char r_buff[5] = {0 ,0 ,0 ,0, 0};
 
-    turn_on_led();
- 
+   
+    
+    //turn_on_led();
+   
     w_status = cCP2130.spi_write(w_buff,sizeof(w_buff));
+    //turn_off_led();
     //this_thread::sleep_for(chrono::milliseconds(1000));
-    r_status = cCP2130.spi_read(r_buff,sizeof(r_buff));
-    turn_off_led();
+    //turn_on_led();
+    //r_status = cCP2130.spi_read(r_buff,sizeof(r_buff));
+    //turn_off_led();
 
     if(w_status > 0){
         cout << w_status << " bytes write on spi" << endl;
@@ -117,10 +121,5 @@ int TC_PSPOH::cpu_reset(){
     return 0;
 }
 
-int TC_PSPOH::get_spi_word(char& word){
-    char r_data[2];
-    usb_control_msg (cCP2130.find_usb_handle(), 0xC0, 0x30, 0, 0, r_data, sizeof(r_data), 300);
-    std::cout << "SPI word CS0:" << int(r_data[0]) << std::endl;
-}
 //Destructor, better to declare it even if it is empty
 TC_PSPOH::~TC_PSPOH() {}
