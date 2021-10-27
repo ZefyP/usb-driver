@@ -1,20 +1,23 @@
-# Makefile for Writing Make Files Example
+ Makefile for Writing Make Files Example
  
 # *****************************************************
 # Variables to control Makefile operation
-TARGET = hello_world
+TARGET = main
 CC = g++
-CFLAGS = -Wall -g -std=c++11
+CFLAGS = -Wall -g 
 # ****************************************************
 # Targets needed to bring the executable up to date
  
-hello_world: hello_world.o
+main: main.o
 	$(CC) $(CFLAGS) -o $(TARGET) $(TARGET).o
  
-# The hello_world.o target can be written more simply
+# The main.o target can be written more simply
  
 $(TARGET).o: $(TARGET).cpp
 	$(CC) $(CFLAGS) -c $(TARGET).cpp
 
+
 clean:
 	$(RM) $(TARGET) $(TARGET).o
+
+
