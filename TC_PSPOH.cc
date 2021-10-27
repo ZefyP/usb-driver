@@ -15,8 +15,7 @@ TC_PSPOH::TC_PSPOH()
         /*cCP2130.initialize();
         
         //System reset
-        cCP2130.gpio_set_output(cCP2130.cs1,0);                                 //n_SYSRST
-        cCP2130.gpio_set_output(cCP2130.cs1,1);                                 //n_SYSRST
+        system_reset();
         cCP2130.reset_usb();
         cCP2130.close();
         //TC_PSPOH need some time to init
@@ -33,12 +32,13 @@ TC_PSPOH::TC_PSPOH()
         //SPI buffer
         turn_off_led();
         //cCP2130.gpio_set_input(cCP2130.cs3);                                  //RTR ready to read
-        cCP2130.configure_spi(cCP2130.cs0,cCP2130.ATSAMD51P20A0A_PSPOH);        //chip select
 
-        cCP2130.choose_spi(cCP2130.cs4);
-        char buff_s_adc[12] = {0, 0, 2, 0, 4, 0, 0, 0, 0, 0xFF, 0xFF,0xFF}, buff_r_adc[4] ={0}; // com buffers for ADC
-        cCP2130.spi_write (buff_s_adc,sizeof(buff_s_adc));
-        int t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc));
+        cCP2130.configure_spi(cCP2130.cs0,cCP2130.ATSAMD51P20A0A_PSPOH);
+
+        // cCP2130.choose_spi(cCP2130.cs4);
+        // char buff_s_adc[12] = {0, 0, 2, 0, 4, 0, 0, 0, 0, 0xFF, 0xFF,0xFF}, buff_r_adc[6] ={0}; // com buffers for ADC
+        // cCP2130.spi_write (buff_s_adc,sizeof(buff_s_adc));
+        // int t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc));
 
         is_initialized=true;
     }
@@ -56,10 +56,30 @@ int TC_PSPOH::getStatus(status s, string &answer){
     }
     return 0;
 }
+//#define DEBUGO
 int TC_PSPOH::spi_read(string& answer, int len){
     
-    int r_status = 0;    
+    int r_status = 0;
     char read_command_buf[8];
+    read_command_buf[0] = 0x00;
+    read_command_buf[1] = 0x00;
+    read_command_buf[2] = 0x00;
+    read_command_buf[3] = 0x00;
+    read_command_buf[4] = 0x01%0xFF;
+    read_command_buf[5] = (0x01/0xFF)%0xFF;
+    read_command_buf[6] = (0x01/0xFFFF)%0xFF;
+    read_command_buf[7] = (0x01/0xFFFFFF)%0xFF;
+
+    char read_input_buf[len];
+    char garbage_buff[1];
+    cCP2130.choose_spi(cCP2130.cs0);
+    turn_on_led();
+
+    //Send read commande
+    cCP2130.spi_write(read_command_buf,sizeof(read_command_buf));
+    //Reading
+    r_status = cCP2130.spi_read(garbage_buff,sizeof(garbage_buff));
+
     read_command_buf[0] = 0x00;
     read_command_buf[1] = 0x00;
     read_command_buf[2] = 0x00;
@@ -68,10 +88,6 @@ int TC_PSPOH::spi_read(string& answer, int len){
     read_command_buf[5] = (len/0xFF)%0xFF;
     read_command_buf[6] = (len/0xFFFF)%0xFF;
     read_command_buf[7] = (len/0xFFFFFF)%0xFF;
-    char read_input_buf[len];
-
-    cCP2130.choose_spi(cCP2130.cs0);
-    turn_on_led();
 
     //Send read commande
     cCP2130.spi_write(read_command_buf,sizeof(read_command_buf));
@@ -86,19 +102,29 @@ int TC_PSPOH::spi_read(string& answer, int len){
        
         cout << r_status << " bytes read from spi" << endl;
         answer = string(read_input_buf);
-        rotate(answer.begin(), answer.begin() + 2, answer.end());  
         cout << "'" << endl;
+        #ifdef DEBUGO
         for (size_t i = 0; i < sizeof(read_input_buf); i++)
         {
-            cout << int(read_input_buf[i]) << endl;
+            if (read_input_buf[i] == '\n'){
+                cout << "[NL]" << endl;
+            }
+            else if (read_input_buf[i] == '\r'){
+                cout << "[CR]" << endl;
+            }
+            else{
+                cout << hex << read_input_buf[i] << dec << endl;
+            }
         }
         cout << "'" << endl;
+        #endif
     }
     else{
         cout << "Unknow SPI Read status : " << r_status << endl;
     }
     return r_status;
 }
+
 int TC_PSPOH::spi_write(const std::string& command){
     //Local variables déclaration
     int w_status=0;
@@ -139,10 +165,15 @@ int TC_PSPOH::spi_write(const std::string& command){
 }
 
 int TC_PSPOH::getHV_status(string &answer){
-    int r_status = 0;
+    int r_status = 0, w_status = 0;
+    //Write on SPI
+    w_status = spi_write("hiv?\r\n");
 
-    spi_write("hiv?\r\n");
+    if(w_status <= 0){
+        return w_status;
+    }
 
+    //Read on SPI
     r_status = spi_read(answer,5);
 
     return r_status;
