@@ -4,6 +4,8 @@
 #include "USB_a.h"
 #include <usb.h>
 #include <time.h>
+#include <iostream>
+#include <iomanip>
 class TC_PSPOH
 {
     public:
@@ -21,7 +23,7 @@ class TC_PSPOH
     int turn_off_led();
     int system_reset();
     int cpu_reset();  //Doesn't work
-
+    int spi_write(const std::string&);
     //Constructors and destructors
     TC_PSPOH();
     //TC_PSPOH(uint32_t,uint8_t); // constructor for multi usb applications // arguments : bus, device number (lsusb) // can be called only once and then revert to the empty one
