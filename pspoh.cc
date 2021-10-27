@@ -4,7 +4,6 @@
 #include <thread>
 #include <vector>
 
-
 int main(){
    // TC_PSFE_V2 card;
    //float result;
@@ -13,10 +12,9 @@ int main(){
     TC_PSPOH card;
     float result;
     card.control(card._HIV,result);
+   // std::cout << TC_PSPOH::is_initialized << "\n" << std::endl;
     std::cout << result << "\n\n" << std::endl;
  
     return 0;
     //return result;
 }
-
-//%%%%%%%%%%
