@@ -56,72 +56,26 @@ int TC_PSPOH::getStatus(status s, string &answer){
     }
     return 0;
 }
-
-int TC_PSPOH::spi_write(const std::string& command){
-    int w_status=0;
-    int len = command.length();
-    char write_command_buf[len+8];
-    write_command_buf[0] = 0x00;
-    write_command_buf[1] = 0x00;
-    write_command_buf[2] = 0x01;
-    write_command_buf[3] = 0x00;
-    write_command_buf[4] = len%0xFF;
-    write_command_buf[5] = (len/0xFF)%0xFF;
-    write_command_buf[6] = (len/0xFFFF)%0xFF;
-    write_command_buf[7] = (len/0xFFFFFF)%0xFF;
-    for (size_t i = 0; i < len ; i++){
-        write_command_buf[i+8] = char(command[i]);
-
-        #ifdef DEBUGO
-        cout << command[i];
-        #endif
-
-    }
-
-    #ifdef DEBUGO
-    cout << endl;
-    cout << "Write buff :" << endl;
-    for (size_t i = 0; i < len+8; i++){
-        cout << showbase << internal << setfill('0');
-        cout << hex << setw(4) << int(write_command_buf[i]) << dec << endl;
-    }
-    cout << write_command_buf << endl;
-    #endif
-
-    cCP2130.choose_spi(cCP2130.cs0);
-    turn_on_led();
-    w_status = cCP2130.spi_write(write_command_buf,sizeof(write_command_buf));
-    turn_off_led();
-    if(w_status > 0){
-        cout << w_status << " bytes write on spi" << endl;
-    }
-    else{
-        cout << "Unknow SPI Write status : " << w_status << endl;
-    }
-
-    return w_status;
-}
-int TC_PSPOH::getHV_status(string &answer){
-    int r_status = 0;
-
-    cCP2130.choose_spi(cCP2130.cs0);
+int TC_PSPOH::spi_read(string& answer, int len){
     
-    char read_command_buf[] = {
-        0x00, 0x00,             // Reserved
-        0x00,                   // WriteRead command
-        0x00,                   // Reserved
-        0x05, 0x00, 0x00, 0x00  // Read 5 bytes, little-endian
-    };
+    int r_status = 0;    
+    char read_command_buf[8];
+    read_command_buf[0] = 0x00;
+    read_command_buf[1] = 0x00;
+    read_command_buf[2] = 0x00;
+    read_command_buf[3] = 0x00;
+    read_command_buf[4] = len%0xFF;
+    read_command_buf[5] = (len/0xFF)%0xFF;
+    read_command_buf[6] = (len/0xFFFF)%0xFF;
+    read_command_buf[7] = (len/0xFFFFFF)%0xFF;
+    char read_input_buf[len];
 
-    char read_input_buf[5] = {0x00, 0x00, 0x00, 0x00, 0x00};
-
-    spi_write("hiv?\r\n");
-
+    cCP2130.choose_spi(cCP2130.cs0);
     turn_on_led();
 
-    //READ COMMAND !!
+    //Send read commande
     cCP2130.spi_write(read_command_buf,sizeof(read_command_buf));
-
+    //Reading
     r_status = cCP2130.spi_read(read_input_buf,sizeof(read_input_buf));
     turn_off_led();
 
@@ -129,8 +83,10 @@ int TC_PSPOH::getHV_status(string &answer){
         cout << "SPI Read Timout" << endl;
     }
     else if(r_status > 0){
+       
         cout << r_status << " bytes read from spi" << endl;
         answer = string(read_input_buf);
+        rotate(answer.begin(), answer.begin() + 2, answer.end());  
         cout << "'" << endl;
         for (size_t i = 0; i < sizeof(read_input_buf); i++)
         {
@@ -141,6 +97,53 @@ int TC_PSPOH::getHV_status(string &answer){
     else{
         cout << "Unknow SPI Read status : " << r_status << endl;
     }
+    return r_status;
+}
+int TC_PSPOH::spi_write(const std::string& command){
+    //Local variables déclaration
+    int w_status=0;
+    int len = command.length();
+    char write_command_buf[len+8];
+
+    //Local variables init.
+    write_command_buf[0] = 0x00;
+    write_command_buf[1] = 0x00;
+    write_command_buf[2] = 0x01;
+    write_command_buf[3] = 0x00;
+    write_command_buf[4] = len%0xFF;
+    write_command_buf[5] = (len/0xFF)%0xFF;
+    write_command_buf[6] = (len/0xFFFF)%0xFF;
+    write_command_buf[7] = (len/0xFFFFFF)%0xFF;
+    for (size_t i = 0; i < len ; i++){
+        write_command_buf[i+8] = char(command[i]);
+    }
+
+    //Select uC cs 
+    cCP2130.choose_spi(cCP2130.cs0);
+
+    turn_on_led();
+    //Writing
+    w_status = cCP2130.spi_write(write_command_buf,sizeof(write_command_buf));
+    
+    turn_off_led();
+
+    //Status
+    if(w_status > 0){
+        cout << w_status << " bytes write on spi" << endl;
+    }
+    else{
+        cout << "Unknow SPI Write status : " << w_status << endl;
+    }
+
+    return w_status;
+}
+
+int TC_PSPOH::getHV_status(string &answer){
+    int r_status = 0;
+
+    spi_write("hiv?\r\n");
+
+    r_status = spi_read(answer,5);
 
     return r_status;
 }
