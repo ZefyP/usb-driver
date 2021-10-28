@@ -16,6 +16,12 @@ pspoh: pspoh.o TC_PSPOH.o
 $(TARGET).o: $(TARGET).cc TC_PSPOH.h USB_a.h
 	g++ -g -std=c++11 -c $(TARGET).cc
 
+reseter: reseter.o TC_PSPOH.o 
+	g++ -g -std=c++11 -Llib -lPh2_TCUSB -o reseter reseter.o TC_PSPOH.o 
+
+reseter.o: reseter.cc TC_PSPOH.h USB_a.h
+	g++ -g -std=c++11 -c reseter.cc
+
 TC_PSPOH.o: TC_PSPOH.h
 
 USB_a.o: USB_a.h

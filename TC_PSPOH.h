@@ -25,6 +25,8 @@ class TC_PSPOH
     int cpu_reset();  //Doesn't work
     int spi_write(const std::string&);
     int spi_read(std::string&, int);
+    int wait_for_RTR();
+    int wait_for_nRTR();
     //Constructors and destructors
     TC_PSPOH();
     //TC_PSPOH(uint32_t,uint8_t); // constructor for multi usb applications // arguments : bus, device number (lsusb) // can be called only once and then revert to the empty one

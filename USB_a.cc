@@ -1193,34 +1193,58 @@ int CP2130::configure_spi(cs_line c, device d)
         // std::this_thread::sleep_for(std::chrono::milliseconds(1));
         // int result2 = usb_control_msg (fUsbHandle, 0x40, 0x33, 0, 0, spi_delay, sizeof(spi_delay), fUsbTimeout);
         // std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        
+
         // data[0] = 0;
-      
+
         // result2 = usb_control_msg (fUsbHandle, 0x40, 0x47, 0, 0, &data[0], sizeof(data[0]), fUsbTimeout);
         // std::this_thread::sleep_for(std::chrono::milliseconds(1));
         // std::cout << "Set clock divider to "<< (uint(data[0]) & 0xFF) << ": " << result2 << std::endl;
-        reset_usb();
-        data[0] = 0x00;
-        data[1] = 0b00001000;
-        result2 = usb_control_msg(fUsbHandle, 0x40, 0x6F, 0xA5F1, 0, data, sizeof(data), fUsbTimeout);
-        std::cout << "Set Lock byte: " << result2 << " bytes write." << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-        char w_data[20] = {0x03, 0x03, 0x03, 0x03, 0x00, 0x04, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        // result2 = usb_control_msg (fUsbHandle, 0x40, 0x10, 0, 0, NULL, 0, fUsbTimeout);
+        // std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        // std::cout << "Reset the device"<< std::endl;
+        // //close();
+        //     usb_release_interface ( fUsbHandle, 0 );
+        // usb_close ( fUsbHandle );
+        //fUsbHandle = NULL;
+        //set_usb_config();
+        // if ( ( fUsbHandle = setup_libusb_access() ) == NULL );
+        // {
+        //     std::cout << "Failed to connect with CP2130, check if it is plugged in the USB port." << std::endl;
+        //     exit ( -1 ); 
+        // }
+        // get_usb_config();
+        // usb_reset ( fUsbHandle ); // MISO doesn't work wihthout this...
+        
+        // data[0] = 0x00;
+        // data[1] = 0x08;
+        // result2 = usb_control_msg(fUsbHandle, 0x40, 0x6F, 0, 0, data, sizeof(data), fUsbTimeout);
+        // std::cout << "Set Lock byte: " << result2 << " bytes write." << std::endl;
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        
+        // char w_data[20] = {0x03, 0x02, 0x02, 0x04, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 125, 248, 144, 9, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-        result2 = usb_control_msg(fUsbHandle, 0x40, 0x6D, 0xA5F1, 0, w_data, sizeof(w_data), fUsbTimeout);
-        std::cout << "Set pin config: " << result2 << " bytes write." << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        // result2 = usb_control_msg(fUsbHandle, 0x40, 0x6D, 0, 0, w_data, sizeof(w_data), fUsbTimeout);
+        // std::cout << "Set pin config: " << result2 << " bytes write." << std::endl;
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-        data[0] = 0;
-	    data[1] = 0b00111111;
+        //data[0] = 0;
+        // data[1]=0b00111101;
+        // {
+        // char spi_delay[8] = {c, 0x0F,0, 1, 0, 0, 0, 1};
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        // int result2 = usb_control_msg (fUsbHandle, 0x40, 0x33, 0, 0, spi_delay, sizeof(spi_delay), fUsbTimeout);
+        // }
+        //data[1] = 0b00011101;
+	    data[1] = 0b00100111;
         break;
     }                           //----------------------------------------------------------------------------------------------
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
     int result;
+    char r_data[21];
     result = usb_control_msg (fUsbHandle, 0x40, 0x31, 0, 0,  data , sizeof (data), fUsbTimeout );
-
-    char r_data[20];
+    /*
+   
     usb_control_msg (fUsbHandle, 0xC0, 0x30, 0, 0, r_data, sizeof(r_data), fUsbTimeout);
     std::cout << "SPI word CS0: " << (uint(r_data[0]) & 0xFF) << std::endl;
 
@@ -1246,10 +1270,6 @@ int CP2130::configure_spi(cs_line c, device d)
     {
         std::cout << "Cs for pin " << i+6 << ": " << (uint(r_data[2]) & (0x01<<i+2)) << std::endl;
     }
-    // std::cout << "channel CS enable 1st : " << (uint(r_data[0]) & 0xFF) << std::endl ;
-    // std::cout << "channel CS enable 2nd : " << (uint(r_data[1]) & 0xFF) << std::endl ;
-    // std::cout << "pin CS enable 1st : " << (uint(r_data[2]) & 0xFF) << std::endl;
-    // std::cout << "pin CS enable 2nd : " << (uint(r_data[3]) & 0xFF) << std::endl << std::endl;
 
     result = usb_control_msg (fUsbHandle, 0xC0, 0x6C, 0, 0, r_data, sizeof(r_data), fUsbTimeout);
     std::cout << "Get pin config: " << result << " bytes read."<< std::endl;
@@ -1258,6 +1278,7 @@ int CP2130::configure_spi(cs_line c, device d)
     {
         std::cout << "GPIO." << i << ": " << (uint(r_data[i]) & 0xFF) << std::endl;
     }
+
     std::cout << "Suspend level 1st: " << (uint(r_data[11]) & 0xFF) << std::endl;
     std::cout << "Suspend level 2nd: " << (uint(r_data[12]) & 0xFF) << std::endl;
     
@@ -1272,16 +1293,24 @@ int CP2130::configure_spi(cs_line c, device d)
 
     std::cout << "Divider: " << uint(r_data[19]) << std::endl << std::endl;
 
-    data[0] = 0x00;
-    data[1] = 0x08;
-    result = usb_control_msg(fUsbHandle, 0x40, 0x6F, 0xA5F1, 0, data, sizeof(data), fUsbTimeout);
-    std::cout << "Set Lock byte: " << result << " bytes write." << std::endl;
-
-    usb_control_msg(fUsbHandle, 0xC0, 0x6E, 0, 0, r_data, sizeof(r_data), fUsbTimeout);
+    char r_data_Lock[2];
+    result = usb_control_msg(fUsbHandle, 0xC0, 0x6E, 0, 0, r_data_Lock, sizeof(r_data_Lock), fUsbTimeout);
     
-    std::cout << "Lock byte 1st: " << (uint(r_data[0]) & 0xFF) << std::endl;
-    std::cout << "Lock byte 2nd: " << (uint(r_data[1]) & 0x0F) << std::endl;
+    std::cout << "Read " << result << "byte(s)" << std::endl;
+    std::cout << "Lock byte 1st: " << (uint(r_data_Lock[0]) & 0xFF) << std::endl;
+    std::cout << "Lock byte 2nd: " << (uint(r_data_Lock[1]) & 0x0F) << std::endl;
+    */
     return 0;
+}
+
+// Aborts the current ReadWithRTR command
+int CP2130::stopRTR()
+{
+    char controlBufferOut[1] = {
+        0x01  // Abort current ReadWithRTR command
+    };
+
+    return usb_control_msg(fUsbHandle, 0x40, 0x37, 0, 0, controlBufferOut, sizeof(controlBufferOut), fUsbTimeout);
 }
 
 int CP2130::spi_write(char* data, int size)
@@ -1334,7 +1363,7 @@ int CP2130::get_gpio_value(cs_line c, bool& level)
         case cs10:
         level=(data[0]&0b01000000)!=0;break;
     }
-    return 0;
+    return result;
 }
 
 int CP2130::set_usb_config()
@@ -1370,6 +1399,7 @@ usb_dev_handle* CP2130::find_usb_handle()
 
                 if ( ! ( handle = usb_open ( dev ) ) )
                 {
+                    std::cout << "exit(0)";
                     exit(0);
                     return NULL;
                 }
@@ -1394,7 +1424,7 @@ usb_dev_handle* CP2130::setup_libusb_access()
     {
         std::cout << "Couldn't find the USB device, Exiting" << std::endl;
         std::cin.ignore();
-        exit(0);
+       // exit(0);
         return NULL;
     }
 
@@ -1408,7 +1438,7 @@ usb_dev_handle* CP2130::setup_libusb_access()
     if ( usb_claim_interface ( usb_handle, INTERF ) < 0 )
     {
         std::cout << "Could not claim interface: " << std::endl;
-        exit(0);
+        //exit(0);
         return NULL;
     }
 

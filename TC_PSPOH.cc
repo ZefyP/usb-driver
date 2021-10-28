@@ -58,12 +58,12 @@ int TC_PSPOH::getStatus(status s, string &answer){
 }
 //#define DEBUGO
 int TC_PSPOH::spi_read(string& answer, int len){
-    
+    answer.resize(len);
     int r_status = 0;
     char read_command_buf[8];
     read_command_buf[0] = 0x00;
     read_command_buf[1] = 0x00;
-    read_command_buf[2] = 0x00;
+    read_command_buf[2] = 0x04;
     read_command_buf[3] = 0x00;
     read_command_buf[4] = 0x01%0xFF;
     read_command_buf[5] = (0x01/0xFF)%0xFF;
@@ -72,17 +72,19 @@ int TC_PSPOH::spi_read(string& answer, int len){
 
     char read_input_buf[len];
     char garbage_buff[1];
+    
     cCP2130.choose_spi(cCP2130.cs0);
     turn_on_led();
-
+    
     //Send read commande
     cCP2130.spi_write(read_command_buf,sizeof(read_command_buf));
+    //wait_for_RTR();
     //Reading
     r_status = cCP2130.spi_read(garbage_buff,sizeof(garbage_buff));
 
     read_command_buf[0] = 0x00;
     read_command_buf[1] = 0x00;
-    read_command_buf[2] = 0x00;
+    read_command_buf[2] = 0x04;
     read_command_buf[3] = 0x00;
     read_command_buf[4] = len%0xFF;
     read_command_buf[5] = (len/0xFF)%0xFF;
@@ -91,8 +93,11 @@ int TC_PSPOH::spi_read(string& answer, int len){
 
     //Send read commande
     cCP2130.spi_write(read_command_buf,sizeof(read_command_buf));
+    
+    
     //Reading
     r_status = cCP2130.spi_read(read_input_buf,sizeof(read_input_buf));
+    cCP2130.stopRTR();
     turn_off_led();
 
     if (r_status == -110){
@@ -102,18 +107,20 @@ int TC_PSPOH::spi_read(string& answer, int len){
        
         cout << r_status << " bytes read from spi" << endl;
         answer = string(read_input_buf);
-        cout << "'" << endl;
+        answer.resize(len);
+
         #ifdef DEBUGO
+        cout << "'" << endl;
         for (size_t i = 0; i < sizeof(read_input_buf); i++)
         {
             if (read_input_buf[i] == '\n'){
-                cout << "[NL]" << endl;
+                cout << i << ": [NL]" << endl;
             }
             else if (read_input_buf[i] == '\r'){
-                cout << "[CR]" << endl;
+                cout << i << ": [CR]" << endl;
             }
             else{
-                cout << hex << read_input_buf[i] << dec << endl;
+                cout << i << ": " << hex << read_input_buf[i] << dec << endl;
             }
         }
         cout << "'" << endl;
@@ -123,6 +130,73 @@ int TC_PSPOH::spi_read(string& answer, int len){
         cout << "Unknow SPI Read status : " << r_status << endl;
     }
     return r_status;
+}
+
+int  TC_PSPOH::wait_for_nRTR(){
+    bool rtr_active = false;
+    bool first = true;
+    auto start = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds;
+    auto now = std::chrono::system_clock::now();
+    int status;
+    while (!rtr_active){
+        status = cCP2130.get_gpio_value(cCP2130.cs3,rtr_active);
+        if (status != 2){
+            cout << "Unable to read rtr" << endl;
+        }
+        
+        now = std::chrono::system_clock::now();
+        elapsed_seconds = now-start;
+
+        if (elapsed_seconds>std::chrono::seconds(2))
+        {
+            cout << "RTR timed out" << endl << endl;
+            return 1;
+        }
+        
+        if(rtr_active){
+            cout << "Rtr desactivated !" << endl;
+        }
+        else if (first){
+            first = false;
+            cout << "Rtr pending !" << endl;
+        }
+    }
+    return 0;
+}
+
+int  TC_PSPOH::wait_for_RTR(){
+    bool rtr_active = true;
+    bool first = true;
+    auto start = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds;
+    auto now = std::chrono::system_clock::now();
+    int status;
+    while (rtr_active){
+        status = cCP2130.get_gpio_value(cCP2130.cs3,rtr_active);
+        if (status != 2){
+            cout << "Unable to read rtr" << endl;
+        }
+        
+        now = std::chrono::system_clock::now();
+        elapsed_seconds = now-start;
+
+        if (elapsed_seconds>std::chrono::seconds(3))
+        {
+            cout << "RTR timed out" << endl << endl;
+            cCP2130.stopRTR();
+            return 1;
+        }
+        
+        if(!rtr_active){
+            cout << "Rtr activated !" << endl;
+        }
+        else if (first){
+            first = false;
+            cout << "Rtr missing !" << endl;
+        }
+    }
+    return 0;
 }
 
 int TC_PSPOH::spi_write(const std::string& command){
@@ -155,7 +229,7 @@ int TC_PSPOH::spi_write(const std::string& command){
 
     //Status
     if(w_status > 0){
-        cout << w_status << " bytes write on spi" << endl;
+        cout << w_status << " bytes write on spi" << endl << endl;
     }
     else{
         cout << "Unknow SPI Write status : " << w_status << endl;
@@ -172,9 +246,12 @@ int TC_PSPOH::getHV_status(string &answer){
     if(w_status <= 0){
         return w_status;
     }
-
+    //Wait Data are ready
+    if(wait_for_RTR()!=0){
+        return 0;
+    }
     //Read on SPI
-    r_status = spi_read(answer,5);
+    r_status = spi_read(answer,256);
 
     return r_status;
 }

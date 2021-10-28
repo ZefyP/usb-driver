@@ -34,6 +34,7 @@ class CP2130
     int set_usb_config();
     int get_usb_config();
     void reset_usb();
+    int stopRTR();
     usb_dev_handle* find_usb_handle();
     private:
     usb_dev_handle* fUsbHandle;

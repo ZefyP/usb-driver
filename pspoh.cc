@@ -1,39 +1,68 @@
 #include <cstring>
 #include "TC_PSPOH.h"
 #include <chrono>
+#include <ctime>  
 #include <thread>
 #include <vector>
-
+#include <iostream>
 //#define DEBUGO
-
+//#define RESET
 using namespace std;
 int main(){
 
+   //Time measurement
+   auto end = std::chrono::system_clock::now();
+   auto start = std::chrono::system_clock::now();
+   
+   //Local variables
    TC_PSPOH cTC_PSPOH;
-   //cout << "CP2130 initialized : " << TC_2SFE_V2.is_initialized << endl;
    string answer ="";
-   if(cTC_PSPOH.getHV_status(answer) > 0){
-      cout << "SPI answer : '" << answer  << "'" << endl;
+   /*
+   //Get HIV status
+   cout << "Get HV status" << endl ;
+   cTC_PSPOH.spi_write("hiv?\r\n");
+   if(cTC_PSPOH.wait_for_RTR()==0){
+      cTC_PSPOH.spi_read(answer,256);
+      cout << "SPI answer : '" << answer  << "'" << endl << endl;
+   }
+   cout << "Get HV status" << endl ;
+   cTC_PSPOH.spi_write("hiv?\r\n");
+   if(cTC_PSPOH.wait_for_RTR()==0){
+      cTC_PSPOH.spi_read(answer,256);
+      cout << "SPI answer : '" << answer  << "'" << endl << endl;
    }
 
-   if(cTC_PSPOH.getHV_status(answer) > 0){
-      cout << "SPI answer : '" << answer  << "'" << endl;
-   }
-   std::this_thread::sleep_for(std::chrono::milliseconds(50));
+   cout << "Get temperature values" << endl ;
+   
    cTC_PSPOH.spi_write("meas:temp?\r\n");
-   std::this_thread::sleep_for(std::chrono::milliseconds(250));
-   cTC_PSPOH.spi_read(answer,48);
-   cout << "SPI answer : '" << answer  << "'" << endl;
-   #ifdef DEUGO
-   while(1){
-      cout << "led turning on" << endl;
-      card.turn_on_led();
-      this_thread::sleep_for(chrono::milliseconds(500));
-      cout << "led turning off" << endl;
-      card.turn_off_led();
-      this_thread::sleep_for(chrono::milliseconds(500));
+   if(cTC_PSPOH.wait_for_RTR()==0){
+      cTC_PSPOH.spi_read(answer,256);
+      cout << "SPI answer : '" << answer  << "'" << endl << endl;
    }
-   #endif
+   
+    cout << "Get temperature values" << endl ;
+   
+   cTC_PSPOH.spi_write("meas:temp?\r\n");
+   if(cTC_PSPOH.wait_for_RTR()==0){
+      cTC_PSPOH.spi_read(answer,256);
+      cout << "SPI answer : '" << answer  << "'" << endl << endl;
+   }
+   */
+   start = std::chrono::system_clock::now();
+   cTC_PSPOH.spi_write("meas:hiv:in?\r\n");
+   if(cTC_PSPOH.wait_for_RTR()==0){
+      cTC_PSPOH.spi_read(answer,256);
+      end = std::chrono::system_clock::now();
+      cout << "SPI answer : '" << answer  << "'" << endl << endl;
+   }
 
+   cTC_PSPOH.system_reset();
+   
+   //Time measurement
+  
+   std::chrono::duration<double> elapsed_seconds = end-start;
+   std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+
+   std::cout << "finished computation at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
    return 0;
 }
