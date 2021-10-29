@@ -1,9 +1,14 @@
 #include <iostream>
-#include <cstring>
 #include <fstream>
 #include <ctime>
 
+#include <vector>
+#include <cstring>
+#include <string>
+//#include <filesystem>
+
 using namespace std;
+//using std::filesystem::exists
 
 class PSPOH
 {
@@ -18,6 +23,10 @@ class PSPOH
 }; //end class
 
 
+int name_the_report(fstream& , char*);
+int run_the_test(int);
+int report_header(fstream& , char* , int );
+
 /*User input for data resolution of the test.*/
 int numsamples() {
   cout << "how many samples in this test? ";
@@ -30,6 +39,8 @@ int numsamples() {
 int main()
 {
   int runs = numsamples();
+
+
   cout << "\nStart test? y = yes , n = no" <<endl;
   char flag = 'n';
   
@@ -38,15 +49,16 @@ int main()
    
    /*%%%%%%%%%%%%-------------Test Procedure---------%%%%%%%%%%%%%*/
   if( (flag = 'y') ){
- // char* fname = "232.txt";
+  char *fname = new char(1);
   fstream File0;
-  File0.open("232.txt");
 
- // char* fname = name_the_report(File0);
- // report_header(File0,fname,runs);
+  //
+
+  name_the_report(File0,fname);
+  report_header(File0,fname,runs);
   
- // run_the_test(runs); //execute test
-  File0 << "hello" ;
+  run_the_test(runs); //execute test
+ // File0 << "hello" ;
   File0.close();
 
 
@@ -102,17 +114,53 @@ int run_the_test(int runs) {
     return 1;
 }//end test
 
- char* name_the_report(fstream& file)
- {
-   int filecount = 0; 
-   char fname[64];
+ int name_the_report(fstream& file,char *fname)
+ { 
+  
+
+  int filecount = 0;
+  //bool exists = false;
+  //vector<string> files_to_check = {"results0.txt"};
+  //file.open(fname);
+  // for (const auto &file : files_to_check ) {
+  //  exists(file) ? cout << "Exists\n" : cout << "Doesn't exist \n" ;
+  // }
+   //fopen( (*fname).c_str(), "r"); // if it exists fopen will return NULL ptr
+
+  //  if ( !file) { //file does not exist
+  //       fclose(*fname);
+  //       exists = true;
+  //   } else {
+  //       exists = false;
+  //   }   
+
+   string name1 = "results0.txt";
+   fname = new char(name1.length());
+
    
-   while (file)
-   { //rename file with increment until it doesn't
+   ifstream ifile;
+   ifile.open("results0.txt");
+
+   while (ifile)
+   { //rename file with increment until it doesn't exist
      filecount++ ;
-     sprintf(fname,"results%03d.txt",filecount); 
-      
+     //ifile.back() = filecount;
+
+     sprintf(fname,"results%03d.txt",filecount);  //replace the report number with the increment
+     cout << "\nName before increment is "<< name1 ;
+     name1 = fname; //name the report 
+     size_t i;
+     
+    //  for ( i = 0; i < name1.length(); i++) //string turned to char array
+    //  {
+    //   name1[i] = name1[i];
+    //  }
+
+     //ifile.open(name1);
+     cout << " Filecount " << filecount << " fname " << fname << " name1 " << name1 << endl;
+     
     }
+    
     cout << "\nCreating new file..";
     fstream File1(fname); //create new test report
     File1.open(fname, ios::in | ios:: out | ios::trunc);
@@ -124,9 +172,5 @@ int run_the_test(int runs) {
     cout<<"\n";
     
   
-
-
-
-
-   return fname;
+   return 0;
  }
