@@ -52,12 +52,10 @@ int main()
   char *fname = new char(1);
   fstream File0;
 
-  //
-
   name_the_report(File0,fname);
   report_header(File0,fname,runs);
   
-  run_the_test(runs); //execute test
+ // run_the_test(runs); //execute test
  // File0 << "hello" ;
   File0.close();
 
@@ -143,22 +141,15 @@ int run_the_test(int runs) {
 
    while (ifile)
    { //rename file with increment until it doesn't exist
+     cout << "\nName before "<< fname ;
+
      filecount++ ;
      //ifile.back() = filecount;
-
-     sprintf(fname,"results%03d.txt",filecount);  //replace the report number with the increment
-     cout << "\nName before increment is "<< name1 ;
-     name1 = fname; //name the report 
-     size_t i;
-     
-    //  for ( i = 0; i < name1.length(); i++) //string turned to char array
-    //  {
-    //   name1[i] = name1[i];
-    //  }
-
-     //ifile.open(name1);
-     cout << " Filecount " << filecount << " fname " << fname << " name1 " << name1 << endl;
-     
+     sprintf(fname,"results%d.txt",filecount);  //replace the report number with the increment
+     ifile.open(fname);
+     filecount++ ;
+   
+     cout << " Filecount " << filecount << " after " << fname << endl; 
     }
     
     cout << "\nCreating new file..";
@@ -174,3 +165,12 @@ int run_the_test(int runs) {
   
    return 0;
  }
+
+
+ // size_t i;
+    //  for ( i = 0; i < name1.length(); i++) //string turned to char array
+    //  {
+    //   name1[i] = name1[i];
+    //  }
+
+     //ifile.open(name1);
