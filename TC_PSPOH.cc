@@ -12,36 +12,31 @@ TC_PSPOH::TC_PSPOH()
 {   
     if(!is_initialized){
         //Init
-        /*cCP2130.initialize();
-        
-        //System reset
-        system_reset();
-        cCP2130.reset_usb();
-        cCP2130.close();
-        //TC_PSPOH need some time to init
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));*/
-
-        //Init
         cCP2130.initialize();
-        
+
         //Get product string
-        product_string.resize(64,' ');
+        product_string.resize(64);
         cCP2130.get_product_string(&product_string[0]);                             //gets ID product descriptor
         cout << "The USB Descriptor is " << product_string << endl;
 
         //SPI buffer
         turn_off_led();
-        //cCP2130.gpio_set_input(cCP2130.cs3);                                  //RTR ready to read
+        cCP2130.gpio_set_input(cCP2130.cs3);                                  //RTR ready to read
 
         cCP2130.configure_spi(cCP2130.cs0,cCP2130.ATSAMD51P20A0A_PSPOH);
 
-        // cCP2130.choose_spi(cCP2130.cs4);
-        // char buff_s_adc[12] = {0, 0, 2, 0, 4, 0, 0, 0, 0, 0xFF, 0xFF,0xFF}, buff_r_adc[6] ={0}; // com buffers for ADC
-        // cCP2130.spi_write (buff_s_adc,sizeof(buff_s_adc));
-        // int t_code=cCP2130.spi_read(buff_r_adc,sizeof(buff_r_adc));
-
         is_initialized=true;
     }
+}
+
+int TC_PSPOH::get_product_string(std::string& answer, bool verbose){
+    
+    return get_product_string(answer);
+}
+
+int TC_PSPOH::get_product_string(std::string& answer){
+    cCP2130.get_product_string(&answer[0]);
+    return 0;
 }
 
 int TC_PSPOH::getStatus(status s, string &answer){
@@ -56,7 +51,18 @@ int TC_PSPOH::getStatus(status s, string &answer){
     }
     return 0;
 }
+
+
 //#define DEBUGO
+
+int TC_PSPOH::spi_read(string& answer, int len,bool verbose){
+    int status = spi_read(answer,len);
+    if(verbose){
+        cout << answer;
+    }
+    return status;
+}
+
 int TC_PSPOH::spi_read(string& answer, int len){
     answer.resize(len);
     int r_status = 0;
@@ -104,12 +110,12 @@ int TC_PSPOH::spi_read(string& answer, int len){
         cout << "SPI Read Timout" << endl;
     }
     else if(r_status > 0){
-       
-        cout << r_status << " bytes read from spi" << endl;
+        
         answer = string(read_input_buf);
         answer.resize(len);
 
         #ifdef DEBUGO
+        cout << r_status << " bytes read from spi" << endl;
         cout << "'" << endl;
         for (size_t i = 0; i < sizeof(read_input_buf); i++)
         {
@@ -127,42 +133,11 @@ int TC_PSPOH::spi_read(string& answer, int len){
         #endif
     }
     else{
+        #ifdef DEBUGO
         cout << "Unknow SPI Read status : " << r_status << endl;
+        #endif
     }
     return r_status;
-}
-
-int  TC_PSPOH::wait_for_nRTR(){
-    bool rtr_active = false;
-    bool first = true;
-    auto start = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds;
-    auto now = std::chrono::system_clock::now();
-    int status;
-    while (!rtr_active){
-        status = cCP2130.get_gpio_value(cCP2130.cs3,rtr_active);
-        if (status != 2){
-            cout << "Unable to read rtr" << endl;
-        }
-        
-        now = std::chrono::system_clock::now();
-        elapsed_seconds = now-start;
-
-        if (elapsed_seconds>std::chrono::seconds(2))
-        {
-            cout << "RTR timed out" << endl << endl;
-            return 1;
-        }
-        
-        if(rtr_active){
-            cout << "Rtr desactivated !" << endl;
-        }
-        else if (first){
-            first = false;
-            cout << "Rtr pending !" << endl;
-        }
-    }
-    return 0;
 }
 
 int  TC_PSPOH::wait_for_RTR(){
@@ -181,25 +156,36 @@ int  TC_PSPOH::wait_for_RTR(){
         now = std::chrono::system_clock::now();
         elapsed_seconds = now-start;
 
-        if (elapsed_seconds>std::chrono::seconds(3))
+        if (elapsed_seconds>std::chrono::seconds(20))
         {
             cout << "RTR timed out" << endl << endl;
             cCP2130.stopRTR();
             return 1;
         }
-        
+
+        #ifdef DEBUGO
         if(!rtr_active){
+            
             cout << "Rtr activated !" << endl;
         }
         else if (first){
             first = false;
             cout << "Rtr missing !" << endl;
         }
+        #endif
     }
     return 0;
 }
 
+int TC_PSPOH::spi_write(const std::string& command,bool verbose){
+    if(verbose){
+        cout << command;
+    }
+    return spi_write(command);
+}
 int TC_PSPOH::spi_write(const std::string& command){
+
+    
     //Local variables déclaration
     int w_status=0;
     int len = command.length();
@@ -228,13 +214,14 @@ int TC_PSPOH::spi_write(const std::string& command){
     turn_off_led();
 
     //Status
+    #ifdef DEBUGO
     if(w_status > 0){
         cout << w_status << " bytes write on spi" << endl << endl;
     }
     else{
         cout << "Unknow SPI Write status : " << w_status << endl;
     }
-
+    #endif
     return w_status;
 }
 

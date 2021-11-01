@@ -14,7 +14,8 @@ class TC_PSPOH
     enum status:char{HIV_STATUS};
 
     //Public Fonctions
-    const char* get_product_string();
+    int get_product_string(std::string&);
+    int get_product_string(std::string&, bool);
     int getStatus(status, std::string&);
     int control(measurement m, float&);
     int getHV_status(std::string &);
@@ -24,7 +25,9 @@ class TC_PSPOH
     int system_reset();
     int cpu_reset();  //Doesn't work
     int spi_write(const std::string&);
+    int spi_write(const std::string&,bool);
     int spi_read(std::string&, int);
+    int spi_read(std::string&, int, bool);
     int wait_for_RTR();
     int wait_for_nRTR();
     //Constructors and destructors

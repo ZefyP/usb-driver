@@ -22,6 +22,12 @@ reseter: reseter.o TC_PSPOH.o
 reseter.o: reseter.cc TC_PSPOH.h USB_a.h
 	g++ -g -std=c++11 -c reseter.cc
 
+fileExtists: fileExtists.o
+	g++ -g -std=c++11 -Llib -lPh2_TCUSB -o fileExtists fileExtists.o
+
+fileExtists.o: fileExtists.cpp
+	g++ -g -std=c++11 -c fileExtists.cpp
+
 TC_PSPOH.o: TC_PSPOH.h
 
 USB_a.o: USB_a.h
