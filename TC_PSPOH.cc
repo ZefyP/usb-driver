@@ -113,7 +113,7 @@ int TC_PSPOH::spi_read(string& answer, int len){
         
         answer = string(read_input_buf);
         answer.resize(len);
-
+        answer.erase(remove(answer.begin(), answer.end(), '\0'), answer.end());
         #ifdef DEBUGO
         cout << r_status << " bytes read from spi" << endl;
         cout << "'" << endl;

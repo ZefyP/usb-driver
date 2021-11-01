@@ -34,7 +34,7 @@ int main(int argc, char *argv[]){
    int cnt = 0;
 
    do{
-      if(cnt!=0){
+      if(cnt!=0 && verbose){
          cout << "file exist : \"" << fname << "\"" << endl;
       }
       fname = fname_base + boost::lexical_cast<string>(cnt++)+ext;
