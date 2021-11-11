@@ -29,6 +29,10 @@ int main(int argc, char *argv[]){
       }  
    }
 
+
+   int step = atoi(argv[2] ) ;
+   cout << "the step is: \"" << step << "\"" << endl;
+
    //Files
    string fname_base = "./results/result", ext = ".txt", fname;
    int cnt = 0;
@@ -55,10 +59,13 @@ int main(int argc, char *argv[]){
       //Local variables
       TC_PSPOH cTC_PSPOH;
       string answer ="";
-      int step = 5;
       
       for (size_t i = 0; i <= 120; i+=step)
       {
+
+         cTC_PSPOH.spi_write("HIV ON\r\n",verbose);
+         MyFile << "HIV ON\r\n";
+
          string load =  boost::lexical_cast<string>(float(i)/100);
          cTC_PSPOH.spi_write("SET:LOAD "+load+"\r\n",verbose);
          MyFile << "SET:LOAD "+load+"\r\n";
