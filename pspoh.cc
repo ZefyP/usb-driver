@@ -59,7 +59,12 @@ int main(int argc, char *argv[]){
       //Local variables
       TC_PSPOH cTC_PSPOH;
       string answer ="";
-      
+
+      // cTC_PSPOH.spi_write("DEFIB\r\n",verbose);
+      // MyFile << "card reset\r\n";
+
+
+
       for (size_t i = 0; i <= 120; i+=step)
       {
 

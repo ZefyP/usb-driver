@@ -23,7 +23,7 @@ class TC_PSPOH
     int turn_on_led();
     int turn_off_led();
     int system_reset();
-    int cpu_reset();  //Doesn't work
+    int cpu_reset();  //Doesn't work for PSPOH-TC V2 1st batch because CPU-CP2130 is disconnected.
     int spi_write(const std::string&);
     int spi_write(const std::string&,bool);
     int spi_read(std::string&, int);

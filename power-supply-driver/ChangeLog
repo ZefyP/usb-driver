@@ -1,0 +1,81 @@
+2021-05-20 Miloslav Macko
+  * Version 3.0.0
+  * New Core 4.0.0. The core is incompatible with the Cores 3.x. If you work with drivers that use both core 4.x and 3.x, 
+    please contact our customer support, we will update your Core 3.x drivers to the newest version.
+  * Improved help for hmp4000_init(), hmp4000_InitWithOptions()
+  * Optimized help texts for status codes
+  
+  * Added functions:
+  - hmp4000_SetVisaTimeout
+  - hmp4000_GetVisaTimeout
+  - hmp4000_ConfigureAutoSystemErrQuery 
+  - hmp4000_ConfigureMultiThreadLocking
+  - hmp4000_GetAttributeRepCapName
+  
+  * Removed functions:
+  - hmp4000_CheckAttributeXXX
+  - hmp4000_ReadInstrData
+  - hmp4000_GetAttributeViSession
+  - hmp4000_SetAttributeViSession
+
+2020-02-04 Martin Krcmar  
+  * Version 2.6.5
+  
+  * Changing repeated capability 'channel' to 'Channel', from lower case 'ch1,ch2,ch3,ch4' to upper case 'CH1,CH2,CH3,CH4'
+  
+  * New functions:
+  - hmp4000_ConfigureOverVoltageProtectionMode
+  
+  * Updated functions:
+  - hmp4000_ConfigureCombinedVoltageAndCurrent - using APPLy SCPI command
+
+2018-11-15 Miloslav Macko
+  * Version 2.6.2
+  * Optimized performance for all interfaces
+  * Fixed attributes: HMP4000_ATTR_SYSTEM_LOCAL, HMP4000_ATTR_SYSTEM_REMOTE, HMP4000_ATTR_SYSTEM_REMOTE_LOCK, HMP4000_ATTR_SYSTEM_REMOTE_MIX
+
+2018-04-20 Martin Krcmar
+  * Version 2.6.0
+  * Adjusted for HMP firmware 2.62 
+  * Added USB-TMC support 
+  * Optimized performance for all interfaces
+  
+  * New functions:
+  - hmp4000_ConfigureErrorChecking
+
+  * Updated functions:
+  - hmp4000_Initialize - fixed VI_ERROR_FAIL_ID_QUERY error
+  - hmp4000_self_test - bug fixed
+  - hmp4000_error_query - bug fixed
+
+2016-06-01 Martin Krcmar
+  * Version 2.1.0
+  * Fixed 64bit version of driver - workaround bug in viStatusDesc
+  * New functions:
+  - hmp4000_RemoteMode
+  - hmp4000_GetChannel
+  - hmp4000_ConfigureGeneralOutputState
+  - hmp4000_ConfigureOutputStateChannelOnly
+  - hmp4000_ClearStatus
+  - hmp4000_IDQueryResponse
+  - hmp4000_ProcessAllPreviousCommands
+  - hmp4000_QueryOPC
+  * Updated functions:
+  - hmp4000_error_query - reads out all errors
+  - hmp4000_GetError
+  - hmp4000_ConfigureChannel - help updated
+  - hmp4000_ConfigureOutputState - help updated
+
+2015-12-15 Martin Krcmar
+  * Version 2.0.0
+  * Added support for HMP4030, HMP4040, HMP2000, HMP2020, HMP2030
+  * Driver core updated
+
+2010-12-04 Jiri Kominek
+  * Version 1.0.1
+  * Fixed InitWithOptions - failure if init didn't pass
+
+2010-03-11 Marian Mindek
+  * Version 1.0
+  * Initial release
+
