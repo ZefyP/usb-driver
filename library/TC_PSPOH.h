@@ -1,7 +1,7 @@
 #ifndef DEF_TC_PSPOH
 #define DEF_TC_PSPOH
 
-#include "USB_a.h"
+#include "../cmsph2_tcusb/src/USB_a.h"
 #include <usb.h>
 #include <time.h>
 #include <iostream>
