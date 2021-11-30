@@ -4,6 +4,5 @@
 .vscode
 .vscode/settings.json
 build/
-cmake/
 bin/
 results/*	
