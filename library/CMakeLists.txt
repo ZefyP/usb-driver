@@ -17,9 +17,12 @@ endif()
 if(${PH2_TCUSB_FOUND})
 include_directories(${PH2_TCUSB_INCLUDE_DIRS})
 link_directories(${PH2_TCUSB_LIBRARY_DIRS})
-set(LIBS ${LIBS} usb ${PH2_TCUSB_LIBRARIES})
+set(LIBS ${LIBS} ${PH2_TCUSB_LIBRARIES} usb)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{TCUSBFlag}")
 endif(${PH2_TCUSB_FOUND})
+
+#initial set of libaries
+set(LIBS ${LIBS} cmsph2_tcusb PowerSupply pugixml boost_system boost_program_options boost_filesystem)
 
 file(GLOB BINARIES RELATIVE ${PROJECT_SOURCE_DIR}/libraries *.cc)
 
