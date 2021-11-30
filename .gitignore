@@ -6,4 +6,4 @@
 build/
 cmake/
 bin/
-results/	
+results/*	
