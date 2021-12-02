@@ -37,16 +37,18 @@ po::variables_map process_program_options(const int argc, const char* const argv
 {
     po::options_description desc("Allowed options");
 
-    desc.add_options()("help,h", "produce help message")
-
-        ("config,c",
-         po::value<string>()->default_value("default"),
+    desc.add_options()
+         ("help,h", "produce help message")
+         ("config,c", po::value<string>()->default_value("default"),
          "set configuration file path (default files defined for each test) "
-         "...")("verbose,v", po::value<string>()->implicit_value("0"), "verbosity level");
+         "...")
+         ("verbose,v", po::value<string>()->implicit_value("0"), "verbosity level");
 
+    //Parses the command line
     po::variables_map vm;
     try
     {
+       //Parsing and storing args
         po::store(po::parse_command_line(argc, argv, desc), vm);
     }
     catch(po::error const& e)
@@ -54,9 +56,10 @@ po::variables_map process_program_options(const int argc, const char* const argv
         std::cerr << e.what() << '\n';
         exit(EXIT_FAILURE);
     }
+    //Must be called after parsing and storing
     po::notify(vm);
 
-    // Help
+    // Help Option
     if(vm.count("help"))
     {
         cout << desc << "\n";
@@ -64,7 +67,10 @@ po::variables_map process_program_options(const int argc, const char* const argv
     }
 
     // Power supply object option
-    if(vm.count("object")) { cout << "Object to initialize set to " << vm["object"].as<string>() << endl; }
+    if(vm.count("object"))
+    { 
+       cout << "Object to initialize set to " << vm["object"].as<string>() << endl; 
+    }
 
     return vm;
 }
