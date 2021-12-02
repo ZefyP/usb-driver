@@ -28,6 +28,10 @@ using namespace std;
 using namespace chrono;
 namespace po = boost::program_options;
 
+
+bool verbose;
+int step;
+
 /*!
 ************************************************
 * Argument parser.
@@ -39,10 +43,9 @@ po::variables_map process_program_options(const int argc, const char* const argv
 
     desc.add_options()
          ("help,h", "produce help message")
-         ("config,c", po::value<string>()->default_value("default"),
-         "set configuration file path (default files defined for each test) "
-         "...")
-         ("verbose,v", po::value<string>()->implicit_value("0"), "verbosity level");
+         ("config,c", po::value<string>()->default_value("default"),"set configuration file path (default files defined for each test) " "...")
+         ("verbose,v", po::value<string>()->implicit_value("0"), "verbosity level")
+         ("step,s", po::value< int > (&step)-> default_value(10), "Load percentage step from NO LOAD to 120pc of the nominal values" );
 
     //Parses the command line
     po::variables_map vm;
@@ -66,6 +69,22 @@ po::variables_map process_program_options(const int argc, const char* const argv
         return 0;
     }
 
+    //Test Card objects
+
+     if(vm.count( "verbose") )
+     {
+         verbose = true;
+         cout << argc-1 << " args was given to this program. These are: " << endl;
+         for (size_t i = 1; i < argc; i++){
+            cout << argv[i] << endl;
+         }
+     }
+      if(vm.count("step") )
+      {
+         //step = atoi(argv[2] ) ;
+         cout << "the step is: \"" << step << "\"" << endl;
+      }
+
     // Power supply object option
     if(vm.count("object"))
     { 
@@ -83,24 +102,26 @@ po::variables_map process_program_options(const int argc, const char* const argv
 
 bool fileExists(const string &name);
 
-int main(int argc, char *argv[]){
-   bool verbose;
+int main(int argc, char *argv[])
+{
+   
+   boost::program_options::variables_map v_map = process_program_options(argc, argv);
 
    if (argc > 1)
    {
       //Set verbose if it is asked
-      if(string(argv[1]) == "-v"){
-         verbose = true;
-         cout << argc-1 << " args was given to this program :" << endl;
-         for (size_t i = 1; i < argc; i++){
-            cout << argv[i] << endl;
-         }
-      }  
-   }
+   //    if(string(argv[1]) == "-v"){
+   //       verbose = true;
+   //       cout << argc-1 << " args was given to this program :" << endl;
+   //       for (size_t i = 1; i < argc; i++){
+   //          cout << argv[i] << endl;
+   //       }
+   //    }  
+    }
 
 
-   int step = atoi(argv[2] ) ;
-   cout << "the step is: \"" << step << "\"" << endl;
+   // int step = atoi(argv[2] ) ;
+   // cout << "the step is: \"" << step << "\"" << endl;
 
    //Files
    string fname_base = "./results/result", ext = ".txt", fname;
@@ -131,7 +152,7 @@ int main(int argc, char *argv[]){
 /*!
  *** POWER SUPPLY **********************************************
  */
-    boost::program_options::variables_map v_map = process_program_options(argc, argv);
+    
     std::cout << "Initializing power supply..." << std::endl;
 
     std::string        docPath = v_map["config"].as<string>();
@@ -144,7 +165,7 @@ int main(int argc, char *argv[]){
     PowerSupplyChannel* channel2;
     PowerSupplyChannel* channel3;
 
-     try
+    try
     {
         powerSupply = theHandler.getPowerSupply("MyRohdeSchwarz");
         channel1    = powerSupply->getChannel("LV_Module1");
@@ -189,9 +210,9 @@ int main(int argc, char *argv[]){
               << "Current: " << channel3->getCurrent() << std::endl;
     wait();
 
-/*!
- *** TEST CARD **********************************************
- */
+     /*!
+      *** TEST CARD **********************************************
+     */
       //Local variables
       TC_PSPOH cTC_PSPOH;
       string answer ="";
@@ -248,7 +269,7 @@ int main(int argc, char *argv[]){
       MyFile.close();
 
       
-/***SUPPLY TURN OFF***/
+      /***SUPPLY TURN OFF***/
       std::cout << "Turning off" << std::endl;
       channel1->turnOff();
       std::cout << "On: " << channel1->isOn() << std::endl;

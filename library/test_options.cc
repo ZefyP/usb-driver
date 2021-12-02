@@ -27,11 +27,11 @@ void CommandLineOptions::setup()
 {
     po::options_description options( "Program Options" );
     options.add_options()
-    ("help,h", "Display help menu")
-    ("time,t", po::value< double >( &myUserTime)->default_value(100.0), "User-specified time")
-    ("value", po::value< int > ( &myUserValue)->default_value( 43 ), "User-specified value")
-    ("file,f",po::value< std::string >( &myInputFile ), "User-specified input file" )
-    ("gflag,G", po::bool_switch( &myGFlag)->default_value(false), "Toggle G-flag");
+    ("help,h", "Display help menu");
+    // ("time,t", po::value< double >( &myUserTime)->default_value(100.0), "User-specified time")
+    // ("value", po::value< int > ( &myUserValue)->default_value( 43 ), "User-specified value")
+    // ("file,f",po::value< std::string >( &myInputFile ), "User-specified input file" )
+    // ("gflag,G", po::bool_switch( &myGFlag)->default_value(false), "Toggle G-flag");
 
     myOptions.add( options);
 
@@ -57,11 +57,11 @@ CommandLineOptions::statusReturn_e CommandLineOptions::parse( int argc, char* ar
             return OPTS_HELP;
         }
 
-        //Version info (not in use for now)
-        if (varMap.count ( "version") )
-        {
-            return OPTS_VERSION;
-        }
+        // //Version info (not in use for now)
+        // if (varMap.count ( "version") )
+        // {
+        //     return OPTS_VERSION;
+        // }
 
         
         /****not in use for now****
@@ -84,12 +84,12 @@ CommandLineOptions::statusReturn_e CommandLineOptions::parse( int argc, char* ar
         }
         */
 
-        // If we want to check if a value is defaulted 
-        if (!varMap[ "value" ].defaulted() )
-        {
-            std::cout << "WARNING - default value User-value overwritten to "<< myUserValue << std::endl;
+        // // If we want to check if a value is defaulted 
+        // if (!varMap[ "value" ].defaulted() )
+        // {
+        //     std::cout << "WARNING - default value User-value overwritten to "<< myUserValue << std::endl;
 
-        }
+        // }
 
 
 
@@ -106,7 +106,7 @@ CommandLineOptions::statusReturn_e CommandLineOptions::parse( int argc, char* ar
         ret = OPTS_FAILURE;
     }
 
-    return ret;
+  return ret;
 
 
 }
