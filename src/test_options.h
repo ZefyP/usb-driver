@@ -5,7 +5,7 @@
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
-//------------------------------------------
+//-------------------------------------------------------------------------
 // Handle command line options for pspoh
 //
 // Options:
@@ -14,30 +14,33 @@ namespace po = boost::program_options;
 // [-G|--gflag                a flag
 // [-f]--file ARG (string)    Input file
 // [--value] ARG (int)User value
-// --------------------------------------------------------------
+//
+// example command: pspoh -f ../results1.txt --time -35000.2 --value 42 -G
+// --------------------------------------------------------------------------
 
 class CommandLineOptions
 {
  public:
- enum statusReturn_e
- {
-    OPTS_SUCCESS,
-    OPTS_VERSION,
-    OPTS_HELP,
-    OPTS_FAILURE
- };
+    enum statusReturn_e
+    {
+        OPTS_SUCCESS,
+        OPTS_VERSION,
+        OPTS_HELP,
+        OPTS_FAILURE
+    };
 
-CommandLineOptions();
-~CommandLineOptions();
-statusReturn_e parse(int argc, char* argv[]);
+    CommandLineOptions();
+    ~CommandLineOptions();
+    statusReturn_e parse(int argc, char* argv[]);
 
-inline const std::string & getInputFile() const;
-inline int getUserValue(){return myUserValue; };
-inline bool getGFlag(){ return myGFlag; };
+    inline const std::string & getInputFile() const;
+    inline double getUserTime(){ return myUserTime; };
+    inline int getUserValue(){return myUserValue; };
+    inline bool getGFlag(){ return myGFlag; };
 
 protected:
   void setup(); //to setup the program options
-  bool validateFiles(); //not in use for now
+//  bool validateFiles(); //not in use for now
 
 private: 
    //not implemented -- not for use 
@@ -48,11 +51,12 @@ private:
    po::options_description myOptions;
    std::string myInputFile;
    int myUserValue;
+   double myUserTime;
    bool myGFlag;
 
 // inlineconst std::string & CommandLineOptions::getInputFile() const
 //  {}
 
-}
+};
 
 #endif //_TEST_OPTIONS_H__
