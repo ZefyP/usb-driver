@@ -1,4 +1,4 @@
-//initial libraries
+// initial libraries
 #include <cstring>
 #include "TC_PSPOH.h"
 #include <chrono>
@@ -20,23 +20,37 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
-
 #include "RohdeSchwarz.h"
 
+// argument parcer module
+//#include "test_options.h"
 
 using namespace std;
 using namespace chrono;
 namespace po = boost::program_options;
 
 
-bool verbose;
-int step;
+bool verbose,useGui;
+int step,ID;
 
 /*!
 ************************************************
 * Argument parser.
 ************************************************
 */
+//-------------------------------------------------------------------------
+// Handle command line options for pspoh
+//
+// Options:
+// [-h|--help]                Show help menu
+// [-t|--time]                  time
+// [-G|--useGui                a flag
+// [-f]--file ARG (string)    Input file
+// [--value] ARG (int)User value
+//
+// example command: pspoh -f ../results1.txt --time -35000.2 --value 42 -G
+// --------------------------------------------------------------------------
+
 po::variables_map process_program_options(const int argc, const char* const argv[])
 {
     po::options_description desc("Allowed options");
@@ -45,8 +59,9 @@ po::variables_map process_program_options(const int argc, const char* const argv
          ("help,h", "produce help message")
          ("config,c", po::value<string>()->default_value("default"),"set configuration file path (default files defined for each test) " "...")
          ("verbose,v", po::value<string>()->implicit_value("0"), "verbosity level")
-         ("step,s", po::value< int > (&step)-> default_value(10), "Load percentage step from NO LOAD to 120pc of the nominal values" );
-
+         ("step,s", po::value< int > (&step)-> default_value(10), "Load percentage step from NO LOAD to 120pc of the nominal values" )
+         ("useGui,G",po::value<bool>(&useGui)-> default_value(false),"use the Gui")
+         ("hybridId,id", po::value<string>() (&ID)-> implicit_value(000000000),"Scanned hybrid module ID");
     //Parses the command line
     po::variables_map vm;
     try
@@ -85,11 +100,17 @@ po::variables_map process_program_options(const int argc, const char* const argv
          cout << "the step is: \"" << step << "\"" << endl;
       }
 
-    // Power supply object option
-    if(vm.count("object"))
-    { 
+      // Power supply object object
+     if(vm.count("object"))
+      { 
        cout << "Object to initialize set to " << vm["object"].as<string>() << endl; 
-    }
+      }
+
+      // GUI Object
+      if(vm.count("useGui"))
+      {
+         cout << "use GUI application " << vm["useGui"].as<bool>() << endl;
+      }
 
     return vm;
 }
@@ -134,13 +155,13 @@ int main(int argc, char *argv[])
       fname = fname_base + boost::lexical_cast<string>(cnt++)+ext;
    }while (fileExists(fname));
    
-   cout << "creating file \"" << fname << "\""<< endl;
+   cout << "creating file...\"" << fname << "\""<< endl;
 
    ofstream MyFile(fname);
-   cout << "before filie open" << endl;
+   cout << "opening file..." << endl;
    if (MyFile.is_open()){
 
-    cout << "after file open"<<endl;
+    cout << "calculating time..."<<endl;
       //Time measurement
       auto end = system_clock::now();
       auto start = system_clock::now();
@@ -152,7 +173,7 @@ int main(int argc, char *argv[])
 /*!
  *** POWER SUPPLY **********************************************
  */
-    
+    std::cout << "-------------------------------------------------------------------------------" << endl;
     std::cout << "Initializing power supply..." << std::endl;
 
     std::string        docPath = v_map["config"].as<string>();
@@ -216,14 +237,18 @@ int main(int argc, char *argv[])
               << "Voltage: " << channel3->getOutputVoltage() << std::endl
               << "Current: " << channel3->getCurrent() << std::endl;
               //wait();
-        std::cout << "Channel 4 On: " << channel3->isOn()
+    std::cout << "Channel 4 On: " << channel3->isOn()
               << std::endl
               //    << "OVP: " << channel4->getOverVoltageProtection() << std::endl
               << "Voltage: " << channel4->getOutputVoltage() << std::endl
               << "Current: " << channel4->getCurrent() << std::endl;
     wait();
-   // std::this_thread::sleep_for(std::chrono::milliseconds(500)); 
+     // std::this_thread::sleep_for(std::chrono::milliseconds(500)); 
 
+
+
+    std::cout << "-------------------------------------------------------------------------------" << endl;
+      
      /*!
       *** TEST CARD **********************************************
      */
@@ -233,8 +258,6 @@ int main(int argc, char *argv[])
 
       // cTC_PSPOH.spi_write("DEFIB\r\n",verbose);
       // MyFile << "card reset\r\n";
-      
-      std::cout << "-------------------------------------------------------------------------------" << endl;
       
       for (size_t i = 0; i <= 5; i+=step)
       {

@@ -12,8 +12,8 @@ CommandLineOptions::CommandLineOptions():
     myOptions(""),
     myInputFile(""),
     myUserTime(-99999.99999),
-    myUserValue( 0xffffffff ),
-    myGFlag( false )
+    ID( 1212 ),
+    flagG( false )
 {
     setup();
 }

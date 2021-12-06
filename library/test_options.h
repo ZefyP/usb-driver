@@ -11,7 +11,7 @@ namespace po = boost::program_options;
 // Options:
 // [-h|--help]                Show help menu
 // [-t|--time]                  time
-// [-G|--gflag                a flag
+// [-G|--useGui                a flag
 // [-f]--file ARG (string)    Input file
 // [--value] ARG (int)User value
 //
@@ -35,8 +35,8 @@ class CommandLineOptions
 
     inline const std::string & getInputFile() const;
     inline double getUserTime(){ return myUserTime; };
-    inline int getUserValue(){return myUserValue; };
-    inline bool getGFlag(){ return myGFlag; };
+    inline int hybridID(){return ID; };
+    inline bool useGui(){ return flagG; };
 
 protected:
   void setup(); //to setup the program options
@@ -50,9 +50,9 @@ private:
 
    po::options_description myOptions;
    std::string myInputFile;
-   int myUserValue;
+   int ID;
    double myUserTime;
-   bool myGFlag;
+   bool flagG;
 
 // inlineconst std::string & CommandLineOptions::getInputFile() const
 //  {}
