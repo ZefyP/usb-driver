@@ -203,28 +203,27 @@ int main(int argc, char *argv[])
               //    << "OVP: " << channel1->getOverVoltageProtection() << std::endl
               << "Voltage: " << channel1->getOutputVoltage() << std::endl
               << "Current: " << channel1->getCurrent() << std::endl;
-    wait();
+               //wait();
     std::cout << "Channel 2 On: " << channel2->isOn()
               << std::endl
               //    << "OVP: " << channel2->getOverVoltageProtection() << std::endl
               << "Voltage: " << channel2->getOutputVoltage() << std::endl
               << "Current: " << channel2->getCurrent() << std::endl;
-    wait();
+               //wait();
     std::cout << "Channel 3 On: " << channel3->isOn()
               << std::endl
               //    << "OVP: " << channel3->getOverVoltageProtection() << std::endl
               << "Voltage: " << channel3->getOutputVoltage() << std::endl
               << "Current: " << channel3->getCurrent() << std::endl;
-    wait();
+              //wait();
         std::cout << "Channel 4 On: " << channel3->isOn()
               << std::endl
-              //    << "OVP: " << channel3->getOverVoltageProtection() << std::endl
+              //    << "OVP: " << channel4->getOverVoltageProtection() << std::endl
               << "Voltage: " << channel4->getOutputVoltage() << std::endl
               << "Current: " << channel4->getCurrent() << std::endl;
     wait();
+   // std::this_thread::sleep_for(std::chrono::milliseconds(500)); 
 
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(2000)); 
      /*!
       *** TEST CARD **********************************************
      */
@@ -234,9 +233,10 @@ int main(int argc, char *argv[])
 
       // cTC_PSPOH.spi_write("DEFIB\r\n",verbose);
       // MyFile << "card reset\r\n";
-
-
-      for (size_t i = 0; i <= 120; i+=step)
+      
+      std::cout << "-------------------------------------------------------------------------------" << endl;
+      
+      for (size_t i = 0; i <= 5; i+=step)
       {
 
          cTC_PSPOH.spi_write("HIV ON\r\n",verbose);
@@ -264,12 +264,16 @@ int main(int argc, char *argv[])
 
          cTC_PSPOH.spi_write("MEAS:RIP?\r\n",verbose);
          MyFile << "MEAS:RIP?\r\n";
+
          if(cTC_PSPOH.wait_for_RTR()==0){
             cTC_PSPOH.spi_read(answer,256,verbose);
             MyFile << answer << endl;
          }
          MyFile << "-------------------------------------------------------------------------------" << endl;
+         std::cout << "-------------------------------------------------------------------------------" << endl;
       }
+
+      std::cout << "Turning off" << std::endl;
       
       cTC_PSPOH.spi_write("SET:LOAD 0\r\n",verbose);
       MyFile << "SET:LOAD 0\r\n";
@@ -285,10 +289,15 @@ int main(int argc, char *argv[])
 
       
       /***SUPPLY TURN OFF***/
-      std::cout << "Turning off" << std::endl;
       channel1->turnOff();
-      std::cout << "On: " << channel1->isOn() << std::endl;
-
+      channel2->turnOff();
+      channel3->turnOff();
+      channel4->turnOff();
+      std::cout << "CH 1 " << channel1->isOn() << std::endl;
+      std::cout << "CH 2 " << channel2->isOn() << std::endl;
+      std::cout << "CH 3 " << channel3->isOn() << std::endl;
+      std::cout << "CH 4 " << channel4->isOn() << std::endl;
+      std::cout << "-------------------------------------------------------------------------------" << endl;
    }
    return 0;
 }
