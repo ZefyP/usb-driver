@@ -137,10 +137,10 @@ int main(int argc, char *argv[])
    cout << "creating file \"" << fname << "\""<< endl;
 
    ofstream MyFile(fname);
-
+   cout << "before filie open" << endl;
    if (MyFile.is_open()){
 
-
+    cout << "after file open"<<endl;
       //Time measurement
       auto end = system_clock::now();
       auto start = system_clock::now();
@@ -179,17 +179,18 @@ int main(int argc, char *argv[])
         throw std::out_of_range(oor.what());
     } 
 
+    channel1->setVoltage(1.25);
+    channel2->setVoltage(1.1222);
+    channel3->setVoltage(1.1333);
+
+    channel1->setCurrent(0.71);
+    channel2->setCurrent(0.72);
+    channel3->setCurrent(0.73);
+
     channel1->turnOn();
     channel2->turnOn();
     channel3->turnOn();
 
-    channel1->setVoltage(0.1111);
-    channel2->setVoltage(0.1222);
-    channel3->setVoltage(0.1333);
-
-    channel1->setCurrent(0.001);
-    channel2->setCurrent(0.002);
-    channel3->setCurrent(0.003);
 
     std::cout << "Channel 1 On: " << channel1->isOn()
               << std::endl
@@ -210,6 +211,7 @@ int main(int argc, char *argv[])
               << "Current: " << channel3->getCurrent() << std::endl;
     wait();
 
+    //std::this_thread::sleep_for(std::chrono::milliseconds(500)); 
      /*!
       *** TEST CARD **********************************************
      */
