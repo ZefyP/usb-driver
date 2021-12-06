@@ -164,6 +164,7 @@ int main(int argc, char *argv[])
     PowerSupplyChannel* channel1;
     PowerSupplyChannel* channel2;
     PowerSupplyChannel* channel3;
+    PowerSupplyChannel* channel4;
 
     try
     {
@@ -171,6 +172,8 @@ int main(int argc, char *argv[])
         channel1    = powerSupply->getChannel("LV_Module1");
         channel2    = powerSupply->getChannel("LV_Module2");
         channel3    = powerSupply->getChannel("LV_Module3");
+        channel4    = powerSupply->getChannel("LV_Module4");
+        
         //        channel4    = powerSupply->getChannel("LV_Module4");
     }
     catch(const std::out_of_range& oor)
@@ -179,17 +182,20 @@ int main(int argc, char *argv[])
         throw std::out_of_range(oor.what());
     } 
 
-    channel1->setVoltage(1.25);
-    channel2->setVoltage(1.1222);
-    channel3->setVoltage(1.1333);
+    channel1->setVoltage(3.3);
+    channel2->setVoltage(5.0);
+    channel3->setVoltage(3.3);
+    channel4->setVoltage(11.0);
 
-    channel1->setCurrent(0.71);
-    channel2->setCurrent(0.72);
-    channel3->setCurrent(0.73);
+    channel1->setCurrent(0.50);
+    channel2->setCurrent(0.50);
+    channel3->setCurrent(4.0);
+    channel4->setCurrent(1.2);
 
     channel1->turnOn();
     channel2->turnOn();
     channel3->turnOn();
+    channel4->turnOn();
 
 
     std::cout << "Channel 1 On: " << channel1->isOn()
@@ -210,8 +216,15 @@ int main(int argc, char *argv[])
               << "Voltage: " << channel3->getOutputVoltage() << std::endl
               << "Current: " << channel3->getCurrent() << std::endl;
     wait();
+        std::cout << "Channel 4 On: " << channel3->isOn()
+              << std::endl
+              //    << "OVP: " << channel3->getOverVoltageProtection() << std::endl
+              << "Voltage: " << channel4->getOutputVoltage() << std::endl
+              << "Current: " << channel4->getCurrent() << std::endl;
+    wait();
 
-    //std::this_thread::sleep_for(std::chrono::milliseconds(500)); 
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000)); 
      /*!
       *** TEST CARD **********************************************
      */

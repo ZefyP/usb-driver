@@ -31,7 +31,10 @@ void CommandLineOptions::setup()
     // ("time,t", po::value< double >( &myUserTime)->default_value(100.0), "User-specified time")
     // ("value", po::value< int > ( &myUserValue)->default_value( 43 ), "User-specified value")
     // ("file,f",po::value< std::string >( &myInputFile ), "User-specified input file" )
-    // ("gflag,G", po::bool_switch( &myGFlag)->default_value(false), "Toggle G-flag");
+    // ("useGui,G", po::bool_switch( &myGFlag)->default_value(false), "Toggle G-flag");
+    //  --hybridId
+    //  --output ability to create new directory to save results . e.g. temp
+    //
 
     myOptions.add( options);
 
