@@ -11,7 +11,7 @@ using namespace std;
 namespace fs = boost::filesystem;
 
 
-CommandLineOptions::CommandLineOptions():
+TemporaryCommandLineOptions::TemporaryCommandLineOptions(const int argc, const char* const argv[]):
     myOptions(""),
     config(""),
     verbose(""),
@@ -22,23 +22,21 @@ CommandLineOptions::CommandLineOptions():
     supply(0)
 
 {
-  //  setup();
-  get_docPath();
+    setup(argc, argv);
+    get_docPath();
 }
 
-CommandLineOptions::~CommandLineOptions() //destructor
+TemporaryCommandLineOptions::~TemporaryCommandLineOptions() //destructor
 {
 
 }
 
 
+void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[])
+{
 
-
-// void CommandLineOptions::setup()
-// {
-
-    po::variables_map process_program_options(const int argc, const char* const argv[])
-    {
+    // po::variables_map process_program_options(const int argc, const char* const argv[])
+    // {
         po::options_description desc("Allowed options");
 
         desc.add_options()
@@ -50,6 +48,9 @@ CommandLineOptions::~CommandLineOptions() //destructor
             ("useGui,G",po::value< bool >(&flagG)-> default_value(false),"use the Gui")
             ("hybridId,id", po::value<string> (&hybridId)->default_value("000"), "Scanned hybrid module ID");
             // my_new_directory
+            // --useGui <namedpipe>
+            // 'flagG' is set to true if --useGui has been sent, false otherwise
+            // 'namedpipe_path' is the value of the argument --useGui
 
         //Parses the command line
         po::variables_map vm;
@@ -70,7 +71,7 @@ CommandLineOptions::~CommandLineOptions() //destructor
         if(vm.count("help"))
         {
         cout << desc << "\n";
-            return 0;
+            // return 0;
         }
 
         //Test Card objects
@@ -114,18 +115,13 @@ CommandLineOptions::~CommandLineOptions() //destructor
             cout << "the hybridId you entered is " << vm["hybridId"].as<string>() << endl;
         }
 
-        return vm;
-    };
-    
+        // return vm;
+    // };
+}   
 
 
 
-void parcer(int argc, char* argv[])
-{
-    boost::program_options::variables_map v_map = process_program_options(argc, argv);
-};
-
-string CommandLineOptions::get_docPath()
+string TemporaryCommandLineOptions::get_docPath()
 {
     return path;
 };

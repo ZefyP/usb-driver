@@ -1,14 +1,35 @@
-To install and use with Ph2_ACF:
-1. Clone project in Ph2_ACF's parent directory
-2. Run make 
-3. Run cmake and make again for the Ph2_ACF installation - make sure "Building the TestCards' USB components" is printed during cmake.
-4. Give permissions to your user to access the CP2130 chip via usb :
--Run: sudo vim /etc/udev/rules.d/12-uib.rules
--Write the following: SUBSYSTEM=="usb", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="87a0", MODE="0660", GROUP="dialout"
--Add your user to the dialout group
--Run: sudo udevadm control --reload-rules && sudo udevadm trigger
--If you experience problems, PC restart or logging out and back in along with usb disconnection and then reconnection updates the permissions.
+Test software for the Test Card for the PS-POH of the CMS Phase 2 Outer Tracker Upgrade.
+The sotware makes use of the [CMSPh2_TCUSB library](https://gitlab.cern.ch/cms_tk_ph2/cmsph2_tcusb) and the [Power Supply control library](https://gitlab.cern.ch/cms_tk_ph2/power_supply). For the Power Supply library, one needs to currently use the [developer](https://gitlab.cern.ch/cms_tk_ph2/power_supply/-/tree/developer) branch now.
 
-psfeh & psroh scripts  contain examples of library use
+The structure of the repositories should be the following:
+```
+.
+├── cmsph2_tcusb
+├── power_supply
+└── usb-driver
+```
 
-Questions to angelos.zografos@cern.ch
+To build:
+
+1. Build the `cmsph2_tcusb` and `power_supply` libraries following their respective instructions.
+2. Go into `usb-driver`:
+```
+cd usb-driver/
+``` 
+3. Run `source setup.sh`.
+4. Create the build directory:
+```
+mkdir build
+```
+5. Go into it and run `cmake`.
+```
+cd build
+cmake ..
+```
+6. Check that both "Building the PowerSupply components" and "Building the TestCards USB components" are printed during the cmake output.
+7. Run `make` on the build directory.
+```
+make -j8
+```
+
+8. To run the test use `pspoh`

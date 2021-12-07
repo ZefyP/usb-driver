@@ -111,9 +111,20 @@ using namespace chrono;
 
 bool fileExists(const string &name);
 
+// TemporaryCommandLineOptions parcer(int argc, char* argv[]);
+
+// TemporaryCommandLineOptions parcer(int argc, char* argv[])
+// {
+//    // boost::program_options::variables_map v_map = process_program_options(argc, argv);
+//    TemporaryCommandLineOptions cTemporaryCommandLineOptions(argc, argv);
+//    return cTemporaryCommandLineOptions;
+// }
+
+
 int main(int argc, char *argv[])
 {
-   parcer(argc, argv);
+   // Create object for command argument parsing
+   TemporaryCommandLineOptions cTemporaryCommandLineOptions(argc, argv);
    // boost::program_options::variables_map v_map = process_program_options(argc, argv);
 
    // if (argc > 1)
@@ -167,7 +178,7 @@ int main(int argc, char *argv[])
 
    // std::string        docPath = v_map["config"].as<string>();
 
-    std::string  docPath = get_docPath();
+    std::string  docPath = cTemporaryCommandLineOptions.get_docPath();
     pugi::xml_document docSettings;
 
     DeviceHandler theHandler;

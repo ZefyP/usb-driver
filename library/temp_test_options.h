@@ -32,12 +32,12 @@ namespace po = boost::program_options;
 // --------------------------------------------------------------------------
 
 //processes the program options entered in main
-void parcer(int argc, char* argv[]);
+// void parcer(int argc, char* argv[]);
 
 std::string path; //temp fix for get_docPath
 
 
-class CommandLineOptions
+class TemporaryCommandLineOptions
 {
  public:
     enum statusReturn_e
@@ -48,21 +48,21 @@ class CommandLineOptions
         OPTS_FAILURE
     };
 
-    CommandLineOptions();
-    ~CommandLineOptions();
+    TemporaryCommandLineOptions(const int argc, const char* const argv[]);
+    ~TemporaryCommandLineOptions();
     
     statusReturn_e parse(int argc, char* argv[]);
 
     
  
-    void setup(); //to setup the program options
+    void setup(const int argc, const char* const argv[]); //to setup the program options
     std::string get_docPath();
 
   
       //not implemented -- not for use 
       //limits the available contructor options to ones chosen below
-      CommandLineOptions(const CommandLineOptions &rhs );
-      CommandLineOptions &operator = (const CommandLineOptions &rhs);
+      // TemporaryCommandLineOptions(const TemporaryCommandLineOptions &rhs );
+      // TemporaryCommandLineOptions &operator = (const TemporaryCommandLineOptions &rhs);
 
       //variables for commands
       po::options_description myOptions;
