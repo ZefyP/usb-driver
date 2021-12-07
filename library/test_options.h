@@ -38,24 +38,24 @@ class CommandLineOptions
     inline int hybridID(){return ID; };
     inline bool useGui(){ return flagG; };
 
-protected:
-  void setup(); //to setup the program options
-//  bool validateFiles(); //not in use for now
+    protected:
+      void setup(); //to setup the program options
+      //  bool validateFiles(); //not in use for now
 
-private: 
-   //not implemented -- not for use 
-   //limits the available contructor options to ones chosen below
-   CommandLineOptions(const CommandLineOptions &rhs );
-   CommandLineOptions &operator = (const CommandLineOptions &rhs);
+   private: 
+      //not implemented -- not for use 
+      //limits the available contructor options to ones chosen below
+      CommandLineOptions(const CommandLineOptions &rhs );
+      CommandLineOptions &operator = (const CommandLineOptions &rhs);
 
-   po::options_description myOptions;
-   std::string myInputFile;
-   int ID;
-   double myUserTime;
-   bool flagG;
+      po::options_description myOptions;
+      std::string myInputFile;
+      int ID;
+      double myUserTime;
+      bool flagG;
 
-// inlineconst std::string & CommandLineOptions::getInputFile() const
-//  {}
+      // inlineconst std::string & CommandLineOptions::getInputFile() const
+        //  {}
 
 };
 
