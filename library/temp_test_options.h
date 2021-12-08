@@ -9,7 +9,7 @@ namespace po = boost::program_options;
       std::string verbose;
       std::string my_new_directory;
       std::string hybridId;
-      int step;   //for loads
+      int step = 10;   //for loads
       int supply; //for supply step
       bool flagG; //for gui
 
