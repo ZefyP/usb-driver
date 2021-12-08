@@ -11,6 +11,13 @@ using namespace std;
 namespace fs = boost::filesystem;
 
 
+/*!
+************************************************
+* Argument parser.
+************************************************
+*/
+
+
 TemporaryCommandLineOptions::TemporaryCommandLineOptions(const int argc, const char* const argv[]):
     myOptions(""),
     config(""),
