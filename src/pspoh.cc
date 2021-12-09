@@ -61,28 +61,27 @@ int main(int argc, char *argv[])
    cout << "opening file..." << endl;
    if (MyFile.is_open()){
 
-    cout << "calculating time..."<<endl;
+      //Hybrid Id
+      MyFile << "****************************************************************************" << endl;
+      string id = cTemporaryCommandLineOptions.get_hybridId();
+      std::cout << id << endl << "-------------------------------------------------------------------------------" << endl;
+      MyFile << id << endl << "****************************************************************************" << endl;
+   
       //Time measurement
+      cout << "calculating time..."<<endl;
       auto end = system_clock::now();
       auto start = system_clock::now();
       time_t start_time = system_clock::to_time_t(start);
-      MyFile << "****************************************************************************" << endl;
-      MyFile << "Started computation at " << ctime(&start_time)<< endl;
-
-
-
+      MyFile << "Started computation at " << ctime(&start_time)<< endl;  
 /*!
  *** POWER SUPPLY **********************************************
  */
     cout << "-------------------------------------------------------------------------------" << endl;
-    cout << "Initializing power supply..." << endl;
-    MyFile << "Initializing power supply..." << endl;
-    
-   // std::string        docPath = v_map["config"].as<string>();
+    cout << "Initialising power supply..." << endl;
+    MyFile << "Initialising power supply..." << endl;
 
     std::string  docPath = cTemporaryCommandLineOptions.get_docPath();
     pugi::xml_document docSettings;
-
     DeviceHandler theHandler;
     theHandler.readSettings(docPath, docSettings);
     PowerSupply*        powerSupply;
@@ -98,8 +97,6 @@ int main(int argc, char *argv[])
         channel2    = powerSupply->getChannel("LV_Module2");
         channel3    = powerSupply->getChannel("LV_Module3");
         channel4    = powerSupply->getChannel("LV_Module4");
-        
-        //        channel4    = powerSupply->getChannel("LV_Module4");
     }
     catch(const std::out_of_range& oor)
     {
@@ -121,8 +118,9 @@ int main(int argc, char *argv[])
     channel2->turnOn();
     channel3->turnOn();
     channel4->turnOn();
-
-
+    //allow a moment to stabilise supply input values
+    std::this_thread::sleep_for(std::chrono::milliseconds(80)); 
+    
     std::cout << "Channel 1 On: " << channel1->isOn()
               << std::endl
               //    << "OVP: " << channel1->getOverVoltageProtection() << std::endl
@@ -153,26 +151,36 @@ int main(int argc, char *argv[])
     wait();
      // std::this_thread::sleep_for(std::chrono::milliseconds(500)); 
     std::cout << "-------------------------------------------------------------------------------" << endl;
-     /*!
-      *** TEST CARD **********************************************
-     */
+
+ /*!
+   *** TEST CARD **********************************************
+  */
       //Local variables
       TC_PSPOH cTC_PSPOH;
       string answer ="";
-      
+    
       std::cout << "-------------------------------------------------------------------------------" << endl;
       MyFile << "****************************************************************************" << endl;
     
-
       // cTC_PSPOH.spi_write("DEFIB\r\n",verbose);
       // MyFile << "card reset\r\n";
       
-      for (size_t i = 0; i <= 10; i+=step)
-      {
+      int step = cTemporaryCommandLineOptions.get_step();
 
+      for (size_t i = 0; i <= 40; i+=step)
+      {
+         //Card high input voltage 
          cTC_PSPOH.spi_write("HIV ON\r\n",verbose);
          MyFile << "HIV ON\r\n";
 
+         //Print supply status after turning on the test card
+         
+         // MyFile << "Channel 1: " << channel1->getOutputVoltage()<< " V, " << channel1->getCurrent() << " A " << endl;
+         // MyFile << "Channel 2: " << channel2->getOutputVoltage()<< " V, " << channel2->getCurrent() << " A " << endl;
+         // MyFile << "Channel 3: " << channel3->getOutputVoltage()<< " V, " << channel3->getCurrent() << " A " << endl;
+         // MyFile << "Channel 4: " << channel4->getOutputVoltage()<< " V, " << channel4->getCurrent() << " A " << endl;
+         // MyFile << "****************************************************************************" << endl;
+    
          string load =  boost::lexical_cast<string>(float(i)/100);
          cTC_PSPOH.spi_write("SET:LOAD "+load+"\r\n",verbose);
          MyFile << "SET:LOAD "+load+"\r\n";
@@ -260,7 +268,8 @@ int main(int argc, char *argv[])
       //Time measurement
       duration<double> elapsed_seconds = end-start;
       time_t end_time = system_clock::to_time_t(end);
-      
+
+      cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
       MyFile << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
       MyFile << "****************************************************************************" << endl;
      
@@ -279,6 +288,7 @@ int main(int argc, char *argv[])
       cout << "-------------------------------------------------------------------------------" << endl;
    
    }
+
    return 0;
 }
 

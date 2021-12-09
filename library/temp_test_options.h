@@ -5,13 +5,6 @@
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
-      std::string config;
-      std::string verbose;
-      std::string my_new_directory;
-      std::string hybridId;
-      int step = 10;   //for loads
-      int supply; //for supply step
-      bool flagG; //for gui
 
 /*!
 ************************************************
@@ -52,13 +45,19 @@ class TemporaryCommandLineOptions
     ~TemporaryCommandLineOptions();
     
     statusReturn_e parse(int argc, char* argv[]);
-
     
- 
+    
     void setup(const int argc, const char* const argv[]); //to setup the program options
     std::string get_docPath();
+    std::string get_hybridId();
+    int get_step();
+    
+   // bool new_directory(std::string name); 
 
-  
+   
+
+
+    
       //not implemented -- not for use 
       //limits the available contructor options to ones chosen below
       // TemporaryCommandLineOptions(const TemporaryCommandLineOptions &rhs );
@@ -74,8 +73,13 @@ class TemporaryCommandLineOptions
       int supply; //for supply step
       bool flagG; //for gui
 
-
 };
+
+
+
+
+
+
 
 
 #endif

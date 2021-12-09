@@ -21,16 +21,19 @@ namespace fs = boost::filesystem;
 TemporaryCommandLineOptions::TemporaryCommandLineOptions(const int argc, const char* const argv[]):
     myOptions(""),
     config(""),
-    verbose(""),
+   verbose(""),
     my_new_directory(""),
     hybridId(""),
     flagG(false),
-    step(5),
+    step(0xffffff),
     supply(0)
-
 {
     setup(argc, argv);
     get_docPath();
+    get_step();
+    get_hybridId();
+   // new_directory(my_new_directory);
+
 }
 
 TemporaryCommandLineOptions::~TemporaryCommandLineOptions() //destructor
@@ -53,8 +56,8 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
             ("step,s", po::value< int > (&step)-> default_value(10), "Load percentage step from NO LOAD to 120pc of the nominal values" )
             //("supply,S",po::value< int > (&supply)-> default_value(0), "Step the input voltage of the power supply")
             ("useGui,G",po::value< bool >(&flagG)-> default_value(false),"use the Gui")
-            ("hybridId,id", po::value<string> (&hybridId)->default_value("000"), "Scanned hybrid module ID");
-            // my_new_directory
+            ("hybridId,id", po::value<string> (&hybridId)->default_value("000"), "Scanned hybrid module ID")
+            ("newdir,nd", po::value <string> (&my_new_directory), "Test results will be saved in a new directory");
             // --useGui <namedpipe>
             // 'flagG' is set to true if --useGui has been sent, false otherwise
             // 'namedpipe_path' is the value of the argument --useGui
@@ -122,7 +125,15 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
             cout << "the hybridId you entered is " << vm["hybridId"].as<string>() << endl;
         }
 
-        // return vm;
+        if(vm.count("newdir"))
+        {
+            // my_new_directory = vm["newdir"].as<string>();
+            // new_directory(my_new_directory);
+            cout << "The results will be saved in new directory named "<< my_new_directory << endl;
+        }
+
+
+         //return vm;
     // };
 }   
 
@@ -131,10 +142,26 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
 string TemporaryCommandLineOptions::get_docPath()
 {
     return path;
-};
+}
 
 
+int TemporaryCommandLineOptions::get_step()
+{
+    return step; 
+}
 
+string TemporaryCommandLineOptions::get_hybridId()
+{
+    return hybridId;
+}
+
+// bool TemporaryCommandLineOptions::new_directory(string name) 
+// {
+   
+//    bool s = fs::create_directories(name);
+
+//     return true;
+// }
 
 
 //}

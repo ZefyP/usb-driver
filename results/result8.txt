@@ -1,8 +1,0 @@
-****************************************************************************
-Started computation at Wed Dec  8 11:57:02 2021
-
-Initializing power supply...
-Channel 1: 3.3 V, 0.0084 A 
-Channel 2: 5 V, 0.026 A 
-Channel 3: 3.298 V, 0.0645 A 
-Channel 4: 11 V, 0.2481 A 

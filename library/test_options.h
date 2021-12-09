@@ -49,6 +49,7 @@ class CommandLineOptions
       CommandLineOptions &operator = (const CommandLineOptions &rhs);
 
       po::options_description myOptions;
+      
       std::string myInputFile;
       int ID;
       double myUserTime;

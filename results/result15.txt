@@ -1,4 +1,0 @@
-****************************************************************************
-Started computation at Wed Dec  8 14:44:35 2021
-
-Initializing power supply...
