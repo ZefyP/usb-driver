@@ -42,15 +42,17 @@ int main(int argc, char *argv[])
 {
    // Create object for command argument parsing
    TemporaryCommandLineOptions cTemporaryCommandLineOptions(argc, argv);
-
+   
    //Files
-   string fname_base = "./results/result", ext = ".txt", fname;
+   string fname_base = "./results/" + cTemporaryCommandLineOptions.get_new_directory();
+   fname_base = fname_base + "/result" ;
+   string ext= ".txt", fname;
    int cnt = 0;
-   bool verbose = true;
+   bool verbose = true; //later create get_verbose();
 
    do{
       if(cnt!=0 && verbose){
-         cout << "file exist : \"" << fname << "\"" << endl;
+         cout << "file exists : \"" << fname << "\"" << endl;
       }
       fname = fname_base + boost::lexical_cast<string>(cnt++)+ext;
    }while (fileExists(fname));

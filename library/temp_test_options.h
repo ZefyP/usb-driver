@@ -41,28 +41,26 @@ class TemporaryCommandLineOptions
         OPTS_FAILURE
     };
 
-    TemporaryCommandLineOptions(const int argc, const char* const argv[]);
-    ~TemporaryCommandLineOptions();
+      TemporaryCommandLineOptions(const int argc, const char* const argv[]);
+      ~TemporaryCommandLineOptions();
+     
+      statusReturn_e parse(int argc, char* argv[]);
     
-    statusReturn_e parse(int argc, char* argv[]);
     
+      void setup(const int argc, const char* const argv[]); //to setup the program options
+      std::string get_docPath();
+      std::string get_hybridId();
+      int get_step();
     
-    void setup(const int argc, const char* const argv[]); //to setup the program options
-    std::string get_docPath();
-    std::string get_hybridId();
-    int get_step();
-    
-   // bool new_directory(std::string name); 
-
+      bool new_directory(std::string name);
+      std::string get_new_directory(); 
+      
    
-
-
-    
       //not implemented -- not for use 
       //limits the available contructor options to ones chosen below
       // TemporaryCommandLineOptions(const TemporaryCommandLineOptions &rhs );
       // TemporaryCommandLineOptions &operator = (const TemporaryCommandLineOptions &rhs);
-
+     private:
       //variables for commands
       po::options_description myOptions;
       std::string config;

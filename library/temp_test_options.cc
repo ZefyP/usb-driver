@@ -21,7 +21,7 @@ namespace fs = boost::filesystem;
 TemporaryCommandLineOptions::TemporaryCommandLineOptions(const int argc, const char* const argv[]):
     myOptions(""),
     config(""),
-   verbose(""),
+    verbose(""),
     my_new_directory(""),
     hybridId(""),
     flagG(false),
@@ -32,7 +32,8 @@ TemporaryCommandLineOptions::TemporaryCommandLineOptions(const int argc, const c
     get_docPath();
     get_step();
     get_hybridId();
-   // new_directory(my_new_directory);
+    new_directory(my_new_directory);
+    get_new_directory();
 
 }
 
@@ -44,97 +45,98 @@ TemporaryCommandLineOptions::~TemporaryCommandLineOptions() //destructor
 
 void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[])
 {
+    po::options_description desc("Allowed options");
 
-    // po::variables_map process_program_options(const int argc, const char* const argv[])
-    // {
-        po::options_description desc("Allowed options");
+    desc.add_options()
+        ("help,h", "produce help message")
+        ("config,c", po::value<string>()->default_value("default"),"set configuration file path for the power supply")
+        ("verbose,v", po::value<string>()->implicit_value("0"), "verbosity level")
+        ("step,s", po::value< int > (&step)-> default_value(10), "Load percentage step from NO LOAD to 120pc of the nominal values" )
+        //("supply,S",po::value< int > (&supply)-> default_value(0), "Step the input voltage of the power supply")
+        ("useGui,G",po::value< bool >(&flagG)-> default_value(false),"use the Gui")
+        ("hybridId,id", po::value<string> (&hybridId)->default_value("000"), "Scanned hybrid module ID")
+        ("newdir,nd", po::value <string> (&my_new_directory), "Test results will be saved in a new directory");
+        // --useGui <namedpipe>
+        // 'flagG' is set to true if --useGui has been sent, false otherwise
+        // 'namedpipe_path' is the value of the argument --useGui
 
-        desc.add_options()
-            ("help,h", "produce help message")
-            ("config,c", po::value<string>()->default_value("default"),"set configuration file path for the power supply")
-            ("verbose,v", po::value<string>()->implicit_value("0"), "verbosity level")
-            ("step,s", po::value< int > (&step)-> default_value(10), "Load percentage step from NO LOAD to 120pc of the nominal values" )
-            //("supply,S",po::value< int > (&supply)-> default_value(0), "Step the input voltage of the power supply")
-            ("useGui,G",po::value< bool >(&flagG)-> default_value(false),"use the Gui")
-            ("hybridId,id", po::value<string> (&hybridId)->default_value("000"), "Scanned hybrid module ID")
-            ("newdir,nd", po::value <string> (&my_new_directory), "Test results will be saved in a new directory");
-            // --useGui <namedpipe>
-            // 'flagG' is set to true if --useGui has been sent, false otherwise
-            // 'namedpipe_path' is the value of the argument --useGui
+    //Parses the command line
+    po::variables_map vm;
+    try
+    {
+    //Parsing and storing args
+        po::store(po::parse_command_line(argc, argv, desc), vm);
+    }
+    catch(po::error const& e)
+    {
+        std::cerr << e.what() << '\n';
+        exit(EXIT_FAILURE);
+    }
+    //Must be called after parsing and storing
+    po::notify(vm);
 
-        //Parses the command line
-        po::variables_map vm;
-        try
-        {
-        //Parsing and storing args
-            po::store(po::parse_command_line(argc, argv, desc), vm);
+    // Help Option
+    if(vm.count("help"))
+    {
+    cout << desc << "\n";
+        // return 0;
+    }
+
+    //Test Card objects
+
+    if(vm.count( "verbose") )
+    {
+        //verbose = true;
+        cout << argc-1 << " args was given to this program. These are: " << endl;
+        for (size_t i = 1; i < argc; i++){
+            cout << argv[i] << endl;
         }
-        catch(po::error const& e)
-        {
-            std::cerr << e.what() << '\n';
-            exit(EXIT_FAILURE);
-        }
-        //Must be called after parsing and storing
-        po::notify(vm);
+    }
+    if(vm.count("step") )
+    {
+        //step = atoi(argv[2] ) ;
+        cout << "the step is: \"" << step << "\"" << endl;
+    }
 
-        // Help Option
-        if(vm.count("help"))
-        {
-        cout << desc << "\n";
-            // return 0;
-        }
+    // Power supply object object
+    if(vm.count("object"))
+    { 
+    cout << "Object to initialize set to " << vm["object"].as<string>() << endl; 
+    }
 
-        //Test Card objects
+    if(vm.count("config"))
+    {
+        path =  vm["config"].as<string>();
+        //get_docPath();
+    }
 
-        if(vm.count( "verbose") )
-        {
-            //verbose = true;
-            cout << argc-1 << " args was given to this program. These are: " << endl;
-            for (size_t i = 1; i < argc; i++){
-                cout << argv[i] << endl;
-            }
-        }
-        if(vm.count("step") )
-        {
-            //step = atoi(argv[2] ) ;
-            cout << "the step is: \"" << step << "\"" << endl;
-        }
+    // GUI Object
+    if(vm.count("useGui"))
+    {
+        cout << "use GUI application " << vm["useGui"].as<bool>() << endl;
+    }
 
-        // Power supply object object
-        if(vm.count("object"))
-        { 
-        cout << "Object to initialize set to " << vm["object"].as<string>() << endl; 
-        }
+    
+    // hybridId Object
+    if(vm.count("hybridId"))
+    {
+        cout << "the hybridId you entered is " << vm["hybridId"].as<string>() << endl;
+    }
 
-        if(vm.count("config"))
-        {
-            path =  vm["config"].as<string>();
-            //get_docPath();
-        }
+    if(vm.count("newdir")) //abstract at later stage
+    {
+        my_new_directory = vm["newdir"].as<string>();
+        new_directory(my_new_directory);
+        cout << "The results will be saved in directory named "<< my_new_directory << endl;
+    }else
+    {
+        my_new_directory = "";
+        new_directory(my_new_directory);
+        cout << "The results will be saved in directory named "<< my_new_directory << endl;
+    }
 
-        // GUI Object
-        if(vm.count("useGui"))
-        {
-            cout << "use GUI application " << vm["useGui"].as<bool>() << endl;
-        }
 
         
-        // hybridId Object
-        if(vm.count("hybridId"))
-        {
-            cout << "the hybridId you entered is " << vm["hybridId"].as<string>() << endl;
-        }
-
-        if(vm.count("newdir"))
-        {
-            // my_new_directory = vm["newdir"].as<string>();
-            // new_directory(my_new_directory);
-            cout << "The results will be saved in new directory named "<< my_new_directory << endl;
-        }
-
-
-         //return vm;
-    // };
 }   
 
 
@@ -155,13 +157,17 @@ string TemporaryCommandLineOptions::get_hybridId()
     return hybridId;
 }
 
-// bool TemporaryCommandLineOptions::new_directory(string name) 
-// {
-   
-//    bool s = fs::create_directories(name);
+bool TemporaryCommandLineOptions::new_directory(string name) 
+{
+   string parent_dir = "results/";
+   bool my_new_directory = fs::create_directories(parent_dir+name);
 
-//     return true;
-// }
+    return my_new_directory;
+}
+
+string TemporaryCommandLineOptions::get_new_directory()
+{
+    return my_new_directory;
+}
 
 
-//}
