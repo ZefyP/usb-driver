@@ -21,20 +21,24 @@ namespace fs = boost::filesystem;
 TemporaryCommandLineOptions::TemporaryCommandLineOptions(const int argc, const char* const argv[]):
     myOptions(""),
     config(""),
-    verbose(""),
+    verbose(false),
     my_new_directory(""),
     hybridId(""),
+    step(60),
+    stepMax(120),
+    supply(0),
     flagG(false),
-    step(0xffffff),
-    supply(0)
+    namedpipe_path("")
 {
     setup(argc, argv);
+    get_verbose();
     get_docPath();
     get_step();
     get_stepMax();
     get_hybridId();
     new_directory(my_new_directory);
     get_new_directory();
+    
 
 }
 
@@ -46,21 +50,24 @@ TemporaryCommandLineOptions::~TemporaryCommandLineOptions() //destructor
 
 void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[])
 {
+    
     po::options_description desc("Allowed options");
 
     desc.add_options()
         ("help,h", "produce help message")
         ("config,c", po::value<string>()->default_value("default"),"set configuration file path for the power supply")
-        ("verbose,v", po::value<string>()->implicit_value("0"), "verbosity level")
+        //("verbose,v", po::value<string>()->implicit_value("0"), "verbosity level")
+        ("verbose,v",po::bool_switch (&verbose)-> default_value(false), "verbosity level")
         ("step,s", po::value< int > (&step)-> default_value(10), "Load percentage step from NO LOAD to 120pc of the nominal values" )
         ("stepMax,sm", po::value< int > (&stepMax)-> default_value(20), "Maximum load for this test" )
         //("supply,S",po::value< int > (&supply)-> default_value(0), "Step the input voltage of the power supply")
-        ("useGui,G",po::value< bool >(&flagG)-> default_value(false),"use the Gui")
+    
         ("hybridId,id", po::value<string> (&hybridId)->default_value("000"), "Scanned hybrid module ID")
-        ("newdir,nd", po::value <string> (&my_new_directory), "Test results will be saved in a new directory");
-        // --useGui <namedpipe>
-        // 'flagG' is set to true if --useGui has been sent, false otherwise
-        // 'namedpipe_path' is the value of the argument --useGui
+        ("newdir,nd", po::value <string> (&my_new_directory), "Test results will be saved in a new directory")
+
+        ("useGui,G",po::bool_switch (&flagG)-> default_value(false),"Use the Gui")
+        ("pipe,p", po::value<string>(&namedpipe_path),"Set pipe file path for the gui");
+        
 
     //Parses the command line
     po::variables_map vm;
@@ -88,7 +95,7 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
 
     if(vm.count( "verbose") )
     {
-        //verbose = true;
+        verbose = vm["verbose"].as<bool>();
         cout << argc-1 << " args was given to this program. These are: " << endl;
         for (size_t i = 1; i < argc; i++){
             cout << argv[i] << endl;
@@ -185,4 +192,8 @@ string TemporaryCommandLineOptions::get_new_directory()
     return my_new_directory;
 }
 
+bool TemporaryCommandLineOptions::get_verbose()
+{
+    return verbose;
+}
 

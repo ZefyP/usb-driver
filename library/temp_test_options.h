@@ -54,6 +54,7 @@ class TemporaryCommandLineOptions
       int get_stepMax();
       bool new_directory(std::string name);
       std::string get_new_directory(); 
+      bool get_verbose();
       
    
       //not implemented -- not for use 
@@ -64,13 +65,18 @@ class TemporaryCommandLineOptions
       //variables for commands
       po::options_description myOptions;
       std::string config;
-      std::string verbose;
+      bool verbose;
       std::string my_new_directory;
+
       std::string hybridId;
+
       int step;   //for loads
       int stepMax; 
+
       int supply; //for supply step
+
       bool flagG; //for gui
+      std::string namedpipe_path;
 
 };
 

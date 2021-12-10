@@ -53,8 +53,8 @@ int main(int argc, char *argv[])
    fname_base = fname_base + "/result" ;
    string ext= ".txt", fname;
    int cnt = 0;
-   bool verbose = true; //later create get_verbose();
-
+   bool verbose = cTemporaryCommandLineOptions.get_verbose(); //later create get_verbose();
+   cout << "THE VERBOSE IS " << verbose << endl; 
    do{
       if(cnt!=0 && verbose){
          cout << "file exists : \"" << fname << "\"" << endl;
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
     channel3->turnOn();
     channel4->turnOn();
     //allow a moment to stabilise supply input values
-    std::this_thread::sleep_for(std::chrono::milliseconds(80)); 
+    std::this_thread::sleep_for(std::chrono::milliseconds(300)); //300ms min
     
     std::cout << "Channel 1 On: " << channel1->isOn()
               << std::endl
@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
             MyFile << answer << endl;
          }
          MyFile << "-------------------------------------------------------------------------------" << endl;
-         std::cout << "-------------------------------------------------------------------------------" << endl;
+         if(verbose) {cout << "-------------------------------------------------------------------------------" << endl;}
       }
 
       std::cout << "Turning off" << std::endl;
