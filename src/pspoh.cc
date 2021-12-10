@@ -48,13 +48,14 @@ int main(int argc, char *argv[])
    // Create object for command argument parsing
    TemporaryCommandLineOptions cTemporaryCommandLineOptions(argc, argv);
          
+   bool verbose = cTemporaryCommandLineOptions.get_verbose(); //later create get_verbose();
+   //cout << "pipepath ; "<< cTemporaryCommandLineOptions.get_pipe_path() << "," << endl;
+
    //Files
    string fname_base = "./results/" + cTemporaryCommandLineOptions.get_new_directory();
    fname_base = fname_base + "/result" ;
    string ext= ".txt", fname;
    int cnt = 0;
-   bool verbose = cTemporaryCommandLineOptions.get_verbose(); //later create get_verbose();
-   cout << "THE VERBOSE IS " << verbose << endl; 
    do{
       if(cnt!=0 && verbose){
          cout << "file exists : \"" << fname << "\"" << endl;
@@ -72,13 +73,13 @@ int main(int argc, char *argv[])
       MyFile << "****************************************************************************" << endl;
       string id = cTemporaryCommandLineOptions.get_hybridId();
       cout << "Hybrid ; " << id << endl << "-------------------------------------------------------------------------------" << endl;
-      MyFile << "Hybrid ; " << id << endl << "****************************************************************************" << endl;
+      MyFile << "Hybrid ; " << id << "," << endl << "****************************************************************************" << endl;
    
-      string example = "HIV,END,2V44,HELLO,345^4,2.2222,,";
-      vector<string> v_example = extract_val(example);
-      string val = return_val(v_example , 1); // return the 2nd token of the sentence
+      // string example = "HIV,END,2V44,HELLO,345^4,2.2222,,";
+      // vector<string> v_example = extract_val(example);
+      // string val = return_val(v_example , 1); // return the 2nd token of the sentence
 
-      MyFile << "your extracted value is " << val << endl ;
+      // MyFile << "your extracted value is " << val << endl ;
 
       
       //Time measurement
@@ -91,8 +92,7 @@ int main(int argc, char *argv[])
       // Test Parameters
       int step = cTemporaryCommandLineOptions.get_step();
       int stepMax = cTemporaryCommandLineOptions.get_stepMax();
-      cout << "Maximum load setting ; " << stepMax << endl << "step ; " << step << endl;
-      MyFile << "Maximum load setting ; " << stepMax << endl << "step ; " << step << endl;
+      MyFile << "maxLoad ; " << stepMax <<","<<endl<< "step ; " << step <<","<< endl;
    
       
 /*!
@@ -180,6 +180,8 @@ int main(int argc, char *argv[])
       //Local variables
       TC_PSPOH cTC_PSPOH;
       string answer ="";
+      vector<string> v_answer;
+      string val ="";
     
       std::cout << "-------------------------------------------------------------------------------" << endl;
       MyFile << "****************************************************************************" << endl;
@@ -192,7 +194,7 @@ int main(int argc, char *argv[])
       {
          //Card high input voltage 
          cTC_PSPOH.spi_write("HIV ON\r\n",verbose);
-         MyFile << "HIV ON\r\n";
+         MyFile << "HIV ; ON,\r\n";
 
          //Print supply status after turning on the test card
          
@@ -204,72 +206,95 @@ int main(int argc, char *argv[])
     
          string load =  boost::lexical_cast<string>(float(i)/100);
          cTC_PSPOH.spi_write("SET:LOAD "+load+"\r\n",verbose);
-         MyFile << "SET:LOAD "+load+"\r\n";
+         MyFile << "SET:LOAD ; "+load+","<<endl;
 
+         //set load
          cTC_PSPOH.spi_write("SET:LOAD?\r\n",verbose);
          MyFile << "Load Setting: \r\n";
 
          if(cTC_PSPOH.wait_for_RTR()==0){
             cTC_PSPOH.spi_read(answer,256,verbose);
-            MyFile << answer << endl;
+           // MyFile << answer << endl;
          }
+         v_answer = extract_val(answer);
+         MyFile << "LOAD_1v25L ; " << return_val(v_answer , 0) << "," << endl;
+         MyFile << "LOAD_1v25R ; " << return_val(v_answer , 1) << "," << endl;
+         MyFile << "LOAD_1v25T ; " << return_val(v_answer , 2) << "," << endl;
+         MyFile << "LOAD_1vL ; "   << return_val(v_answer , 3) << "," << endl;
+         MyFile << "LOAD_1vR ; "   << return_val(v_answer , 4) << "," << endl;
 
          cTC_PSPOH.spi_write("MEAS:HIV:IN?\r\n",verbose);
-         MyFile << "Voltages HIV, 2V55, 1V25L, 1V25R, 1V25T, 1VL, 1VR\r\n";
-
+         MyFile << "Voltages:\r\n";
          if(cTC_PSPOH.wait_for_RTR()==0){
             cTC_PSPOH.spi_read(answer,256,verbose);
-            MyFile << answer << endl;
+            //MyFile << answer << endl;
          }
-         
+         v_answer = extract_val(answer);
+         MyFile << "HIV ; "    << return_val(v_answer , 0) << "," << endl;
+         MyFile << "2v55 ; "   << return_val(v_answer , 1) << "," << endl;
+         MyFile << "1v25_L ; " << return_val(v_answer , 2) << "," << endl;
+         MyFile << "1v25_R ; " << return_val(v_answer , 3) << "," << endl;
+         MyFile << "1v25_T ; " << return_val(v_answer , 4) << "," << endl;
+         MyFile << "1v_L ; "   << return_val(v_answer , 5) << "," << endl;
+         MyFile << "1v_R ; "   << return_val(v_answer , 6) << "," << endl;
+
          cTC_PSPOH.spi_write("MEAS:HIV:CUR?\r\n",verbose);
-         MyFile << "Current HIV, 2V55, 1V25L, 1V25R, 1V25T, 1VL, 1VR\r\n";
+         MyFile << "Currents:\r\n";
 
          if(cTC_PSPOH.wait_for_RTR()==0){
             cTC_PSPOH.spi_read(answer,256,verbose);
-            MyFile << answer << endl;
+            //MyFile << answer << endl;
          }
+         v_answer = extract_val(answer);
+         MyFile << "HIV ; "    << return_val(v_answer , 0) << "," << endl;
+         MyFile << "2v55 ; "   << return_val(v_answer , 1) << "," << endl;
+         MyFile << "1v25_L ; " << return_val(v_answer , 2) << "," << endl;
+         MyFile << "1v25_R ; " << return_val(v_answer , 3) << "," << endl;
+         MyFile << "1v25_T ; " << return_val(v_answer , 4) << "," << endl;
+         MyFile << "1v_L ; "   << return_val(v_answer , 5) << "," << endl;
+         MyFile << "1v_R ; "   << return_val(v_answer , 6) << "," << endl;
 
          cTC_PSPOH.spi_write("MEAS:PIN?\r\n",verbose);
-         MyFile << "Input Power\r\n";
-
          if(cTC_PSPOH.wait_for_RTR()==0){
             cTC_PSPOH.spi_read(answer,256,verbose);
-            MyFile << answer << endl;
          }
+         MyFile << "Input Power ; " << answer << "," << endl;
          
          cTC_PSPOH.spi_write("MEAS:POUT?\r\n",verbose);
-         MyFile << "Output Power\r\n";
-
          if(cTC_PSPOH.wait_for_RTR()==0){
             cTC_PSPOH.spi_read(answer,256,verbose);
-            MyFile << answer << endl;
          }
+         MyFile << "Output Power ; " << answer << "," << endl;
 
          cTC_PSPOH.spi_write("MEAS:EFF?\r\n",verbose);
-         MyFile << "Efficiency %\r\n";
-
          if(cTC_PSPOH.wait_for_RTR()==0){
-            cTC_PSPOH.spi_read(answer,256,verbose);
-            MyFile << answer << endl;
+            cTC_PSPOH.spi_read(answer,256,verbose);    
          }
+         MyFile << "Efficiency % ; " << answer << "," << endl;
 
          cTC_PSPOH.spi_write("MEAS:RIP?\r\n",verbose);
-         MyFile << "Ripples 2V55, 1V25, 1V\r\n";
+         MyFile << "Ripples:\r\n";
 
          if(cTC_PSPOH.wait_for_RTR()==0){
             cTC_PSPOH.spi_read(answer,256,verbose);
-            MyFile << answer << endl;
          }
-
+         v_answer = extract_val(answer);
+         MyFile << "2v55 ; " << return_val(v_answer , 0) << "," << endl;
+         MyFile << "1v25 ; " << return_val(v_answer , 1) << "," << endl;
+         MyFile << "1V ; "   << return_val(v_answer , 2) << "," << endl;
          
          cTC_PSPOH.spi_write("MEAS:TEMP?\r\n",verbose);
          MyFile << "Temperature PCB, AMB, HYB, ptatOffset, PTAT \r\n";
-
          if(cTC_PSPOH.wait_for_RTR()==0){
             cTC_PSPOH.spi_read(answer,256,verbose);
-            MyFile << answer << endl;
          }
+         v_answer = extract_val(answer);
+         MyFile << "PCB ; "    << return_val(v_answer , 0) << "," << endl;
+         MyFile << "AMB ; "    << return_val(v_answer , 1) << "," << endl;
+         MyFile << "HYB ; "    << return_val(v_answer , 2) << "," << endl;
+         MyFile << "PTAT ; "   << return_val(v_answer , 4) << "," << endl;
+         MyFile << "offset ; " << return_val(v_answer , 3) << "," << endl;
+
          MyFile << "-------------------------------------------------------------------------------" << endl;
          if(verbose) {cout << "-------------------------------------------------------------------------------" << endl;}
       }
@@ -337,10 +362,10 @@ vector<string> extract_val(string sentence ){
       v.push_back(val);
    }
 
-   for (size_t i=0; i<v.size(); i++){
-      cout << v[i] << endl;
+   // for (size_t i=0; i<v.size(); i++){
+   //    cout << v[i] << endl;
 
-   }
+   // }
    return v; 
 }
 

@@ -39,6 +39,7 @@ TemporaryCommandLineOptions::TemporaryCommandLineOptions(const int argc, const c
     new_directory(my_new_directory);
     get_new_directory();
     
+    get_pipe_path();
 
 }
 
@@ -96,48 +97,50 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
     if(vm.count( "verbose") )
     {
         verbose = vm["verbose"].as<bool>();
-        cout << argc-1 << " args was given to this program. These are: " << endl;
+        cout << "verbose ; " << verbose << "," << endl;
+        cout << argc-1 << " args were given to this program. These are: " << endl;
         for (size_t i = 1; i < argc; i++){
             cout << argv[i] << endl;
         }
     }
+
+
     if(vm.count("step") )
     {
-        //step = atoi(argv[2] ) ;
-        cout << "the step is: \"" << step << "\"" << endl;
+        cout << "step ; " << step << "," << endl;
     }
 
     if(vm.count("stepMax" ))
-    {
-        
+    {   
         stepMax = vm["stepMax"].as<int>();
-        cout << "Maximum load will be: \"" << stepMax <<endl;
+        cout << "maxLoad ; " << stepMax << "," << endl;
     }
 
 
-    // Power supply object object
-    if(vm.count("object"))
-    { 
-    cout << "Object to initialize set to " << vm["object"].as<string>() << endl; 
-    }
-
+    // Power supply object
     if(vm.count("config"))
     {
         path =  vm["config"].as<string>();
-        //get_docPath();
     }
 
     // GUI Object
     if(vm.count("useGui"))
     {
-        cout << "use GUI application " << vm["useGui"].as<bool>() << endl;
-    }
+        cout << "Gflag ; " << vm["useGui"].as<bool>() <<","<< endl;
+     
+      // Pipe
+      if(vm.count("pipe"))
+      {
+        namedpipe_path = vm["pipe"].as<string>();
+        cout << "pipe path ; " << namedpipe_path <<","<< endl;
+      }
 
+    }
     
-    // hybridId Object
+    // hybridId object
     if(vm.count("hybridId"))
     {
-        cout << "the hybridId you entered is " << vm["hybridId"].as<string>() << endl;
+        cout << "hybridId ; " << vm["hybridId"].as<string>() <<","<< endl;
     }
 
     if(vm.count("newdir")) //abstract at later stage
@@ -197,3 +200,7 @@ bool TemporaryCommandLineOptions::get_verbose()
     return verbose;
 }
 
+string TemporaryCommandLineOptions::get_pipe_path()
+{
+    return namedpipe_path;
+}

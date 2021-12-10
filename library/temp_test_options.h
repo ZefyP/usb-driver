@@ -55,6 +55,7 @@ class TemporaryCommandLineOptions
       bool new_directory(std::string name);
       std::string get_new_directory(); 
       bool get_verbose();
+      std::string get_pipe_path();
       
    
       //not implemented -- not for use 
