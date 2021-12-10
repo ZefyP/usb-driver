@@ -8,6 +8,8 @@
 #include <iostream>
 #include <boost/lexical_cast.hpp>
 #include <fstream>
+//#include <boost/algorithm/string.hpp> //for extract_val
+#include <bits/stdc++.h>
 //#define DEBUGO
 //#define RESET
 
@@ -37,6 +39,9 @@ using namespace chrono;
  */
 
 bool fileExists(const string &name);
+
+vector<string> extract_val(string sentence);
+string return_val( vector<string> values , int pos );
 
 int main(int argc, char *argv[])
 {
@@ -69,6 +74,13 @@ int main(int argc, char *argv[])
       cout << "Hybrid ; " << id << endl << "-------------------------------------------------------------------------------" << endl;
       MyFile << "Hybrid ; " << id << endl << "****************************************************************************" << endl;
    
+      string example = "HIV,END,2V44,HELLO,345^4,2.2222,,";
+      vector<string> v_example = extract_val(example);
+      string val = return_val(v_example , 1); // return the 2nd token of the sentence
+
+      MyFile << "your extracted value is " << val << endl ;
+
+      
       //Time measurement
       cout << "calculating time..."<<endl;
       auto end = system_clock::now();
@@ -314,4 +326,26 @@ bool fileExists(const string &name){
     }
 }
 
- 
+//separates sentence in tokens
+vector<string> extract_val(string sentence ){
+   vector <string> v;
+   stringstream all_values(sentence);
+
+   while (all_values.good( )){
+      string val;
+      getline(all_values,val,',');
+      v.push_back(val);
+   }
+
+   for (size_t i=0; i<v.size(); i++){
+      cout << v[i] << endl;
+
+   }
+   return v; 
+}
+
+//returns desired extracted token
+string return_val( vector<string> values , int pos ){
+   string extracted_value = values[pos];
+   return extracted_value;
+}
