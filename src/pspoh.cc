@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 {
    // Create object for command argument parsing
    TemporaryCommandLineOptions cTemporaryCommandLineOptions(argc, argv);
-   
+         
    //Files
    string fname_base = "./results/" + cTemporaryCommandLineOptions.get_new_directory();
    fname_base = fname_base + "/result" ;
@@ -66,8 +66,8 @@ int main(int argc, char *argv[])
       //Hybrid Id
       MyFile << "****************************************************************************" << endl;
       string id = cTemporaryCommandLineOptions.get_hybridId();
-      std::cout << id << endl << "-------------------------------------------------------------------------------" << endl;
-      MyFile << id << endl << "****************************************************************************" << endl;
+      cout << "Hybrid ; " << id << endl << "-------------------------------------------------------------------------------" << endl;
+      MyFile << "Hybrid ; " << id << endl << "****************************************************************************" << endl;
    
       //Time measurement
       cout << "calculating time..."<<endl;
@@ -75,12 +75,20 @@ int main(int argc, char *argv[])
       auto start = system_clock::now();
       time_t start_time = system_clock::to_time_t(start);
       MyFile << "Started computation at " << ctime(&start_time)<< endl;  
+
+      // Test Parameters
+      int step = cTemporaryCommandLineOptions.get_step();
+      int stepMax = cTemporaryCommandLineOptions.get_stepMax();
+      cout << "Maximum load setting ; " << stepMax << endl << "step ; " << step << endl;
+      MyFile << "Maximum load setting ; " << stepMax << endl << "step ; " << step << endl;
+   
+      
 /*!
  *** POWER SUPPLY **********************************************
  */
-    cout << "-------------------------------------------------------------------------------" << endl;
+    cout << "-------------------------------------------------------------------------------" << endl; 
     cout << "Initialising power supply..." << endl;
-    MyFile << "Initialising power supply..." << endl;
+    MyFile << "\nInitialising power supply..." << endl;
 
     std::string  docPath = cTemporaryCommandLineOptions.get_docPath();
     pugi::xml_document docSettings;
@@ -167,9 +175,8 @@ int main(int argc, char *argv[])
       // cTC_PSPOH.spi_write("DEFIB\r\n",verbose);
       // MyFile << "card reset\r\n";
       
-      int step = cTemporaryCommandLineOptions.get_step();
-
-      for (size_t i = 0; i <= 40; i+=step)
+     
+      for (size_t i = 0; i <= stepMax; i+=step)
       {
          //Card high input voltage 
          cTC_PSPOH.spi_write("HIV ON\r\n",verbose);

@@ -51,7 +51,7 @@ class TemporaryCommandLineOptions
       std::string get_docPath();
       std::string get_hybridId();
       int get_step();
-    
+      int get_stepMax();
       bool new_directory(std::string name);
       std::string get_new_directory(); 
       
@@ -68,6 +68,7 @@ class TemporaryCommandLineOptions
       std::string my_new_directory;
       std::string hybridId;
       int step;   //for loads
+      int stepMax; 
       int supply; //for supply step
       bool flagG; //for gui
 

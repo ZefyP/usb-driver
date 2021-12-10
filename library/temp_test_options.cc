@@ -31,6 +31,7 @@ TemporaryCommandLineOptions::TemporaryCommandLineOptions(const int argc, const c
     setup(argc, argv);
     get_docPath();
     get_step();
+    get_stepMax();
     get_hybridId();
     new_directory(my_new_directory);
     get_new_directory();
@@ -52,6 +53,7 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
         ("config,c", po::value<string>()->default_value("default"),"set configuration file path for the power supply")
         ("verbose,v", po::value<string>()->implicit_value("0"), "verbosity level")
         ("step,s", po::value< int > (&step)-> default_value(10), "Load percentage step from NO LOAD to 120pc of the nominal values" )
+        ("stepMax,sm", po::value< int > (&stepMax)-> default_value(20), "Maximum load for this test" )
         //("supply,S",po::value< int > (&supply)-> default_value(0), "Step the input voltage of the power supply")
         ("useGui,G",po::value< bool >(&flagG)-> default_value(false),"use the Gui")
         ("hybridId,id", po::value<string> (&hybridId)->default_value("000"), "Scanned hybrid module ID")
@@ -97,6 +99,14 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
         //step = atoi(argv[2] ) ;
         cout << "the step is: \"" << step << "\"" << endl;
     }
+
+    if(vm.count("stepMax" ))
+    {
+        
+        stepMax = vm["stepMax"].as<int>();
+        cout << "Maximum load will be: \"" << stepMax <<endl;
+    }
+
 
     // Power supply object object
     if(vm.count("object"))
@@ -150,6 +160,11 @@ string TemporaryCommandLineOptions::get_docPath()
 int TemporaryCommandLineOptions::get_step()
 {
     return step; 
+}
+
+int TemporaryCommandLineOptions::get_stepMax()
+{
+    return stepMax; 
 }
 
 string TemporaryCommandLineOptions::get_hybridId()
