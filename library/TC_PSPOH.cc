@@ -84,7 +84,7 @@ int TC_PSPOH::spi_read(string& answer, int len){
     
     //Send read commande
     cCP2130.spi_write(read_command_buf,sizeof(read_command_buf));
-    //wait_for_RTR();
+    wait_for_RTR();
     //Reading
     r_status = cCP2130.spi_read(garbage_buff,sizeof(garbage_buff));
 

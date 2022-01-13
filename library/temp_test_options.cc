@@ -1,4 +1,3 @@
-
 #include "temp_test_options.h"
 
 #include <iostream>
@@ -6,6 +5,8 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/algorithm/string/trim.hpp>
+
+#include "gui_logger.h"
 
 using namespace std;
 namespace fs = boost::filesystem;
@@ -123,6 +124,26 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
         path =  vm["config"].as<string>();
     }
 
+    
+    // hybridId object
+    if(vm.count("hybridId"))
+    {
+        cout << "hybridId ; " << vm["hybridId"].as<string>() <<","<< endl;
+    }
+
+    //New Directory
+     if(vm.count("newdir")) //abstract at later stage
+    {
+        my_new_directory = vm["newdir"].as<string>();
+        new_directory(my_new_directory);
+        cout << "The results will be saved in directory named "<< my_new_directory << endl;
+    }else
+    {
+        my_new_directory = "";
+        new_directory(my_new_directory);
+        cout << "The results will be saved in directory named "<< my_new_directory << endl;
+    }
+
     // GUI Object
     if(vm.count("useGui"))
     {
@@ -135,31 +156,19 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
         cout << "pipe path ; " << namedpipe_path <<","<< endl;
       }
 
-    }
-    
-    // hybridId object
-    if(vm.count("hybridId"))
-    {
-        cout << "hybridId ; " << vm["hybridId"].as<string>() <<","<< endl;
+      gui::init(argv [ argc - 1 ] );
+      gui::message("hello gui");
+      gui::status("Test has started please wait");
+      gui::progress(0.1/10.0);
+      gui::data("ResultsDirectory","../results/test_gui/result0.txt" );
+
+
     }
 
-    if(vm.count("newdir")) //abstract at later stage
-    {
-        my_new_directory = vm["newdir"].as<string>();
-        new_directory(my_new_directory);
-        cout << "The results will be saved in directory named "<< my_new_directory << endl;
-    }else
-    {
-        my_new_directory = "";
-        new_directory(my_new_directory);
-        cout << "The results will be saved in directory named "<< my_new_directory << endl;
-    }
-
+   
 
         
 }   
-
-
 
 string TemporaryCommandLineOptions::get_docPath()
 {
