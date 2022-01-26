@@ -203,11 +203,11 @@ int main(int argc, char *argv[])
            // MyFile << answer << endl;
          }
          v_answer = extract_val(answer);
-         MyFile << "LOAD_1v25L ; " << return_val(v_answer , 0) << "\r"<< endl;
-         MyFile << "LOAD_1v25R ; " << return_val(v_answer , 1) << "\r" << endl;
-         MyFile << "LOAD_1v25T ; " << return_val(v_answer , 2) << "\r" << endl;
-         MyFile << "LOAD_1vL ; "   << return_val(v_answer , 3) << "\r" << endl;
-         MyFile << "LOAD_1vR ; "   << return_val(v_answer , 4) << "\r" << endl;
+         MyFile << "LOAD_1v25L ; " << return_val(v_answer , 0) << endl;
+         MyFile << "LOAD_1v25R ; " << return_val(v_answer , 1) << endl;
+         MyFile << "LOAD_1v25T ; " << return_val(v_answer , 2) << endl;
+         MyFile << "LOAD_1vL ; "   << return_val(v_answer , 3) << endl;
+         MyFile << "LOAD_1vR ; "   << return_val(v_answer , 4) << endl;
 
          cTC_PSPOH.spi_write("MEAS:HIV:IN?\r\n",verbose);
          //MyFile << "Voltages:\r\n";
@@ -216,13 +216,13 @@ int main(int argc, char *argv[])
             //MyFile << answer << endl;
          }
          v_answer = extract_val(answer);
-         MyFile << "V_HIV ; "    << return_val(v_answer , 0) << "\r" << endl;
-         MyFile << "V_2v55 ; "   << return_val(v_answer , 1) << "\r" << endl;
-         MyFile << "V_1v25_L ; " << return_val(v_answer , 2) << "\r" << endl;
-         MyFile << "V_1v25_R ; " << return_val(v_answer , 3) << "\r" << endl;
-         MyFile << "V_1v25_T ; " << return_val(v_answer , 4) << "\r" << endl;
-         MyFile << "V_1v_L ; "   << return_val(v_answer , 5) << "\r" << endl;
-         MyFile << "V_1v_R ; "   << return_val(v_answer , 6) << "\r" << endl;
+         MyFile << "V_HIV ; "    << return_val(v_answer , 0) << endl;
+         MyFile << "V_2v55 ; "   << return_val(v_answer , 1) << endl;
+         MyFile << "V_1v25_L ; " << return_val(v_answer , 2) << endl;
+         MyFile << "V_1v25_R ; " << return_val(v_answer , 3) << endl;
+         MyFile << "V_1v25_T ; " << return_val(v_answer , 4) << endl;
+         MyFile << "V_1v_L ; "   << return_val(v_answer , 5) << endl;
+         MyFile << "V_1v_R ; "   << return_val(v_answer , 6) << endl;
 
          cTC_PSPOH.spi_write("MEAS:HIV:CUR?\r\n",verbose);
          //MyFile << "Currents:\r\n";
@@ -232,13 +232,13 @@ int main(int argc, char *argv[])
             //MyFile << answer << endl;
          }
          v_answer = extract_val(answer);
-         MyFile << "C_HIV ; "    << return_val(v_answer , 0) << "\r" << endl;
-         MyFile << "C_2v55 ; "   << return_val(v_answer , 1) << "\r" << endl;
-         MyFile << "C_1v25_L ; " << return_val(v_answer , 2) << "\r" << endl;
-         MyFile << "C_1v25_R ; " << return_val(v_answer , 3) << "\r" << endl;
-         MyFile << "C_1v25_T ; " << return_val(v_answer , 4) << "\r" << endl;
-         MyFile << "C_1v_L ; "   << return_val(v_answer , 5) << "\r" << endl;
-         MyFile << "C_1v_R ; "   << return_val(v_answer , 6) << "\r" << endl;
+         MyFile << "C_HIV ; "    << return_val(v_answer , 0) << endl;
+         MyFile << "C_2v55 ; "   << return_val(v_answer , 1) << endl;
+         MyFile << "C_1v25_L ; " << return_val(v_answer , 2) << endl;
+         MyFile << "C_1v25_R ; " << return_val(v_answer , 3) << endl;
+         MyFile << "C_1v25_T ; " << return_val(v_answer , 4) << endl;
+         MyFile << "C_1v_L ; "   << return_val(v_answer , 5) << endl;
+         MyFile << "C_1v_R ; "   << return_val(v_answer , 6) << endl;
 
          cTC_PSPOH.spi_write("MEAS:PIN?\r\n",verbose);
          if(cTC_PSPOH.wait_for_RTR()==0){
@@ -265,9 +265,9 @@ int main(int argc, char *argv[])
             cTC_PSPOH.spi_read(answer,256,verbose);
          }
          v_answer = extract_val(answer);
-         MyFile << "R_2v55 ; " << return_val(v_answer , 0) << "\r" << endl;
-         MyFile << "R_1v25 ; " << return_val(v_answer , 1) << "\r" << endl;
-         MyFile << "R_1V ; "   << return_val(v_answer , 2) << "\r" << endl;
+         MyFile << "R_2v55 ; " << return_val(v_answer , 0) << endl;
+         MyFile << "R_1v25 ; " << return_val(v_answer , 1) << endl;
+         MyFile << "R_1V ; "   << return_val(v_answer , 2) << endl;
          
          cTC_PSPOH.spi_write("MEAS:TEMP?\r\n",verbose);
          //MyFile << "Temperature\r\n";
@@ -275,18 +275,17 @@ int main(int argc, char *argv[])
             cTC_PSPOH.spi_read(answer,256,verbose);
          }
          v_answer = extract_val(answer);
-         MyFile << "T_PCB ; "    << return_val(v_answer , 0) << "\r" << endl;
-         MyFile << "T_AMB ; "    << return_val(v_answer , 1) << "\r" << endl;
-         MyFile << "T_HYB ; "    << return_val(v_answer , 2) << "\r" << endl;
-         MyFile << "T_PTAT ; "   << return_val(v_answer , 5) << "\r" ;
-         MyFile << "PTAT_offset ; " << return_val(v_answer , 3) << "\r" << endl;
+         MyFile << "T_PCB ; "    << return_val(v_answer , 0) << endl;
+         MyFile << "T_AMB ; "    << return_val(v_answer , 1) << endl;
+         MyFile << "T_HYB ; "    << return_val(v_answer , 2) << endl;
+         MyFile << "T_PTAT ; "   << return_val(v_answer , 5) << endl;
+         MyFile << "PTAT_offset ; " << return_val(v_answer , 3) << endl;
 
-         ///MyFile << "-------------------------------------------------------------------------------" << endl;
          if(verbose) {cout << "-------------------------------------------------------------------------------" << endl;}
       }
 
       std::cout << "Turning off ; 0" << std::endl;
-      //MyFile << "Turning off... " << endl;
+      MyFile << "Turning off ; 0" << endl;
       
       cTC_PSPOH.spi_write("SET:LOAD 0\r\n",verbose);
       MyFile << "SET:LOAD ; 0\r\n";
@@ -302,8 +301,7 @@ int main(int argc, char *argv[])
       time_t end_time = system_clock::to_time_t(end);
 
       cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
-      MyFile << endl << "Finished computation at ; " << ctime(&end_time) << "; elapsed time: " << elapsed_seconds.count() << "; s" << endl;
-      //MyFile << "****************************************************************************" << endl;
+      MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "elapsed time(s);" << elapsed_seconds.count() << endl;
      
       MyFile.close();
 
