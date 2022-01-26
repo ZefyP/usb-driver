@@ -67,32 +67,34 @@ int main(int argc, char *argv[])
    ofstream MyFile(fname);
    cout << "opening file..." << endl;
    if (MyFile.is_open()){
-
+      cout << "opened file" << endl;
       //Hybrid Id
-      MyFile << "****************************************************************************" << endl;
+      //MyFile << "****************************************************************************" << endl;
       string id = cTemporaryCommandLineOptions.get_hybridId();
       cout << "Hybrid ; " << id << endl << "-------------------------------------------------------------------------------" << endl;
-      MyFile << "Hybrid ; " << id << "\r" << endl << "****************************************************************************" << endl;
+      MyFile << "Hybrid ; " << id << endl;
          
       //Time measurement
       cout << "calculating time..."<<endl;
       auto end = system_clock::now();
       auto start = system_clock::now();
       time_t start_time = system_clock::to_time_t(start);
-      MyFile << "Started computation at " << ctime(&start_time)<< endl;  
+      MyFile << "Started computation at ;" << ctime(&start_time)<< endl;  
 
       // Test Parameters
       int step = cTemporaryCommandLineOptions.get_step();
       int stepMax = cTemporaryCommandLineOptions.get_stepMax();
-      MyFile << "maxLoad ; " << stepMax <<","<<endl<< "step ; " << step <<"\r"<< endl;
+      MyFile << "maxLoad ; " << stepMax << endl << "step ; " << step << endl;
+      
    
       
 /*!
  *** POWER SUPPLY **********************************************
  */
-/*    cout << "-------------------------------------------------------------------------------" << endl; 
+    cout << "-------------------------------------------------------------------------------" << endl; 
     cout << "Initialising power supply..." << endl;
-    MyFile << "\nInitialising power supply...\r" << endl;
+    MyFile << "\nSupply ; INIT\r" << endl;
+
 
     std::string  docPath = cTemporaryCommandLineOptions.get_docPath();
     pugi::xml_document docSettings;
@@ -118,13 +120,13 @@ int main(int argc, char *argv[])
         throw std::out_of_range(oor.what());
     } 
 
-    channel1->setVoltage(3.4);
-    channel2->setVoltage(11.0);
-    channel3->setVoltage(3.4);
+    channel1->setVoltage(3.5);
+    channel2->setVoltage(6.0);
+    channel3->setVoltage(3.3);
     //channel4->setVoltage(11.0);
 
     channel1->setCurrent(4.0);
-    channel2->setCurrent(0.5);
+    channel2->setCurrent(1.0);
     channel3->setCurrent(4.0);
     //channel4->setCurrent(1.2);
 
@@ -140,32 +142,31 @@ int main(int argc, char *argv[])
               //    << "OVP: " << channel1->getOverVoltageProtection() << std::endl
               << "Voltage: " << channel1->getOutputVoltage() << std::endl
               << "Current: " << channel1->getCurrent() << std::endl;
-    MyFile << "CH 1: ;" << channel1->getOutputVoltage()<< " ; V ; " << channel1->getCurrent() << "; A\r" << endl;
+     MyFile << "CH 1: V ; " << channel1->getOutputVoltage()<< endl << " CH 1: A ; " << channel1->getCurrent() << endl;
                //wait();
     std::cout << "Channel 2 On: " << channel2->isOn()
               << std::endl
               //    << "OVP: " << channel2->getOverVoltageProtection() << std::endl
               << "Voltage: " << channel2->getOutputVoltage() << std::endl
               << "Current: " << channel2->getCurrent() << std::endl;            
-    MyFile << "CH 2: ; " << channel2->getOutputVoltage()<< " ; V ; " << channel2->getCurrent() << "; A\r" << endl;
+    MyFile << "CH 2: V ; " << channel2->getOutputVoltage()<< endl << " CH 2: A ; " << channel2->getCurrent() << endl;
                //wait();
     std::cout << "Channel 3 On: " << channel3->isOn()
               << std::endl
               //    << "OVP: " << channel3->getOverVoltageProtection() << std::endl
               << "Voltage: " << channel3->getOutputVoltage() << std::endl
               << "Current: " << channel3->getCurrent() << std::endl;           
-    MyFile << "CH 3: " << channel3->getOutputVoltage()<< " ; V ; " << channel3->getCurrent() << "; A\r" << endl;
+    MyFile << "CH 3: V ; " << channel3->getOutputVoltage()<< endl << "CH 3: A ; " << channel3->getCurrent() << endl;
               //wait();
     std::cout << "Channel 4 On: " << channel3->isOn()
               << std::endl
               //    << "OVP: " << channel4->getOverVoltageProtection() << std::endl
               << "Voltage: " << channel4->getOutputVoltage() << std::endl
               << "Current: " << channel4->getCurrent() << std::endl;
-    MyFile << "CH 4: " << channel4->getOutputVoltage()<< " ; V ; " << channel4->getCurrent() << "; A\r" << endl;
+    MyFile << "CH 4: V ; " << channel4->getOutputVoltage()<< endl << " CH 4: A ; " << channel4->getCurrent() << endl;
     wait();
      // std::this_thread::sleep_for(std::chrono::milliseconds(500)); 
     std::cout << "-------------------------------------------------------------------------------" << endl;
-*/
  /*!
    *** TEST CARD **********************************************
   */
@@ -174,13 +175,8 @@ int main(int argc, char *argv[])
       string answer ="";
       vector<string> v_answer;
       string val ="";
-    
+      MyFile << "header-end ; 0" << endl;
       std::cout << "-------------------------------------------------------------------------------" << endl;
-      MyFile << "****************************************************************************" << endl;
-    
-      // cTC_PSPOH.spi_write("DEFIB\r\n",verbose);
-      // MyFile << "card reset\r\n";
-      
      
       for (size_t i = 0; i <= stepMax; i+=step)
       {
@@ -188,13 +184,11 @@ int main(int argc, char *argv[])
          cTC_PSPOH.spi_write("HIV ON\r\n",verbose);
          MyFile << "HIV ; ON\r\n";
 
-         //Print supply status after turning on the test card
-         
-         // MyFile << "Channel 1: " << channel1->getOutputVoltage()<< " V, " << channel1->getCurrent() << " A " << endl;
-         // MyFile << "Channel 2: " << channel2->getOutputVoltage()<< " V, " << channel2->getCurrent() << " A " << endl;
-         // MyFile << "Channel 3: " << channel3->getOutputVoltage()<< " V, " << channel3->getCurrent() << " A " << endl;
-         // MyFile << "Channel 4: " << channel4->getOutputVoltage()<< " V, " << channel4->getCurrent() << " A " << endl;
-         // MyFile << "****************************************************************************" << endl;
+         //Print supply status after turning on the test card 
+         MyFile << "CH 1: V ; " << channel1->getOutputVoltage()<< endl << "CH 1: A ; " << channel1->getCurrent() << endl;
+         MyFile << "CH 2: V ; " << channel2->getOutputVoltage()<< endl << "CH 2: A ; " << channel2->getCurrent() << endl;
+         MyFile << "CH 3: V ; " << channel3->getOutputVoltage()<< endl << "CH 3: A ; " << channel3->getCurrent() << endl;
+         MyFile << "CH 4: V ; " << channel4->getOutputVoltage()<< endl << "CH 4: A ; " << channel4->getCurrent() << endl;
     
          string load =  boost::lexical_cast<string>(float(i)/100);
          cTC_PSPOH.spi_write("SET:LOAD "+load+"\r\n",verbose);
@@ -209,7 +203,7 @@ int main(int argc, char *argv[])
            // MyFile << answer << endl;
          }
          v_answer = extract_val(answer);
-         MyFile << "LOAD_1v25L ; " << return_val(v_answer , 0) << "\r" << endl;
+         MyFile << "LOAD_1v25L ; " << return_val(v_answer , 0) << "\r"<< endl;
          MyFile << "LOAD_1v25R ; " << return_val(v_answer , 1) << "\r" << endl;
          MyFile << "LOAD_1v25T ; " << return_val(v_answer , 2) << "\r" << endl;
          MyFile << "LOAD_1vL ; "   << return_val(v_answer , 3) << "\r" << endl;
@@ -287,11 +281,11 @@ int main(int argc, char *argv[])
          MyFile << "T_PTAT ; "   << return_val(v_answer , 5) << "\r" ;
          MyFile << "PTAT_offset ; " << return_val(v_answer , 3) << "\r" << endl;
 
-         MyFile << "-------------------------------------------------------------------------------" << endl;
+         ///MyFile << "-------------------------------------------------------------------------------" << endl;
          if(verbose) {cout << "-------------------------------------------------------------------------------" << endl;}
       }
 
-      std::cout << "Turning off" << std::endl;
+      std::cout << "Turning off ; 0" << std::endl;
       //MyFile << "Turning off... " << endl;
       
       cTC_PSPOH.spi_write("SET:LOAD 0\r\n",verbose);
@@ -308,8 +302,8 @@ int main(int argc, char *argv[])
       time_t end_time = system_clock::to_time_t(end);
 
       cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
-      MyFile << endl << "Finished computation at ; " << ctime(&end_time) << "; elapsed time: " << elapsed_seconds.count() << "; s\r" << endl;
-      MyFile << "****************************************************************************" << endl;
+      MyFile << endl << "Finished computation at ; " << ctime(&end_time) << "; elapsed time: " << elapsed_seconds.count() << "; s" << endl;
+      //MyFile << "****************************************************************************" << endl;
      
       MyFile.close();
 

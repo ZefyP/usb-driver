@@ -1,0 +1,12 @@
+Hybrid ; scanned_hybrid_id
+****************************************************************************
+Started computation at Fri Jan 14 16:04:48 2022
+
+maxLoad ; 10,
+step ; 5
+
+Initialising power supply...
+CH 1: ;3.401 ; V ; 0.0486; A
+CH 2: ; 10.999 ; V ; 0.0192; A
+CH 3: 3.401 ; V ; 0.0132; A
+CH 4: 0 ; V ; 0; A
