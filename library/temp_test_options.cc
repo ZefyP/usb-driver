@@ -35,6 +35,7 @@ TemporaryCommandLineOptions::TemporaryCommandLineOptions(const int argc, const c
     get_verbose();
     get_docPath();
     get_step();
+    get_supply_step();
     get_stepMax();
     get_hybridId();
     new_directory(my_new_directory);
@@ -62,6 +63,11 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
         ("verbose,v",po::bool_switch (&verbose)-> default_value(false), "verbosity level")
         ("step,s", po::value< int > (&step)-> default_value(10), "Load percentage step from NO LOAD to 120pc of the nominal values" )
         ("stepMax,sm", po::value< int > (&stepMax)-> default_value(20), "Maximum load for this test" )
+        
+        ("supstep,sups", po::value< int > (&supply_step)-> default_value(0), "Supply step from set min to max voltage" )
+        ("supmin,supmin", po::value< int > (&supply_min)-> default_value(0), "Supply min" )
+        ("supmax,supmax", po::value< int > (&supply_max)-> default_value(0), "Supply max" )
+                
         //("supply,S",po::value< int > (&supply)-> default_value(0), "Step the input voltage of the power supply")
     
         ("hybridId,id", po::value<string> (&hybridId)->default_value("000"), "Scanned hybrid module ID")
@@ -93,30 +99,44 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
         // return 0;
     }
 
-    //Test Card objects
+    // Test Card objects
 
     if(vm.count( "verbose") )
     {
         verbose = vm["verbose"].as<bool>();
-        cout << "verbose ; " << verbose << "," << endl;
+        cout << "verbose ; " << verbose << endl;
         cout << argc-1 << " args were given to this program. These are: " << endl;
         for (size_t i = 1; i < argc; i++){
             cout << argv[i] << endl;
         }
     }
 
-
+    // load
     if(vm.count("step") )
     {
-        cout << "step ; " << step << "," << endl;
+        cout << "step ; " << step << endl;
     }
 
     if(vm.count("stepMax" ))
     {   
         stepMax = vm["stepMax"].as<int>();
-        cout << "maxLoad ; " << stepMax << "," << endl;
+        cout << "maxLoad ; " << stepMax << endl;
     }
 
+    // supply
+    if(vm.count("supstep") )
+    {
+        cout << "Supply step ; " << supply_step << endl;
+    }
+
+    if(vm.count("supmin") )
+    {
+        cout << "Supply min ; " << supply_min << endl;
+    }
+    if(vm.count("supmax") )
+    {
+        cout << "Supply max ; " << supply_max << endl;
+    }
 
     // Power supply object
     if(vm.count("config"))
@@ -128,7 +148,7 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
     // hybridId object
     if(vm.count("hybridId"))
     {
-        cout << "hybridId ; " << vm["hybridId"].as<string>() <<","<< endl;
+        cout << "hybridId ; " << vm["hybridId"].as<string>() << endl;
     }
 
     //New Directory
@@ -147,13 +167,13 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
     // GUI Object
     if(vm.count("useGui"))
     {
-        cout << "Gflag ; " << vm["useGui"].as<bool>() <<","<< endl;
+        cout << "Gflag ; " << vm["useGui"].as<bool>() << endl;
      
       // Pipe
       if(vm.count("pipe"))
       {
         namedpipe_path = vm["pipe"].as<string>();
-        cout << "pipe path ; " << namedpipe_path <<","<< endl;
+        cout << "pipe path ; " << namedpipe_path << endl;
       }
 
       gui::init(argv [ argc - 1 ] );
@@ -189,6 +209,20 @@ int TemporaryCommandLineOptions::get_stepMax()
 string TemporaryCommandLineOptions::get_hybridId()
 {
     return hybridId;
+}
+
+
+int TemporaryCommandLineOptions::get_supply_step()
+{
+    return supply_step;
+}
+int TemporaryCommandLineOptions::get_supply_min()
+{
+    return supply_min;
+}
+int TemporaryCommandLineOptions::get_supply_max()
+{
+    return supply_max;
 }
 
 bool TemporaryCommandLineOptions::new_directory(string name) 

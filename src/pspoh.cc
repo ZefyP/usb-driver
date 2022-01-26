@@ -85,7 +85,13 @@ int main(int argc, char *argv[])
       int step = cTemporaryCommandLineOptions.get_step();
       int stepMax = cTemporaryCommandLineOptions.get_stepMax();
       MyFile << "maxLoad ; " << stepMax << endl << "step ; " << step << endl;
-      
+      int supstep = cTemporaryCommandLineOptions.get_supply_step();
+      int supmin = cTemporaryCommandLineOptions.get_supply_min();
+      int supmax = cTemporaryCommandLineOptions.get_supply_max();
+      MyFile << "SupStep ;" << supstep << endl;
+      MyFile << "SupMin ;" << supmin << endl;
+      MyFile << "SupMax ;" << supmax << endl;
+
    
       
 /*!
@@ -95,7 +101,7 @@ int main(int argc, char *argv[])
     cout << "Initialising power supply..." << endl;
     MyFile << "\nSupply ; INIT\r" << endl;
 
-
+    
     std::string  docPath = cTemporaryCommandLineOptions.get_docPath();
     pugi::xml_document docSettings;
     DeviceHandler theHandler;

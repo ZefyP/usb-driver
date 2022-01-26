@@ -52,6 +52,11 @@ class TemporaryCommandLineOptions
       std::string get_hybridId();
       int get_step();
       int get_stepMax();
+
+      int get_supply_step();
+      int get_supply_min();
+      int get_supply_max();
+      
       bool new_directory(std::string name);
       std::string get_new_directory(); 
       bool get_verbose();
@@ -74,7 +79,10 @@ class TemporaryCommandLineOptions
       int step;   //for loads
       int stepMax; 
 
-      int supply; //for supply step
+      int supply;
+      int supply_step;
+      int supply_min;
+      int supply_max;
 
       bool flagG; //for gui
       std::string namedpipe_path;
