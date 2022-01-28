@@ -355,7 +355,6 @@ vector<string> extract_val(string sentence ){
 
    // for (size_t i=0; i<v.size(); i++){
    //    cout << v[i] << endl;
-
    // }
    return v; 
 }
