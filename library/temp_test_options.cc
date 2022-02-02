@@ -167,22 +167,7 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
     // GUI Object
     if(vm.count("useGui"))
     {
-        cout << "Gflag ; " << vm["useGui"].as<bool>() << endl;
-     
-      // Pipe
-      if(vm.count("pipe"))
-      {
-        namedpipe_path = vm["pipe"].as<string>();
-        cout << "pipe path ; " << namedpipe_path << endl;
-      }
-
-    //   gui::init(argv [ argc - 1 ] );
-    //   gui::message("hello gui");
-    //   gui::status("Test has started please wait");
-    //   gui::progress(0.1/10.0);
-    //   gui::data("ResultsDirectory","../results/test_gui/result0.txt" );
-
-
+        cout << "Guiflag ; " << vm["useGui"].as<bool>() << endl;
     }
 
    

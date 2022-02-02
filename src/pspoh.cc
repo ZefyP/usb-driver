@@ -66,29 +66,29 @@ int main(int argc, char *argv[])
    // fname = fname_base + boost::lexical_cast<string>(cnt++)+ext;
    do {
       if(cnt!=0 && verbose){
-         cout << "file exists : \"" << fname << "\"" << endl;
+         std::cout << "file exists : \"" << fname << "\"" << endl;
       }
       fname = fname_base + boost::lexical_cast<string>(cnt++)+ext;
 
    }while (fileExists(fname));
-   cout << "path is----------------->"<<  fname << endl;
+   std::cout << "path is----------------->"<<  fname << endl;
    if( cGui ){
       gui::data("ResultsDirectory",fname.c_str()); //sending the results directory path to the gui
    }
    
-   cout << "creating file...\"" << fname << "\""<< endl;
+   std::cout << "creating file...\"" << fname << "\""<< endl;
 
    ofstream MyFile(fname);
-   cout << "opening file..." << endl;
+   std::cout << "opening file..." << endl;
    if (MyFile.is_open()){
-      cout << "opened file" << endl;
+      std::cout << "opened file" << endl;
       //Hybrid Id
       //MyFile << "****************************************************************************" << endl;
       string id = cTemporaryCommandLineOptions.get_hybridId();
-      cout << "Hybrid ; " << id << endl << "-------------------------------------------------------------------------------" << endl;
+      std::cout << "Hybrid ; " << id << endl << "-------------------------------------------------------------------------------" << endl;
       MyFile << "Hybrid ; " << id << endl;
       //Time measurement
-      cout << "calculating time..."<<endl;
+      std::cout << "calculating time..."<<endl;
       auto end = system_clock::now();
       auto start = system_clock::now();
       time_t start_time = system_clock::to_time_t(start);
@@ -108,8 +108,8 @@ int main(int argc, char *argv[])
 /*!
  *** POWER SUPPLY **********************************************
  */
-    cout << "-------------------------------------------------------------------------------" << endl; 
-    cout << "Initialising power supply..." << endl;
+    std::cout << "-------------------------------------------------------------------------------" << endl; 
+    std::cout << "Initialising power supply..." << endl;
     MyFile << "\nSupply ; INIT\r" << endl;
 
     
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
          channel2->setVoltage( ((float)sup_volt) /10 ); //! because the test parameter calls 105 instead of 10.5 V
          //channel2->setCurrent(1.0);
          MyFile << "\nSET:VIN ; "<< (float)sup_volt/10 << endl;
-         if(verbose) {cout << "-------------->SET:VIN ;"<< sup_volt << endl;}
+         if(verbose) {std::cout << "-------------->SET:VIN ;"<< sup_volt << endl;}
 
          
          if (turn_on == true)
@@ -342,7 +342,7 @@ int main(int argc, char *argv[])
       duration<double> elapsed_seconds = end-start;
       time_t end_time = system_clock::to_time_t(end);
 
-      cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
+      std::cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
       MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "elapsed time(s);" << elapsed_seconds.count() << endl;
      
       MyFile.close();
