@@ -61,7 +61,7 @@ class TemporaryCommandLineOptions
       std::string get_new_directory(); 
       bool get_verbose();
       std::string get_pipe_path();
-      
+      bool get_usegui();
    
       //not implemented -- not for use 
       //limits the available contructor options to ones chosen below

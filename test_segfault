@@ -2,3 +2,4 @@ msg:hello gui
 stat:Test has started please wait
 prog:0.01
 data:ResultsDirectory>../results/test_gui/result0.txt
+prog:1

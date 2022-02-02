@@ -1,0 +1,12 @@
+Hybrid ; 000
+Started computation at ; Mon Jan 31 15:56:00 2022
+
+maxLoad ; 10
+step ; 10
+SupStep ; 0
+SupMin ; 0
+SupMax ; 0
+
+Supply ; INIT
+CH 2: V ; 11.001
+CH 2: A ; 0.0049

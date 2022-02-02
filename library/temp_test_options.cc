@@ -58,7 +58,7 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
 
     desc.add_options()
         ("help,h", "produce help message")
-        ("config,c", po::value<string>()->default_value("default"),"set configuration file path for the power supply")
+        ("config,f", po::value<string>()->default_value("default"),"set configuration file path for the power supply")
         //("verbose,v", po::value<string>()->implicit_value("0"), "verbosity level")
         ("verbose,v",po::bool_switch (&verbose)-> default_value(false), "verbosity level")
         ("step,s", po::value< int > (&step)-> default_value(10), "Load percentage step from NO LOAD to 120pc of the nominal values" )
@@ -66,12 +66,12 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
         
         ("supstep,sups", po::value< int > (&supply_step)-> default_value(0), "Supply step from set min to max voltage" )
         ("supmin,supmin", po::value< int > (&supply_min)-> default_value(0), "Supply min" )
-        ("supmax,supmax", po::value< int > (&supply_max)-> default_value(0), "Supply max" )
+        ("supmax,supmax", po::value< int > (&supply_max)-> default_value(12), "Supply max" )
                 
         //("supply,S",po::value< int > (&supply)-> default_value(0), "Step the input voltage of the power supply")
     
         ("hybridId,id", po::value<string> (&hybridId)->default_value("000"), "Scanned hybrid module ID")
-        ("newdir,nd", po::value <string> (&my_new_directory), "Test results will be saved in a new directory")
+        ("output,o", po::value <string> (&my_new_directory), "Test results will be saved in a new directory")
 
         ("useGui,G",po::bool_switch (&flagG)-> default_value(false),"Use the Gui")
         ("pipe,p", po::value<string>(&namedpipe_path),"Set pipe file path for the gui");
@@ -152,9 +152,9 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
     }
 
     //New Directory
-     if(vm.count("newdir")) //abstract at later stage
+     if(vm.count("output")) //abstract at later stage
     {
-        my_new_directory = vm["newdir"].as<string>();
+        my_new_directory = vm["output"].as<string>();
         new_directory(my_new_directory);
         cout << "The results will be saved in directory named "<< my_new_directory << endl;
     }else
@@ -176,11 +176,11 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
         cout << "pipe path ; " << namedpipe_path << endl;
       }
 
-      gui::init(argv [ argc - 1 ] );
-      gui::message("hello gui");
-      gui::status("Test has started please wait");
-      gui::progress(0.1/10.0);
-      gui::data("ResultsDirectory","../results/test_gui/result0.txt" );
+    //   gui::init(argv [ argc - 1 ] );
+    //   gui::message("hello gui");
+    //   gui::status("Test has started please wait");
+    //   gui::progress(0.1/10.0);
+    //   gui::data("ResultsDirectory","../results/test_gui/result0.txt" );
 
 
     }
@@ -243,7 +243,14 @@ bool TemporaryCommandLineOptions::get_verbose()
     return verbose;
 }
 
+
+bool TemporaryCommandLineOptions::get_usegui()
+{
+    return flagG;
+}
+
 string TemporaryCommandLineOptions::get_pipe_path()
 {
+    cout << "Named pipe path" << namedpipe_path << endl;
     return namedpipe_path;
 }

@@ -17,7 +17,7 @@ TC_PSPOH::TC_PSPOH()
         //Get product string
         product_string.resize(64);
         cCP2130.get_product_string(&product_string[0]);                             //gets ID product descriptor
-        cout << "The USB Descriptor is " << product_string << endl;
+        cout << "USB Descriptor ; " << product_string << endl;
 
         //SPI buffer
         turn_off_led();
