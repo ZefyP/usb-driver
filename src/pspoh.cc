@@ -137,20 +137,22 @@ int main(int argc, char *argv[])
         throw std::out_of_range(oor.what());
     } 
 
+    channel2 -> setOverVoltageProtection(13.0);
+
     // channel1->setVoltage(3.5);
-    channel2->setVoltage(11.0);
-    //channel3->setVoltage(3.3);
-    //channel4->setVoltage(11.0);
+    // channel2->setVoltage(11.0);
+    // channel3->setVoltage(3.3);
+    // channel4->setVoltage(11.0);
 
-    //channel1->setCurrent(4.0);
+    // channel1->setCurrent(4.0);
     channel2->setCurrent(1.0);
-    //channel3->setCurrent(4.0);
-    //channel4->setCurrent(1.2);
+    // channel3->setCurrent(4.0);
+    // channel4->setCurrent(1.2);
 
-    //channel1->turnOn();
-    channel2->turnOn();
-    //channel3->turnOn();
-    //channel4->turnOn();
+    // channel1->turnOn();
+    //channel2->turnOn();
+    // channel3->turnOn();
+    // channel4->turnOn();
     //allow a moment to stabilise supply input values
     std::this_thread::sleep_for(std::chrono::milliseconds(300)); //300ms min
     
@@ -198,10 +200,12 @@ int main(int argc, char *argv[])
       
       bool turn_on = true;
       
-      for (float sup_volt = supmin; sup_volt<=supmax; sup_volt +=supstep){
-         channel2->setVoltage(sup_volt);
+      for (int sup_volt = supmin; sup_volt<=supmax; sup_volt +=supstep){
+         channel2->setVoltage( ((float)sup_volt) /10 ); //! because the test parameter calls 105 instead of 10.5 V
          //channel2->setCurrent(1.0);
          MyFile << "\nSET:VIN ; "<< sup_volt << endl;
+         if(verbose) {cout << "-------------->SET:VIN ;"<< sup_volt << endl;}
+
          
          if (turn_on == true)
          {
