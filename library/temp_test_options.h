@@ -50,6 +50,7 @@ class TemporaryCommandLineOptions
       std::string get_hybridId();
 
       int get_step();
+      int get_stepMin();
       int get_stepMax();
 
       int get_supply_step();
@@ -76,9 +77,9 @@ class TemporaryCommandLineOptions
       std::string hybridId;
 
       int step;   //for loads
+      int stepMin;
       int stepMax; 
 
-      int supply;
       int supply_step;
       int supply_min;
       int supply_max;
@@ -87,12 +88,4 @@ class TemporaryCommandLineOptions
       bool flagV; //for vector
 
 };
-
-
-
-
-
-
-
-
 #endif

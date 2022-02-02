@@ -48,7 +48,6 @@ int main(int argc, char *argv[])
    TemporaryCommandLineOptions cTemporaryCommandLineOptions(argc, argv);
          
    bool verbose = cTemporaryCommandLineOptions.get_verbose();
-   
    bool cGui = cTemporaryCommandLineOptions.get_usegui();
    bool useVector = cTemporaryCommandLineOptions.get_usevector();
    
@@ -97,13 +96,14 @@ int main(int argc, char *argv[])
       int step = cTemporaryCommandLineOptions.get_step();
       int stepMax = cTemporaryCommandLineOptions.get_stepMax();
       MyFile << "maxLoad ; " << stepMax << endl << "step ; " << step << endl;
+      int stepMin = cTemporaryCommandLineOptions.get_stepMin();
+      MyFile << "minLoad ; " << stepMin << endl;
       int supstep = cTemporaryCommandLineOptions.get_supply_step();
       int supmin = cTemporaryCommandLineOptions.get_supply_min();
       int supmax = cTemporaryCommandLineOptions.get_supply_max();
       MyFile << "SupStep ; " << supstep << endl;
       MyFile << "SupMin ; " << supmin << endl;
       MyFile << "SupMax ; " << supmax << endl;
-      // int arr_load_settings[4] = {0,80,100,120};
       std::vector<int> arr_load_settings = {0,80,100,120};
       
 /*!
@@ -201,15 +201,12 @@ int main(int argc, char *argv[])
       
       bool turn_on = true;
       int selectedLoad = 0;
-      // int stepMin = get_stepmin();
-      int stepMin = 0;    
       
       for (int sup_volt = supmin; sup_volt < (supmax+ supstep*0.5); sup_volt +=supstep){
          channel2->setVoltage( ((float)sup_volt) /10 ); //! because the test parameter calls 105 instead of 10.5 V
          //channel2->setCurrent(1.0);
          MyFile << "\nSET:VIN ; "<< (float)sup_volt/10 << endl;
          if(verbose) {std::cout << "-------------->SET:VIN ;"<< sup_volt << endl;}
-
          
          if (turn_on == true)
          {
@@ -219,12 +216,15 @@ int main(int argc, char *argv[])
             turn_on = false;
          }
 
+         stepMin = cTemporaryCommandLineOptions.get_stepMin();
+         
          if(useVector)
          {
+            stepMin = 0;
             stepMax = arr_load_settings.size() -1 ; 
             step = 1;
          }
-
+         
          //for (size_t i = 0; i <= stepMax; i+=step) //(temp!!!) uncomment for load sweep to stepMax
          //for ( auto selectedLoad : arr_load_settings)
          for (int index = stepMin ; index <= stepMax; index+=step)
@@ -339,8 +339,7 @@ int main(int argc, char *argv[])
 
             if(verbose) {std::cout << "-------------------------------------------------------------------------------" << endl;}
          } // end load loop
-
-        // if(sup_volt == supmax || supstep == 0 ) {supstep = 1; } // to avoid issues with floats and exit the loop at supvolt=max
+        
       } // end supply loop
 
       std::cout << "Turning off ; 0" << std::endl;

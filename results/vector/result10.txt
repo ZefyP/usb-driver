@@ -1,0 +1,11 @@
+Hybrid ; 000
+maxLoad ; 20
+step ; 10
+minLoad ; 20
+SupStep ; 1
+SupMin ; 109
+SupMax ; 110
+
+Supply ; INIT
+CH 2: V ; 11.001
+CH 2: A ; 0.0145

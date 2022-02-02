@@ -27,16 +27,21 @@ TemporaryCommandLineOptions::TemporaryCommandLineOptions(const int argc, const c
     hybridId(""),
     step(60),
     stepMax(120),
-    supply(0),
     flagG(false),
     flagV(false)
 {
     setup(argc, argv);
     get_verbose();
     get_docPath();
+
     get_step();
-    get_supply_step();
+    get_stepMin();
     get_stepMax();
+
+    get_supply_step();
+    get_supply_min();
+    get_supply_max();
+
     get_hybridId();
     new_directory(my_new_directory);
     get_new_directory();
@@ -62,21 +67,20 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
         ("verbose,v",po::bool_switch (&verbose)-> default_value(false), "verbosity level")
         
         ("step,s", po::value< int > (&step)-> default_value(10), "Load percentage step from NO LOAD to 120pc of the nominal values" )
-        ("stepMax,sm", po::value< int > (&stepMax)-> default_value(20), "Maximum load for this test" )
+        ("stepMin", po::value< int > (&stepMin)-> default_value(0), "Minimum load for this test" )
+        ("stepMax", po::value< int > (&stepMax)-> default_value(20), "Maximum load for this test" )
         
-        ("supstep,sups", po::value< int > (&supply_step)-> default_value(10), "Supply step from set min to max voltage" )
-        ("supmin,supmin", po::value< int > (&supply_min)-> default_value(110), "Supply min" )
-        ("supmax,supmax", po::value< int > (&supply_max)-> default_value(110), "Supply max" )
+        ("supstep", po::value< int > (&supply_step)-> default_value(10), "Supply step from set min to max voltage" )
+        ("supmin", po::value< int > (&supply_min)-> default_value(110), "Supply min" )
+        ("supmax", po::value< int > (&supply_max)-> default_value(110), "Supply max" )
                 
-        //("supply,S",po::value< int > (&supply)-> default_value(0), "Step the input voltage of the power supply")
-    
-        ("hybridId,id", po::value<string> (&hybridId)->default_value("000"), "Scanned hybrid module ID")
+        
+        ("hybridId,i", po::value<string> (&hybridId)->default_value("000"), "Scanned hybrid module ID")
         ("output,o", po::value <string> (&my_new_directory), "Test results will be saved in a new directory")
 
         ("useGui,G",po::bool_switch (&flagG)-> default_value(false),"Use the Gui")
-        ("useVector,uv",po::bool_switch (&flagV)-> default_value(false),"Test with array of selected loads");
+        ("useVector,V",po::bool_switch (&flagV)-> default_value(false),"Test with array of selected loads");   
         
-        //("pipe,p", po::value<string>(&namedpipe_path),"Set pipe file path for the gui");
         
 
     //Parses the command line
@@ -117,6 +121,12 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
     if(vm.count("step") )
     {
         cout << "step ; " << step << endl;
+    }
+
+    if(vm.count("stepMin" ))
+    {   
+        stepMax = vm["stepMin"].as<int>();
+        cout << "minLoad ; " << stepMin << endl;
     }
 
     if(vm.count("stepMax" ))
@@ -196,6 +206,11 @@ int TemporaryCommandLineOptions::get_step()
 int TemporaryCommandLineOptions::get_stepMax()
 {
     return stepMax; 
+}
+
+int TemporaryCommandLineOptions::get_stepMin()
+{
+    return stepMin;
 }
 
 string TemporaryCommandLineOptions::get_hybridId()
