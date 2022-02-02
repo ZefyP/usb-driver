@@ -47,10 +47,11 @@ int main(int argc, char *argv[])
    // Create object for command argument parsing
    TemporaryCommandLineOptions cTemporaryCommandLineOptions(argc, argv);
          
-   bool verbose = cTemporaryCommandLineOptions.get_verbose(); //later create get_verbose();
-   //cout << "pipepath ; "<< cTemporaryCommandLineOptions.get_pipe_path() << "," << endl;
-
+   bool verbose = cTemporaryCommandLineOptions.get_verbose();
+   
    bool cGui = cTemporaryCommandLineOptions.get_usegui();
+   bool useVector = cTemporaryCommandLineOptions.get_usevector();
+   
    if( cGui ){
       gui::init( argv [ argc - 1 ] );
       gui::message("hello gui");

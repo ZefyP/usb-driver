@@ -24,8 +24,6 @@ namespace po = boost::program_options;
 // example command: pspoh -f ../results1.txt --time -35000.2 --value 42 -G
 // --------------------------------------------------------------------------
 
-//processes the program options entered in main
-// void parcer(int argc, char* argv[]);
 
 std::string path; //temp fix for get_docPath
 
@@ -50,6 +48,7 @@ class TemporaryCommandLineOptions
       void setup(const int argc, const char* const argv[]); //to setup the program options
       std::string get_docPath();
       std::string get_hybridId();
+
       int get_step();
       int get_stepMax();
 
@@ -60,9 +59,9 @@ class TemporaryCommandLineOptions
       bool new_directory(std::string name);
       std::string get_new_directory(); 
       bool get_verbose();
-      std::string get_pipe_path();
+      
       bool get_usegui();
-   
+      bool get_usevector();
       //not implemented -- not for use 
       //limits the available contructor options to ones chosen below
       // TemporaryCommandLineOptions(const TemporaryCommandLineOptions &rhs );
@@ -85,7 +84,7 @@ class TemporaryCommandLineOptions
       int supply_max;
 
       bool flagG; //for gui
-      std::string namedpipe_path;
+      bool flagV; //for vector
 
 };
 

@@ -29,7 +29,7 @@ TemporaryCommandLineOptions::TemporaryCommandLineOptions(const int argc, const c
     stepMax(120),
     supply(0),
     flagG(false),
-    namedpipe_path("")
+    flagV(false)
 {
     setup(argc, argv);
     get_verbose();
@@ -40,8 +40,8 @@ TemporaryCommandLineOptions::TemporaryCommandLineOptions(const int argc, const c
     get_hybridId();
     new_directory(my_new_directory);
     get_new_directory();
-    
-    get_pipe_path();
+    get_usegui();
+    get_usevector();
 
 }
 
@@ -59,8 +59,8 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
     desc.add_options()
         ("help,h", "produce help message")
         ("config,f", po::value<string>()->default_value("default"),"set configuration file path for the power supply")
-        //("verbose,v", po::value<string>()->implicit_value("0"), "verbosity level")
         ("verbose,v",po::bool_switch (&verbose)-> default_value(false), "verbosity level")
+        
         ("step,s", po::value< int > (&step)-> default_value(10), "Load percentage step from NO LOAD to 120pc of the nominal values" )
         ("stepMax,sm", po::value< int > (&stepMax)-> default_value(20), "Maximum load for this test" )
         
@@ -74,7 +74,9 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
         ("output,o", po::value <string> (&my_new_directory), "Test results will be saved in a new directory")
 
         ("useGui,G",po::bool_switch (&flagG)-> default_value(false),"Use the Gui")
-        ("pipe,p", po::value<string>(&namedpipe_path),"Set pipe file path for the gui");
+        ("useVector,uv",po::bool_switch (&flagV)-> default_value(false),"Test with array of selected loads");
+        
+        //("pipe,p", po::value<string>(&namedpipe_path),"Set pipe file path for the gui");
         
 
     //Parses the command line
@@ -169,11 +171,16 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
     {
         cout << "Guiflag ; " << vm["useGui"].as<bool>() << endl;
     }
-
+    
+    // Vector Object
+    if(vm.count("useVector"))
+    {
+        cout << "Vectorflag ; " << vm["useVector"].as<bool>() << endl;
+    }
    
 
         
-}   
+}//end Options::setup()   
 
 string TemporaryCommandLineOptions::get_docPath()
 {
@@ -234,8 +241,7 @@ bool TemporaryCommandLineOptions::get_usegui()
     return flagG;
 }
 
-string TemporaryCommandLineOptions::get_pipe_path()
+bool::TemporaryCommandLineOptions::get_usevector()
 {
-    cout << "Named pipe path" << namedpipe_path << endl;
-    return namedpipe_path;
+    return flagV;
 }
