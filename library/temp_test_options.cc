@@ -64,9 +64,9 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
         ("step,s", po::value< int > (&step)-> default_value(10), "Load percentage step from NO LOAD to 120pc of the nominal values" )
         ("stepMax,sm", po::value< int > (&stepMax)-> default_value(20), "Maximum load for this test" )
         
-        ("supstep,sups", po::value< int > (&supply_step)-> default_value(0), "Supply step from set min to max voltage" )
-        ("supmin,supmin", po::value< int > (&supply_min)-> default_value(0), "Supply min" )
-        ("supmax,supmax", po::value< int > (&supply_max)-> default_value(12), "Supply max" )
+        ("supstep,sups", po::value< int > (&supply_step)-> default_value(10), "Supply step from set min to max voltage" )
+        ("supmin,supmin", po::value< int > (&supply_min)-> default_value(110), "Supply min" )
+        ("supmax,supmax", po::value< int > (&supply_max)-> default_value(110), "Supply max" )
                 
         //("supply,S",po::value< int > (&supply)-> default_value(0), "Step the input voltage of the power supply")
     

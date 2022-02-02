@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 
     try
     {
-        powerSupply = theHandler.getPowerSupply("MyRohdeSchwarz");
+      powerSupply = theHandler.getPowerSupply("MyRohdeSchwarz");
       //channel1    = powerSupply->getChannel("LV_Module1");
       channel2    = powerSupply->getChannel("LV_Module2");
       //channel3    = powerSupply->getChannel("LV_Module3");
@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
     // channel4->setCurrent(1.2);
 
     // channel1->turnOn();
-    //channel2->turnOn();
+    channel2->turnOn();
     // channel3->turnOn();
     // channel4->turnOn();
     //allow a moment to stabilise supply input values
@@ -200,10 +200,10 @@ int main(int argc, char *argv[])
       
       bool turn_on = true;
       
-      for (int sup_volt = supmin; sup_volt<=supmax; sup_volt +=supstep){
+      for (int sup_volt = supmin; sup_volt < (supmax+ supstep*0.5); sup_volt +=supstep){
          channel2->setVoltage( ((float)sup_volt) /10 ); //! because the test parameter calls 105 instead of 10.5 V
          //channel2->setCurrent(1.0);
-         MyFile << "\nSET:VIN ; "<< sup_volt << endl;
+         MyFile << "\nSET:VIN ; "<< (float)sup_volt << endl;
          if(verbose) {cout << "-------------->SET:VIN ;"<< sup_volt << endl;}
 
          
@@ -320,10 +320,10 @@ int main(int argc, char *argv[])
                   gui::progress( float( 1+std::distance(arr_load_settings.begin(), std::find(arr_load_settings.begin(), arr_load_settings.end(), selectedLoad) ) ) / (arr_load_settings.size() + 2) );
             }
 
-            if(verbose) {cout << "-------------------------------------------------------------------------------" << endl;}
+            if(verbose) {std::cout << "-------------------------------------------------------------------------------" << endl;}
          } // end load loop
 
-         if(sup_volt == supmax || supstep == 0 ) {supstep = 1; } // to avoid issues with floats and exit the loop at supvolt=max
+        // if(sup_volt == supmax || supstep == 0 ) {supstep = 1; } // to avoid issues with floats and exit the loop at supvolt=max
       } // end supply loop
 
       std::cout << "Turning off ; 0" << std::endl;
