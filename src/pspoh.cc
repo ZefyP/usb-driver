@@ -200,6 +200,9 @@ int main(int argc, char *argv[])
       std::cout << "-------------------------------------------------------------------------------" << endl;
       
       bool turn_on = true;
+      int selectedLoad = 0;
+      // int stepMin = get_stepmin();
+      int stepMin = 0;    
       
       for (int sup_volt = supmin; sup_volt < (supmax+ supstep*0.5); sup_volt +=supstep){
          channel2->setVoltage( ((float)sup_volt) /10 ); //! because the test parameter calls 105 instead of 10.5 V
@@ -216,17 +219,30 @@ int main(int argc, char *argv[])
             turn_on = false;
          }
 
-         //for (size_t i = 0; i <= stepMax; i+=step) //(temp!!!) uncomment for load sweep to stepMax
-         for ( auto selectedLoad : arr_load_settings)
+         if(useVector)
          {
-         
+            stepMax = arr_load_settings.size() -1 ; 
+            step = 1;
+         }
+
+         //for (size_t i = 0; i <= stepMax; i+=step) //(temp!!!) uncomment for load sweep to stepMax
+         //for ( auto selectedLoad : arr_load_settings)
+         for (int index = stepMin ; index <= stepMax; index+=step)
+         {
+            if(useVector)
+            {
+               selectedLoad = arr_load_settings[index];
+            }else{
+               selectedLoad = index;
+            }
+
             //Print supply status after turning on the test card 
             // MyFile << "CH 1: V ; " << channel1->getOutputVoltage()<< endl << "CH 1: A ; " << channel1->getCurrent() << endl;
             MyFile << "CH2 V ; " << channel2->getOutputVoltage()<< endl << "CH2 A ; " << channel2->getCurrent() << endl;
             //MyFile << "CH 3: V ; " << channel3->getOutputVoltage()<< endl << "CH 3: A ; " << channel3->getCurrent() << endl;
             // MyFile << "CH 4: V ; " << channel4->getOutputVoltage()<< endl << "CH 4: A ; " << channel4->getCurrent() << endl;
             
-            string load =  boost::lexical_cast<string>(float(selectedLoad)/100); 
+            string load =  boost::lexical_cast<string>( float(selectedLoad) /100 ); 
             cTC_PSPOH.spi_write("SET:LOAD "+load+"\r\n",verbose);
             MyFile << "SET:LOAD ; "+load+"\r\n"<<endl;
 
