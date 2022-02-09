@@ -1,0 +1,9 @@
+Hybrid ; 000
+maxLoad ; 100
+step ; 100
+minLoad ; 0
+SupStep ; 20
+SupMin ; 60
+SupMax ; 100
+
+Supply ; INIT

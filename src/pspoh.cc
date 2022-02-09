@@ -9,6 +9,7 @@
 #include <boost/lexical_cast.hpp>
 #include <fstream>
 #include <sstream>
+#include <string>
 #include <bits/stdc++.h>
 //#define DEBUGO
 //#define RESET
@@ -42,6 +43,9 @@ vector<string> extract_val(string sentence);
 string return_val( vector<string> values , int pos );
 bool scpi_error_occured(string sentence);
 
+int ERR_HYB_CONN = 11; // Hybrid module not properly connected.
+int ERR_SCPI = 22; // An error was flagged by the microcontroller.
+
 int main(int argc, char *argv[])
 {
    // Create object for command argument parsing
@@ -58,7 +62,7 @@ int main(int argc, char *argv[])
       gui::progress(0.1/10.0);
    }
 
-   //Files
+   // Files
    string fname_base = "./results/" + cTemporaryCommandLineOptions.get_new_directory();
    fname_base = fname_base + "/result" ;
    string ext= ".txt", fname;
@@ -142,7 +146,7 @@ int main(int argc, char *argv[])
     channel1 -> setOverVoltageProtection(4.0);
     channel2 -> setOverVoltageProtection(6.0);
     channel3 -> setOverVoltageProtection(4.0);
-    channel4 -> setOverVoltageProtection(12.0);
+    channel4 -> setOverVoltageProtection(12.01);
 
     channel1->setVoltage(3.5);
     channel2->setVoltage(5.0);
@@ -242,10 +246,10 @@ int main(int argc, char *argv[])
             }
 
             //Print supply status after turning on the test card 
-            MyFile << "CH 1: V ; " << channel1->getOutputVoltage()<< endl << "CH 1: A ; " << channel1->getCurrent() << endl;
-            MyFile << "CH2 V ; " << channel2->getOutputVoltage()<< endl << "CH2 A ; " << channel2->getCurrent() << endl;
-            MyFile << "CH 3: V ; " << channel3->getOutputVoltage()<< endl << "CH 3: A ; " << channel3->getCurrent() << endl;
-            MyFile << "CH 4: V ; " << channel4->getOutputVoltage()<< endl << "CH 4: A ; " << channel4->getCurrent() << endl;
+            MyFile << "CH1: V ; " << channel1->getOutputVoltage()<< endl << "CH1: A ; " << channel1->getCurrent() << endl;
+            MyFile << "CH2: V ; " << channel2->getOutputVoltage()<< endl << "CH2: A ; " << channel2->getCurrent() << endl;
+            MyFile << "CH3: V ; " << channel3->getOutputVoltage()<< endl << "CH3: A ; " << channel3->getCurrent() << endl;
+            MyFile << "CH4: V ; " << channel4->getOutputVoltage()<< endl << "CH4: A ; " << channel4->getCurrent() << endl;
             
             string load =  boost::lexical_cast<string>( float(selectedLoad) /100 ); 
             cTC_PSPOH.spi_write("SET:LOAD "+load+"\r\n",verbose);
@@ -313,6 +317,19 @@ int main(int argc, char *argv[])
             MyFile << "C_1v25_T ; " << return_val(v_answer , 4) << endl;
             MyFile << "C_1v_L ; "   << return_val(v_answer , 5) << endl;
             MyFile << "C_1v_R ; "   << return_val(v_answer , 6) << endl;
+
+            // Check if the hybrid is properly connected. If the measurement is below 0.01A the test should stop 
+            for (int p = 0; p <= 6; p++)
+            {
+               std::string value_str= v_answer[p];
+               float value = std::stof(value_str); // string to float 
+               if (std::stof(load) != 0.0 ){
+                  if ( value < 0.01 ){
+                     cout << "Error Hybrid connection" << endl;
+                     exit(ERR_HYB_CONN);
+                  }
+               }
+            }
 
             // MyFile << "Power: \n";
             cTC_PSPOH.spi_write("MEAS:PIN?\r\n",verbose);
@@ -386,8 +403,8 @@ int main(int argc, char *argv[])
             MyFile << "T_PCB ; "    << return_val(v_answer , 0) << endl;
             MyFile << "T_AMB ; "    << return_val(v_answer , 1) << endl;
             MyFile << "T_HYB ; "    << return_val(v_answer , 2) << endl;
-            MyFile << "T_PTAT ; "   << return_val(v_answer , 3) << endl;
-            MyFile << "PTAT_offset ; " << return_val(v_answer , 4) << endl;
+            MyFile << "T_PTAT ; "   << return_val(v_answer , 5) << endl;
+            MyFile << "PTAT_offset ; " << return_val(v_answer , 3) << endl;
 
             
             if( cGui ){
@@ -488,7 +505,7 @@ vector<string> extract_val(string sentence ){
 
    //check for SCPI error in the result
       if ( scpi_error_occured(all_values.str()) ){
-         exit(22);
+         exit(ERR_SCPI);
       }
    return v; 
 }
