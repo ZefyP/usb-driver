@@ -206,12 +206,12 @@ int main(int argc, char *argv[])
       
       bool turn_on = true;
       int selectedLoad = 0;
-      
-      for (int sup_volt = supmin; sup_volt < (supmax+ supstep*0.5); sup_volt +=supstep){
+      for (int sup_volt = supmax; sup_volt > (supmin- supstep*0.5); sup_volt -=supstep){
+      //for (int sup_volt = supmin; sup_volt < (supmax+ supstep*0.5); sup_volt +=supstep){
          channel4->setVoltage( ((float)sup_volt) /10 ); //! because the test parameter calls 105 instead of 10.5 V
          //channel2->setCurrent(1.0);
          MyFile << "\nSET:VIN ; "<< (float)sup_volt/10 << endl;
-         if(verbose) {std::cout << "-------------->SET:VIN ;"<< sup_volt << endl;}
+         if(verbose) {std::cout << "-------------->SET:VIN ; "<< sup_volt << endl;}
          
          if (turn_on == true)
          {
