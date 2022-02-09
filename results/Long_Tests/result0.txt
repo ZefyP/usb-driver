@@ -1,0 +1,6 @@
+Hybrid ; 000
+maxLoad ; 120
+step ; 5
+minLoad ; 0
+SupStep ; 10
+Sup

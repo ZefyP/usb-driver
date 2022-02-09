@@ -1,0 +1,23 @@
+Hybrid ; PSPOH-001
+maxLoad ; 100
+step ; 100
+minLoad ; 0
+SupStep ; 1
+SupMin ; 109
+SupMax ; 110
+
+Supply ; INIT
+CH 2: V ; 11.001
+CH 2: A ; 0.0144
+Started computation at ; Thu Feb  3 11:15:26 2022
+
+header-end ; 0
+
+
+SET:VIN ; 10.9
+HIV ; ON
+CH2 V ; 10.995
+CH2 A ; 0.0144
+SET:LOAD ; 0
+
+LOAD_1v25L ; 

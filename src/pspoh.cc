@@ -8,6 +8,7 @@
 #include <iostream>
 #include <boost/lexical_cast.hpp>
 #include <fstream>
+#include <sstream>
 #include <bits/stdc++.h>
 //#define DEBUGO
 //#define RESET
@@ -17,9 +18,7 @@
 #include "PowerSupply.h"
 #include "PowerSupplyChannel.h"
 #include <boost/program_options.hpp> //!For command line arg parsing
-#include <fstream>
 #include <iomanip>
-#include <iostream>
 #include <limits>
 #include "RohdeSchwarz.h"
 
@@ -41,6 +40,7 @@ bool fileExists(const string &name);
 
 vector<string> extract_val(string sentence);
 string return_val( vector<string> values , int pos );
+bool scpi_error_occured(string sentence);
 
 int main(int argc, char *argv[])
 {
@@ -119,18 +119,18 @@ int main(int argc, char *argv[])
     DeviceHandler theHandler;
     theHandler.readSettings(docPath, docSettings);
     PowerSupply*        powerSupply;
-   //  PowerSupplyChannel* channel1;
+    PowerSupplyChannel* channel1;
     PowerSupplyChannel* channel2;
-   //  PowerSupplyChannel* channel3;
-   //  PowerSupplyChannel* channel4;
+    PowerSupplyChannel* channel3;
+    PowerSupplyChannel* channel4;
 
     try
     {
       powerSupply = theHandler.getPowerSupply("MyRohdeSchwarz");
-      //channel1    = powerSupply->getChannel("LV_Module1");
+      channel1    = powerSupply->getChannel("LV_Module1");
       channel2    = powerSupply->getChannel("LV_Module2");
-      //channel3    = powerSupply->getChannel("LV_Module3");
-      //channel4    = powerSupply->getChannel("LV_Module4");
+      channel3    = powerSupply->getChannel("LV_Module3");
+      channel4    = powerSupply->getChannel("LV_Module4");
     }
     catch(const std::out_of_range& oor)
     {
@@ -138,32 +138,36 @@ int main(int argc, char *argv[])
         throw std::out_of_range(oor.what());
     } 
 
-    channel2 -> setOverVoltageProtection(13.0);
 
-    // channel1->setVoltage(3.5);
-    // channel2->setVoltage(11.0);
-    // channel3->setVoltage(3.3);
-    // channel4->setVoltage(11.0);
+    channel1 -> setOverVoltageProtection(4.0);
+    channel2 -> setOverVoltageProtection(6.0);
+    channel3 -> setOverVoltageProtection(4.0);
+    channel4 -> setOverVoltageProtection(12.0);
 
-    // channel1->setCurrent(4.0);
-    channel2->setCurrent(1.0);
-    // channel3->setCurrent(4.0);
-    // channel4->setCurrent(1.2);
+    channel1->setVoltage(3.5);
+    channel2->setVoltage(5.0);
+    channel3->setVoltage(3.3);
+    channel4->setVoltage(11.0);
 
-    // channel1->turnOn();
+    channel1->setCurrent(4.0);
+    channel2->setCurrent(0.5);
+    channel3->setCurrent(4.0);
+    channel4->setCurrent(1.2);
+
+    channel1->turnOn();
     channel2->turnOn();
-    // channel3->turnOn();
-    // channel4->turnOn();
+    channel3->turnOn();
+    channel4->turnOn();
     //allow a moment to stabilise supply input values
     std::this_thread::sleep_for(std::chrono::milliseconds(300)); //300ms min
     
-   //  std::cout << "Channel 1 On: " << channel1->isOn()
-   //            << std::endl
-   //            //    << "OVP: " << channel1->getOverVoltageProtection() << std::endl
-   //            << "Voltage: " << channel1->getOutputVoltage() << std::endl
-   //            << "Current: " << channel1->getCurrent() << std::endl;
-   //   MyFile << "CH 1: V ; " << channel1->getOutputVoltage()<< endl << " CH 1: A ; " << channel1->getCurrent() << endl;
-   //             //wait();
+    std::cout << "Channel 1 On: " << channel1->isOn()
+              << std::endl
+              //    << "OVP: " << channel1->getOverVoltageProtection() << std::endl
+              << "Voltage: " << channel1->getOutputVoltage() << std::endl
+              << "Current: " << channel1->getCurrent() << std::endl;
+     MyFile << "CH 1: V ; " << channel1->getOutputVoltage()<< endl << " CH 1: A ; " << channel1->getCurrent() << endl;
+               //wait();
     std::cout << "Channel 2 On: " << channel2->isOn()
               << std::endl
               //    << "OVP: " << channel2->getOverVoltageProtection() << std::endl
@@ -171,19 +175,19 @@ int main(int argc, char *argv[])
               << "Current: " << channel2->getCurrent() << std::endl;            
     MyFile << "CH 2: V ; " << channel2->getOutputVoltage()<< endl << "CH 2: A ; " << channel2->getCurrent() << endl;
                //wait();
-   //  std::cout << "Channel 3 On: " << channel3->isOn()
-   //            << std::endl
-   //            //    << "OVP: " << channel3->getOverVoltageProtection() << std::endl
-   //            << "Voltage: " << channel3->getOutputVoltage() << std::endl
-   //            << "Current: " << channel3->getCurrent() << std::endl;           
-   //  MyFile << "CH 3: V ; " << channel3->getOutputVoltage()<< endl << "CH 3: A ; " << channel3->getCurrent() << endl;
-   //            //wait();
-   //  std::cout << "Channel 4 On: " << channel3->isOn()
-   //            << std::endl
-   //            //    << "OVP: " << channel4->getOverVoltageProtection() << std::endl
-   //            << "Voltage: " << channel4->getOutputVoltage() << endl
-   //            << "Current: " << channel4->getCurrent() << endl;
-   //  MyFile << "CH 4: V ; " << channel4->getOutputVoltage()<< endl << " CH 4: A ; " << channel4->getCurrent() << endl;
+    std::cout << "Channel 3 On: " << channel3->isOn()
+              << std::endl
+              //    << "OVP: " << channel3->getOverVoltageProtection() << std::endl
+              << "Voltage: " << channel3->getOutputVoltage() << std::endl
+              << "Current: " << channel3->getCurrent() << std::endl;           
+    MyFile << "CH 3: V ; " << channel3->getOutputVoltage()<< endl << "CH 3: A ; " << channel3->getCurrent() << endl;
+              //wait();
+    std::cout << "Channel 4 On: " << channel3->isOn()
+              << std::endl
+              //    << "OVP: " << channel4->getOverVoltageProtection() << std::endl
+              << "Voltage: " << channel4->getOutputVoltage() << endl
+              << "Current: " << channel4->getCurrent() << endl;
+    MyFile << "CH 4: V ; " << channel4->getOutputVoltage()<< endl << " CH 4: A ; " << channel4->getCurrent() << endl;
     wait();
      // std::this_thread::sleep_for(std::chrono::milliseconds(500)); 
     std::cout << "-------------------------------------------------------------------------------" << endl;
@@ -192,6 +196,7 @@ int main(int argc, char *argv[])
   */
       //Local variables
       TC_PSPOH cTC_PSPOH;
+      cTC_PSPOH.cpu_reset();
       string answer ="";
       vector<string> v_answer;
       string val ="";
@@ -203,7 +208,7 @@ int main(int argc, char *argv[])
       int selectedLoad = 0;
       
       for (int sup_volt = supmin; sup_volt < (supmax+ supstep*0.5); sup_volt +=supstep){
-         channel2->setVoltage( ((float)sup_volt) /10 ); //! because the test parameter calls 105 instead of 10.5 V
+         channel4->setVoltage( ((float)sup_volt) /10 ); //! because the test parameter calls 105 instead of 10.5 V
          //channel2->setCurrent(1.0);
          MyFile << "\nSET:VIN ; "<< (float)sup_volt/10 << endl;
          if(verbose) {std::cout << "-------------->SET:VIN ;"<< sup_volt << endl;}
@@ -237,10 +242,10 @@ int main(int argc, char *argv[])
             }
 
             //Print supply status after turning on the test card 
-            // MyFile << "CH 1: V ; " << channel1->getOutputVoltage()<< endl << "CH 1: A ; " << channel1->getCurrent() << endl;
+            MyFile << "CH 1: V ; " << channel1->getOutputVoltage()<< endl << "CH 1: A ; " << channel1->getCurrent() << endl;
             MyFile << "CH2 V ; " << channel2->getOutputVoltage()<< endl << "CH2 A ; " << channel2->getCurrent() << endl;
-            //MyFile << "CH 3: V ; " << channel3->getOutputVoltage()<< endl << "CH 3: A ; " << channel3->getCurrent() << endl;
-            // MyFile << "CH 4: V ; " << channel4->getOutputVoltage()<< endl << "CH 4: A ; " << channel4->getCurrent() << endl;
+            MyFile << "CH 3: V ; " << channel3->getOutputVoltage()<< endl << "CH 3: A ; " << channel3->getCurrent() << endl;
+            MyFile << "CH 4: V ; " << channel4->getOutputVoltage()<< endl << "CH 4: A ; " << channel4->getCurrent() << endl;
             
             string load =  boost::lexical_cast<string>( float(selectedLoad) /100 ); 
             cTC_PSPOH.spi_write("SET:LOAD "+load+"\r\n",verbose);
@@ -252,6 +257,12 @@ int main(int argc, char *argv[])
             if(cTC_PSPOH.wait_for_RTR()==0){
                cTC_PSPOH.spi_read(answer,256,verbose);
             // MyFile << answer << endl;
+            }else{
+
+               cTC_PSPOH.cpu_reset();
+               index = index - step;
+               continue;
+               //+ create flag for repeat test
             }
             v_answer = extract_val(answer);
             MyFile << "LOAD_1v25L ; " << return_val(v_answer , 0) << endl;
@@ -265,6 +276,12 @@ int main(int argc, char *argv[])
             if(cTC_PSPOH.wait_for_RTR()==0){
                cTC_PSPOH.spi_read(answer,256,verbose);
                //MyFile << answer << endl;
+            }else{
+
+               cTC_PSPOH.cpu_reset();
+               index = index - step;
+               continue;
+               //+ create flag for repeat test
             }
             v_answer = extract_val(answer);
             MyFile << "V_HIV ; "    << return_val(v_answer , 0) << endl;
@@ -281,6 +298,12 @@ int main(int argc, char *argv[])
             if(cTC_PSPOH.wait_for_RTR()==0){
                cTC_PSPOH.spi_read(answer,256,verbose);
                //MyFile << answer << endl;
+            }else{
+
+               cTC_PSPOH.cpu_reset();
+               index = index - step;
+               continue;
+               //+ create flag for repeat test
             }
             v_answer = extract_val(answer);
             MyFile << "C_HIV ; "    << return_val(v_answer , 0) << endl;
@@ -295,17 +318,40 @@ int main(int argc, char *argv[])
             cTC_PSPOH.spi_write("MEAS:PIN?\r\n",verbose);
             if(cTC_PSPOH.wait_for_RTR()==0){
                cTC_PSPOH.spi_read(answer,256,verbose);
+            }else{
+
+               cTC_PSPOH.cpu_reset();
+               index = index - step;
+               continue;
+               //+ create flag for repeat test
             }
+
+
+            v_answer = extract_val(answer);
             MyFile << "P_IN ; " << answer;
             cTC_PSPOH.spi_write("MEAS:POUT?\r\n",verbose);
             if(cTC_PSPOH.wait_for_RTR()==0){
                cTC_PSPOH.spi_read(answer,256,verbose);
+            }else{
+
+               cTC_PSPOH.cpu_reset();
+               index = index - step;
+               continue;
+               //+ create flag for repeat test
             }
+
+            v_answer = extract_val(answer);
             MyFile << "P_OUT ; " << answer;
             cTC_PSPOH.spi_write("MEAS:EFF?\r\n",verbose);
             //MyFile << "Efficiency:\r\n";
             if(cTC_PSPOH.wait_for_RTR()==0){
                cTC_PSPOH.spi_read(answer,256,verbose);    
+            }else{
+
+               cTC_PSPOH.cpu_reset();
+               index = index - step;
+               continue;
+               //+ create flag for repeat test
             }
             MyFile << "EFF_% ; " << answer << "\r" <<endl;
 
@@ -313,6 +359,12 @@ int main(int argc, char *argv[])
             //MyFile << "Ripples (V):\r\n";
             if(cTC_PSPOH.wait_for_RTR()==0){
                cTC_PSPOH.spi_read(answer,256,verbose);
+            }else{
+
+               cTC_PSPOH.cpu_reset();
+               index = index - step;
+               continue;
+               //+ create flag for repeat test
             }
             v_answer = extract_val(answer);
             MyFile << "R_2v55 ; " << return_val(v_answer , 0) << endl;
@@ -323,13 +375,19 @@ int main(int argc, char *argv[])
             //MyFile << "Temperature\r\n";
             if(cTC_PSPOH.wait_for_RTR()==0){
                cTC_PSPOH.spi_read(answer,256,verbose);
+            }else{
+
+               cTC_PSPOH.cpu_reset();
+               index = index - step;
+               continue;
+               //+ create flag for repeat test
             }
             v_answer = extract_val(answer);
             MyFile << "T_PCB ; "    << return_val(v_answer , 0) << endl;
             MyFile << "T_AMB ; "    << return_val(v_answer , 1) << endl;
             MyFile << "T_HYB ; "    << return_val(v_answer , 2) << endl;
-            MyFile << "T_PTAT ; "   << return_val(v_answer , 5) << endl;
-            MyFile << "PTAT_offset ; " << return_val(v_answer , 3) << endl;
+            MyFile << "T_PTAT ; "   << return_val(v_answer , 3) << endl;
+            MyFile << "PTAT_offset ; " << return_val(v_answer , 4) << endl;
 
             
             if( cGui ){
@@ -351,7 +409,7 @@ int main(int argc, char *argv[])
       cTC_PSPOH.spi_write("HIV OFF\r\n",verbose);
       MyFile << "HIV ; OFF\r\n";
       MyFile << "Supply ; OFF\r\n";
-      cTC_PSPOH.system_reset();
+      //cTC_PSPOH.system_reset();
       end = system_clock::now();
 
       //Time measurement
@@ -398,20 +456,40 @@ bool fileExists(const string &name){
     }
 }
 
-//separates sentence in tokens
+
+
+bool scpi_error_occured(string sentence){
+      // if SCPI ERROR occured
+   string s = "SCPI ERROR;";
+   bool exists = false;
+
+   // turn stringstream into string pointer
+   //const std::string& sentence_ptr = sentence();   
+
+   // if SCPI string exists in sentence
+   if ( strstr( s.c_str(), sentence.c_str() ) )
+   {
+      std::cout << sentence << endl;
+      exists = true;
+   }
+   return exists;
+}
+
+//separates a  sentence in tokens
 vector<string> extract_val(string sentence ){
    vector <string> v;
-   stringstream all_values(sentence);
-
+   stringstream all_values(sentence);   
    while (all_values.good( )){
       string val;
       getline(all_values,val,',');
       v.push_back(val);
+
    }
 
-   // for (size_t i=0; i<v.size(); i++){
-   //    cout << v[i] << endl;
-   // }
+   //check for SCPI error in the result
+      if ( scpi_error_occured(all_values.str()) ){
+         exit(22);
+      }
    return v; 
 }
 

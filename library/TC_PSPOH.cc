@@ -23,6 +23,9 @@ TC_PSPOH::TC_PSPOH()
         turn_off_led();
         cCP2130.gpio_set_input(cCP2130.cs3);                                  //RTR ready to read
 
+	cCP2130.gpio_set_output(cCP2130.cs1, 1);                              // SYS reset low
+	cCP2130.gpio_set_output(cCP2130.cs2, 1);			      // CPU reset low
+
         cCP2130.configure_spi(cCP2130.cs0,cCP2130.ATSAMD51P20A0A_PSPOH);
 
         is_initialized=true;
@@ -150,13 +153,13 @@ int  TC_PSPOH::wait_for_RTR(){
     while (rtr_active){
         status = cCP2130.get_gpio_value(cCP2130.cs3,rtr_active);
         if (status != 2){
-            cout << "Unable to read rtr" << endl;
+            cout << "waiting for rtr" << endl;
         }
         
         now = std::chrono::system_clock::now();
         elapsed_seconds = now-start;
 
-        if (elapsed_seconds>std::chrono::seconds(20))
+        if (elapsed_seconds>std::chrono::seconds(10))
         {
             cout << "RTR timed out" << endl << endl;
             cCP2130.stopRTR();
@@ -275,4 +278,6 @@ int TC_PSPOH::cpu_reset(){
 }
 
 //Destructor, better to declare it even if it is empty
-TC_PSPOH::~TC_PSPOH() {}
+TC_PSPOH::~TC_PSPOH() {
+   system_reset();
+}

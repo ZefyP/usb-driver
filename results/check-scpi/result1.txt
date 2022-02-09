@@ -1,0 +1,22 @@
+Hybrid ; 000
+maxLoad ; 10
+step ; 10
+minLoad ; 0
+SupStep ; 10
+SupMin ; 110
+SupMax ; 110
+
+Supply ; INIT
+CH 2: V ; 5
+CH 2: A ; 0.0252
+Started computation at ; Tue Feb  8 11:56:54 2022
+
+header-end ; 0
+
+
+SET:VIN ; 11
+HIV ; ON
+CH2 V ; 5
+CH2 A ; 0.0252
+SET:LOAD ; 0
+

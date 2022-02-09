@@ -30,6 +30,7 @@ V_1v25_L ; 0.244354
 V_1v25_R ; 0.000251770
 V_1v25_T ; -0.000320435
 V_1v_L ; 0.252525
+SCPI ERROR; -350, Queue overflow
 V_1v_R ; 0.0124512
 
 C_HIV ; -0.0008
@@ -57,6 +58,8 @@ PTAT_offset ; 0.0364743
 HIV ; ON
 CH2 V ; 11
 CH2 A ; 0.025
+SCPI ERROR; 1, Software Buffer overflow 
+SCPI ERROR; 2, RTD not connected
 SET:LOAD ; 0.800000012
 
 LOAD_1v25L ; 0.8
