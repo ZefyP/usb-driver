@@ -42,13 +42,15 @@ bool fileExists(const string &name);
 vector<string> extract_val(string sentence);
 string return_val( vector<string> values , int pos );
 bool scpi_error_occured(string sentence);
+bool reset_and_repeat(int times, TC_PSPOH child);
 
 int ERR_HYB_CONN_Vhiv = 10; // Hybrid module not properly connected based on current measurement.
 int ERR_HYB_CONN_Chiv = 11; 
 int ERR_HYB_CONN_Cleft = 12;
 int ERR_HYB_CONN_Cright = 13;
 int ERR_HYB_CONN_Ctail = 14;
-int ERR_SCPI = 22; // An error was flagged by the microcontroller.
+int ERR_SCPI = 15; // An error was flagged by the microcontroller.
+int ERR_RTR_TIME_OUT = 16;
 
 int main(int argc, char *argv[])
 {
@@ -212,14 +214,16 @@ int main(int argc, char *argv[])
       MyFile << "header-end ; 0" << endl << endl;
       std::cout << "-------------------------------------------------------------------------------" << endl;
       
+
       bool turn_on = true;
       int selectedLoad = 0;
+      int resets = 1;
       for (int sup_volt = supmax; sup_volt > (supmin- supstep*0.5); sup_volt -=supstep){
       //for (int sup_volt = supmin; sup_volt < (supmax+ supstep*0.5); sup_volt +=supstep){
          channel4->setVoltage( ((float)sup_volt) /10 ); //! because the test parameter calls 105 instead of 10.5 V
          //channel2->setCurrent(1.0);
          MyFile << "\nSET:VIN ; "<< (float)sup_volt/10 << endl;
-         if(verbose) {std::cout << "-------------->SET:VIN ; "<< sup_volt << endl;}
+         if(verbose) {std::cout << "----------------------------->SET:VIN ; "<< sup_volt << endl;}
          
          if (turn_on == true)
          {
@@ -267,8 +271,9 @@ int main(int argc, char *argv[])
             // MyFile << answer << endl;
             }else{
 
-               cTC_PSPOH.cpu_reset();
+               resets+= 1;
                index = index - step;
+               reset_and_repeat(resets, cTC_PSPOH);
                continue;
                //+ create flag for repeat test
             }
@@ -330,6 +335,8 @@ int main(int argc, char *argv[])
             // Check if the hybrid is properly connected. If the measurement is below 0.01A the test should stop. 
             for (int p = 0; p <= 6; p++)
             {
+               string value_str= v_answer[p];
+               float value = std::stof(value_str); // string to float
                if (std::stof(load) != 0.0 && value < 0.01 ){
                   cout << "Error Hybrid connection" << endl;
                   if (p == 0){
@@ -454,7 +461,7 @@ int main(int argc, char *argv[])
       time_t end_time = system_clock::to_time_t(end);
 
       std::cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
-      MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "elapsed time(s);" << elapsed_seconds.count() << endl;
+      MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "Duration (min) ; " << elapsed_seconds.count()/60 << endl;
      
       MyFile.close();
 
@@ -493,6 +500,19 @@ bool fileExists(const string &name){
     }
 }
 
+bool reset_and_repeat(int times, TC_PSPOH child){
+   bool repeat = true;
+   child.cpu_reset();
+   //allow a moment to stabilise
+   std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+   if (times == 5){
+      repeat = false;
+      cout << "Error RTR Time Out occured " << times << " attempts of the same measurement." << endl;
+      exit(ERR_RTR_TIME_OUT);
+   }
+   return repeat; 
+}
 
 
 bool scpi_error_occured(string sentence){
