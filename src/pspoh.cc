@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
     channel1->setCurrent(4.0);
     channel2->setCurrent(0.5);
     channel3->setCurrent(4.0);
-    channel4->setCurrent(1.2);
+    channel4->setCurrent(1.3);
 
     channel1->turnOn();
     channel2->turnOn();
@@ -273,6 +273,8 @@ int main(int argc, char *argv[])
 
                resets+= 1;
                index = index - step;
+               cout << "----------Card reset----------" << endl; 
+               MyFile << "RESET ; set:load" << endl;
                reset_and_repeat(resets, cTC_PSPOH);
                continue;
                //+ create flag for repeat test
@@ -311,6 +313,7 @@ int main(int argc, char *argv[])
             if (std::stof(load) != 0.0 && value < 1 ){
                   cout << "Error Hybrid connection" << endl;
                   cout << "Please inspect the left connector."<< endl;
+                  MyFile <<  "ERROR ; " << ERR_HYB_CONN_Vhiv << endl;
                      exit(ERR_HYB_CONN_Vhiv);
             }
 
@@ -341,18 +344,22 @@ int main(int argc, char *argv[])
                   cout << "Error Hybrid connection" << endl;
                   if (p == 0){
                      cout << "Please inspect the input voltage connector."<< endl;
+                     MyFile << "ERROR ; " << ERR_HYB_CONN_Chiv << endl;
                      exit(ERR_HYB_CONN_Chiv);
                   }
                   if (p == 1 || p == 2 || p == 5){
                      cout << "Please inspect the left connector."<< endl; 
+                     MyFile <<  "ERROR ; " << ERR_HYB_CONN_Cleft << endl;
                      exit(ERR_HYB_CONN_Cleft);
                   }
                   if (p == 3 || p == 6){
                      cout << "Please inspect the right connector."<< endl;
+                     MyFile <<   "ERROR ; " << ERR_HYB_CONN_Cright << endl;
                      exit(ERR_HYB_CONN_Cright);
                   }
                   if (p == 4){
                      cout << "Please inspect the tail connector."<< endl;
+                     MyFile <<  "ERROR ; " << ERR_HYB_CONN_Ctail << endl;
                      exit(ERR_HYB_CONN_Ctail);
                   }   
                }//end if 
