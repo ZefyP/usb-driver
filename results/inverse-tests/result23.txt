@@ -1,0 +1,124 @@
+Hybrid ; 000
+maxLoad ; 100
+step ; 100
+minLoad ; 0
+SupStep ; 20
+SupMin ; 60
+SupMax ; 110
+
+Supply ; INIT
+CH 1: V ; 3.502
+ CH 1: A ; 0.1494
+CH 2: V ; 5
+CH 2: A ; 0.0249
+CH 3: V ; 3.3
+CH 3: A ; 0.2036
+CH 4: V ; 11
+ CH 4: A ; 0.0048
+Started computation at ; Wed Feb  9 19:20:52 2022
+
+header-end ; 0
+
+
+SET:VIN ; 11
+HIV ; ON
+CH1: V ; 3.5
+CH1: A ; 0.1494
+CH2: V ; 5
+CH2: A ; 0.0249
+CH3: V ; 3.3
+CH3: A ; 0.1889
+CH4: V ; 11
+CH4: A ; 0.0048
+SET:LOAD ; 0
+
+CH1: V ; 3.5
+CH1: A ; 0.1493
+CH2: V ; 5
+CH2: A ; 0.0258
+CH3: V ; 3.3
+CH3: A ; 0.2033
+CH4: V ; 11
+CH4: A ; 0.0048
+SET:LOAD ; 0
+
+CH1: V ; 3.5
+CH1: A ; 0.1492
+CH2: V ; 5
+CH2: A ; 0.0249
+CH3: V ; 3.3
+CH3: A ; 0.1884
+CH4: V ; 11
+CH4: A ; 0.0048
+SET:LOAD ; 0
+
+CH1: V ; 3.5
+CH1: A ; 0.1492
+CH2: V ; 5
+CH2: A ; 0.025
+CH3: V ; 3.3
+CH3: A ; 0.1881
+CH4: V ; 11
+CH4: A ; 0.0048
+SET:LOAD ; 0
+
+CH1: V ; 3.5
+CH1: A ; 0.1491
+CH2: V ; 5
+CH2: A ; 0.025
+CH3: V ; 3.3
+CH3: A ; 0.203
+CH4: V ; 11
+CH4: A ; 0.0048
+SET:LOAD ; 0
+
+CH1: V ; 3.5
+CH1: A ; 0.149
+CH2: V ; 5
+CH2: A ; 0.025
+CH3: V ; 3.3
+CH3: A ; 0.1882
+CH4: V ; 11
+CH4: A ; 0.0048
+SET:LOAD ; 0
+
+CH1: V ; 3.5
+CH1: A ; 0.149
+CH2: V ; 5
+CH2: A ; 0.0259
+CH3: V ; 3.3
+CH3: A ; 0.2032
+CH4: V ; 11
+CH4: A ; 0.0048
+SET:LOAD ; 0
+
+CH1: V ; 3.5
+CH1: A ; 0.149
+CH2: V ; 5
+CH2: A ; 0.025
+CH3: V ; 3.3
+CH3: A ; 0.1884
+CH4: V ; 11
+CH4: A ; 0.0048
+SET:LOAD ; 0
+
+CH1: V ; 3.5
+CH1: A ; 0.149
+CH2: V ; 5
+CH2: A ; 0.0253
+CH3: V ; 3.3
+CH3: A ; 0.1999
+CH4: V ; 11
+CH4: A ; 0.0048
+SET:LOAD ; 0
+
+CH1: V ; 3.5
+CH1: A ; 0.149
+CH2: V ; 5
+CH2: A ; 0.025
+CH3: V ; 3.3
+CH3: A ; 0.1881
+CH4: V ; 11
+CH4: A ; 0.0048
+SET:LOAD ; 0
+

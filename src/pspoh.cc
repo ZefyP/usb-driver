@@ -43,7 +43,8 @@ vector<string> extract_val(string sentence);
 string return_val( vector<string> values , int pos );
 bool scpi_error_occured(string sentence);
 
-int ERR_HYB_CONN_Chiv = 11; // Hybrid module not properly connected based on current measurement.
+int ERR_HYB_CONN_Vhiv = 10; // Hybrid module not properly connected based on current measurement.
+int ERR_HYB_CONN_Chiv = 11; 
 int ERR_HYB_CONN_Cleft = 12;
 int ERR_HYB_CONN_Cright = 13;
 int ERR_HYB_CONN_Ctail = 14;
@@ -298,19 +299,25 @@ int main(int argc, char *argv[])
             MyFile << "V_1v25_T ; " << return_val(v_answer , 4) << endl;
             MyFile << "V_1v_L ; "   << return_val(v_answer , 5) << endl;
             MyFile << "V_1v_R ; "   << return_val(v_answer , 6) << endl;
+            
+            // Check if the hybrid is properly connected. If the measurement is below 1V the test should stop. 
+            string value_str= v_answer[0];
+            float value = std::stof(value_str); // string to float 
+            if (std::stof(load) != 0.0 && value < 1 ){
+                  cout << "Error Hybrid connection" << endl;
+                  cout << "Please inspect the left connector."<< endl;
+                     exit(ERR_HYB_CONN_Vhiv);
+            }
 
+             //MyFile << "Currents:\r\n";
             cTC_PSPOH.spi_write("MEAS:HIV:CUR?\r\n",verbose);
-            //MyFile << "Currents:\r\n";
-
             if(cTC_PSPOH.wait_for_RTR()==0){
                cTC_PSPOH.spi_read(answer,256,verbose);
                //MyFile << answer << endl;
             }else{
-
                cTC_PSPOH.cpu_reset();
                index = index - step;
                continue;
-               //+ create flag for repeat test
             }
             v_answer = extract_val(answer);
             MyFile << "C_HIV ; "    << return_val(v_answer , 0) << endl;
@@ -320,16 +327,13 @@ int main(int argc, char *argv[])
             MyFile << "C_1v25_T ; " << return_val(v_answer , 4) << endl;
             MyFile << "C_1v_L ; "   << return_val(v_answer , 5) << endl;
             MyFile << "C_1v_R ; "   << return_val(v_answer , 6) << endl;
-
             // Check if the hybrid is properly connected. If the measurement is below 0.01A the test should stop. 
             for (int p = 0; p <= 6; p++)
             {
-               string value_str= v_answer[p];
-               float value = std::stof(value_str); // string to float 
                if (std::stof(load) != 0.0 && value < 0.01 ){
                   cout << "Error Hybrid connection" << endl;
                   if (p == 0){
-                     cout << "Please inspect the left connector and the input voltage connector."<< endl;
+                     cout << "Please inspect the input voltage connector."<< endl;
                      exit(ERR_HYB_CONN_Chiv);
                   }
                   if (p == 1 || p == 2 || p == 5){
