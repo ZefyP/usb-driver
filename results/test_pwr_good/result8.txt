@@ -1,0 +1,124 @@
+Hybrid ; 000
+maxLoad ; 100
+step ; 100
+minLoad ; 0
+SupStep ; 10
+SupMin ; 120
+SupMax ; 120
+
+Supply ; INIT
+CH 1: V ; 3.501
+ CH 1: A ; 0.1459
+CH 2: V ; 5
+CH 2: A ; 0.0252
+CH 3: V ; 3.3
+CH 3: A ; 0.2009
+CH 4: V ; 11
+ CH 4: A ; 0.0048
+Started computation at ; Tue Feb 22 14:50:28 2022
+
+header-end ; 0
+
+
+SET:VIN ; 12
+HIV ; ON
+CH1: V ; 3.5
+CH1: A ; 0.1459
+CH2: V ; 5
+CH2: A ; 0.0252
+CH3: V ; 3.3
+CH3: A ; 0.1756
+CH4: V ; 11.976
+CH4: A ; 0.0056
+SET:LOAD ; 0
+
+LOAD_1v25L ; 0
+LOAD_1v25R ; 0
+LOAD_1v25T ; 0
+LOAD_1vL ; 0
+LOAD_1vR ; 0
+
+V_HIV ; 11.9626
+V_2v55 ; 2.62761
+V_1v25_L ; 1.29266
+V_1v25_R ; 1.29387
+V_1v25_T ; 1.29375
+V_1v_L ; 1.08089
+V_1v_R ; 1.08144
+
+C_HIV ; 0.126967
+C_2v55 ; 0.0936484
+C_1v25_L ; 0.0441456
+C_1v25_R ; 0.0320435
+C_1v25_T ; 0.0458336
+C_1v_L ; 0.0500393
+C_1v_R ; 0.0393963
+
+P_IN ; 1.51885
+P_OUT ; 0.500586
+EFF_% ; 32.9581
+
+R_2v55 ; 3.80228
+R_1v25 ; 37.9379
+R_1V ; 33.6563
+
+T_PCB ; 27.1328
+T_AMB ; 27.5156
+T_HYB ; 30.6095
+T_PTAT ; 31.3253
+
+PTAT_offset ; 1.15691
+CH1: V ; 3.5
+CH1: A ; 0.0095
+CH2: V ; 5
+CH2: A ; 0.0254
+CH3: V ; 3.3
+CH3: A ; 0.0642
+CH4: V ; 12
+CH4: A ; 0.1477
+SET:LOAD ; 1
+
+LOAD_1v25L ; 1
+LOAD_1v25R ; 1
+LOAD_1v25T ; 1
+LOAD_1vL ; 1
+LOAD_1vR ; 1
+
+V_HIV ; 11.8193
+V_2v55 ; 2.61324
+V_1v25_L ; 1.23626
+V_1v25_R ; 1.24571
+V_1v25_T ; 1.25018
+V_1v_L ; 1.04533
+V_1v_R ; 1.03672
+
+C_HIV ; 0.741228
+C_2v55 ; 0.0935698
+C_1v25_L ; 0.799227
+C_1v25_R ; 0.791645
+C_1v25_T ; 0.801859
+C_1v_L ; 1.23562
+C_1v_R ; 1.2305
+
+P_IN ; 8.76083
+P_OUT ; 5.7885
+EFF_% ; 66.0725
+
+R_2v55 ; 1.12683
+R_1v25 ; 1.32994
+R_1V ; 0.683258
+
+T_PCB ; 27.1484
+T_AMB ; 27.6641
+T_HYB ; 34.8709
+T_PTAT ; 37.6632
+
+PTAT_offset ; 1.15691
+Turning off ; 0
+SET:LOAD ; 0
+HIV ; OFF
+Supply ; OFF
+
+Finished computation at ; Tue Feb 22 14:50:41 2022
+
+Duration (min) ; 0.221696

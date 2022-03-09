@@ -28,10 +28,15 @@ class TC_PSPOH
     int spi_write(const std::string&,bool);
     int spi_read(std::string&, int);
     int spi_read(std::string&, int, bool);
+    int scpi_write(const std::string&, bool, bool recursion = false);
+    int scpi_write_readback(const std::string&, std::string&, int, bool, bool recursion = false);
     int wait_for_RTR();
     int wait_for_nRTR();
+    void reset_cp2130();
+    void initialize();
     //Constructors and destructors
     TC_PSPOH();
+    TC_PSPOH(uint32_t, uint8_t);
     //TC_PSPOH(uint32_t,uint8_t); // constructor for multi usb applications // arguments : bus, device number (lsusb) // can be called only once and then revert to the empty one
     ~TC_PSPOH();
    
@@ -40,7 +45,7 @@ class TC_PSPOH
     bool test_led_state = false;
     //Static members
     static CP2130 cCP2130;              //Cp2130 class instance
-    static std::string product_string;
+    static std::wstring product_string;
     static bool is_initialized;
 };
 void delay(int);

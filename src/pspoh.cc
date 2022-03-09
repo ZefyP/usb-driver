@@ -51,6 +51,7 @@ int ERR_HYB_CONN_Cright = 13;
 int ERR_HYB_CONN_Ctail = 14;
 int ERR_SCPI = 15; // An error was flagged by the microcontroller.
 int ERR_RTR_TIME_OUT = 16;
+int ERR_LOW_HIV = 17; // Supply inpute voltage is too low. PSPOH is rated for 10-12 V
 
 int main(int argc, char *argv[])
 {
@@ -149,50 +150,50 @@ int main(int argc, char *argv[])
     } 
 
 
-    channel1 -> setOverVoltageProtection(4.0);
-    channel2 -> setOverVoltageProtection(6.0);
-    channel3 -> setOverVoltageProtection(4.0);
-    channel4 -> setOverVoltageProtection(12.01);
+   //  channel1 -> setOverVoltageProtection(4.0);
+   //  channel2 -> setOverVoltageProtection(6.0);
+   //  channel3 -> setOverVoltageProtection(4.0);
+   //  channel4 -> setOverVoltageProtection(12.01);
 
-    channel1->setVoltage(3.5);
-    channel2->setVoltage(5.0);
-    channel3->setVoltage(3.3);
+   //  channel1->setVoltage(3.5);
+   //  channel2->setVoltage(5.0);
+   //  channel3->setVoltage(3.3);
     channel4->setVoltage(11.0);
 
-    channel1->setCurrent(4.0);
-    channel2->setCurrent(0.5);
-    channel3->setCurrent(4.0);
-    channel4->setCurrent(1.3);
+   //  channel1->setCurrent(4.0);
+   //  channel2->setCurrent(0.5);
+   //  channel3->setCurrent(4.0);
+   //  channel4->setCurrent(1.3);
 
-    channel1->turnOn();
-    channel2->turnOn();
-    channel3->turnOn();
+   //  channel1->turnOn();
+   //  channel2->turnOn();
+   //  channel3->turnOn();
     channel4->turnOn();
     //allow a moment to stabilise supply input values
     std::this_thread::sleep_for(std::chrono::milliseconds(300)); //300ms min
     
-    std::cout << "Channel 1 On: " << channel1->isOn()
-              << std::endl
-              //    << "OVP: " << channel1->getOverVoltageProtection() << std::endl
-              << "Voltage: " << channel1->getOutputVoltage() << std::endl
-              << "Current: " << channel1->getCurrent() << std::endl;
-     MyFile << "CH 1: V ; " << channel1->getOutputVoltage()<< endl << " CH 1: A ; " << channel1->getCurrent() << endl;
-               //wait();
-    std::cout << "Channel 2 On: " << channel2->isOn()
-              << std::endl
-              //    << "OVP: " << channel2->getOverVoltageProtection() << std::endl
-              << "Voltage: " << channel2->getOutputVoltage() << std::endl
-              << "Current: " << channel2->getCurrent() << std::endl;            
-    MyFile << "CH 2: V ; " << channel2->getOutputVoltage()<< endl << "CH 2: A ; " << channel2->getCurrent() << endl;
-               //wait();
-    std::cout << "Channel 3 On: " << channel3->isOn()
-              << std::endl
-              //    << "OVP: " << channel3->getOverVoltageProtection() << std::endl
-              << "Voltage: " << channel3->getOutputVoltage() << std::endl
-              << "Current: " << channel3->getCurrent() << std::endl;           
-    MyFile << "CH 3: V ; " << channel3->getOutputVoltage()<< endl << "CH 3: A ; " << channel3->getCurrent() << endl;
-              //wait();
-    std::cout << "Channel 4 On: " << channel3->isOn()
+   //  std::cout << "Channel 1 On: " << channel1->isOn()
+   //            << std::endl
+   //            //    << "OVP: " << channel1->getOverVoltageProtection() << std::endl
+   //            << "Voltage: " << channel1->getOutputVoltage() << std::endl
+   //            << "Current: " << channel1->getCurrent() << std::endl;
+   //   MyFile << "CH 1: V ; " << channel1->getOutputVoltage()<< endl << " CH 1: A ; " << channel1->getCurrent() << endl;
+   //             //wait();
+   //  std::cout << "Channel 2 On: " << channel2->isOn()
+   //            << std::endl
+   //            //    << "OVP: " << channel2->getOverVoltageProtection() << std::endl
+   //            << "Voltage: " << channel2->getOutputVoltage() << std::endl
+   //            << "Current: " << channel2->getCurrent() << std::endl;            
+   //  MyFile << "CH 2: V ; " << channel2->getOutputVoltage()<< endl << "CH 2: A ; " << channel2->getCurrent() << endl;
+   //             //wait();
+   //  std::cout << "Channel 3 On: " << channel3->isOn()
+   //            << std::endl
+   //            //    << "OVP: " << channel3->getOverVoltageProtection() << std::endl
+   //            << "Voltage: " << channel3->getOutputVoltage() << std::endl
+   //            << "Current: " << channel3->getCurrent() << std::endl;           
+   //  MyFile << "CH 3: V ; " << channel3->getOutputVoltage()<< endl << "CH 3: A ; " << channel3->getCurrent() << endl;
+   //            //wait();
+    std::cout << "Channel 4 On: " << channel4->isOn()
               << std::endl
               //    << "OVP: " << channel4->getOverVoltageProtection() << std::endl
               << "Voltage: " << channel4->getOutputVoltage() << endl
@@ -205,11 +206,17 @@ int main(int argc, char *argv[])
    *** TEST CARD **********************************************
   */
       //Local variables
-      TC_PSPOH cTC_PSPOH;
-      cTC_PSPOH.cpu_reset();
+      // TC_PSPOH cTC_PSPOH; //Constructor without specifying the bus and device
+      TC_PSPOH cTC_PSPOH(1,12);
+      // cTC_PSPOH.cpu_reset();
       string answer ="";
       vector<string> v_answer;
       string val ="";
+
+      
+      //Time measurement
+      duration<double> elapsed_seconds = end-start;
+      time_t end_time = system_clock::to_time_t(end);
       MyFile << "Started computation at ; " << ctime(&start_time)<< endl;  
       MyFile << "header-end ; 0" << endl << endl;
       std::cout << "-------------------------------------------------------------------------------" << endl;
@@ -260,7 +267,18 @@ int main(int argc, char *argv[])
             MyFile << "CH4: V ; " << channel4->getOutputVoltage()<< endl << "CH4: A ; " << channel4->getCurrent() << endl;
             
             string load =  boost::lexical_cast<string>( float(selectedLoad) /100 ); 
-            cTC_PSPOH.spi_write("SET:LOAD "+load+"\r\n",verbose);
+
+            cTC_PSPOH.spi_write("SET:LOAD "+load+"\r\n",verbose); //IN PERCENTAGE
+
+           // Multiply load with the nominal values 0.76 for 1v25 and 1.2 for 1v, 0.08 for 2v55
+            // cTC_PSPOH.spi_write("SET:LOAD:R1V25L "+stof(load)*0.76+"\r\n",verbose); // in Amps
+            // cTC_PSPOH.spi_write("SET:LOAD:R1V25R "+stof(load)*0.76+"\r\n",verbose); // in Amps
+            // cTC_PSPOH.spi_write("SET:LOAD:R1V25T "+stof(load)*0.76+"\r\n",verbose); // in Amps
+            // cTC_PSPOH.spi_write("SET:LOAD:R1VL "+stof(load)*1.2+"\r\n",verbose); // in Amps
+            // cTC_PSPOH.spi_write("SET:LOAD:R1VR "+stof(load)+1.2+"\r\n",verbose); // in Amps
+            // cTC_PSPOH.spi_write("SET:LOAD:R2V55L "+stof(load)+0.08+"\r\n",verbose); // in Amps
+            
+            
             MyFile << "SET:LOAD ; "+load+"\r\n"<<endl;
 
             //set load
@@ -292,7 +310,7 @@ int main(int argc, char *argv[])
                cTC_PSPOH.spi_read(answer,256,verbose);
                //MyFile << answer << endl;
             }else{
-
+               MyFile << "RESET" << endl;
                cTC_PSPOH.cpu_reset();
                index = index - step;
                continue;
@@ -307,22 +325,25 @@ int main(int argc, char *argv[])
             MyFile << "V_1v_L ; "   << return_val(v_answer , 5) << endl;
             MyFile << "V_1v_R ; "   << return_val(v_answer , 6) << endl;
             
-            // Check if the hybrid is properly connected. If the measurement is below 1V the test should stop. 
+             // Check if the hybrid is properly connected. If the measurement is below 1V the test should stop. 
             string value_str= v_answer[0];
-            float value = std::stof(value_str); // string to float 
-            if (std::stof(load) != 0.0 && value < 1 ){
+            float hiv_value = std::stof(value_str); // string to float 
+            if (std::stof(load) != 0.0 && hiv_value < 1 ){
                   cout << "Error Hybrid connection" << endl;
                   cout << "Please inspect the left connector."<< endl;
                   MyFile <<  "ERROR ; " << ERR_HYB_CONN_Vhiv << endl;
+                  std::cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
+                  MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "Duration (min) ; " << elapsed_seconds.count()/60 << endl;
                      exit(ERR_HYB_CONN_Vhiv);
             }
-
              //MyFile << "Currents:\r\n";
             cTC_PSPOH.spi_write("MEAS:HIV:CUR?\r\n",verbose);
             if(cTC_PSPOH.wait_for_RTR()==0){
                cTC_PSPOH.spi_read(answer,256,verbose);
                //MyFile << answer << endl;
             }else{
+               cout << "----------Card reset----------" << endl; 
+               MyFile << "RESET" << endl;
                cTC_PSPOH.cpu_reset();
                index = index - step;
                continue;
@@ -338,30 +359,46 @@ int main(int argc, char *argv[])
             // Check if the hybrid is properly connected. If the measurement is below 0.01A the test should stop. 
             for (int p = 0; p <= 6; p++)
             {
-               string value_str= v_answer[p];
-               float value = std::stof(value_str); // string to float
-               if (std::stof(load) != 0.0 && value < 0.01 ){
+               string value_str = v_answer[p];
+               float c_value = std::stof(value_str); // string to float
+               if (std::stof(load) != 0.0 && c_value < 0.01 ){
                   cout << "Error Hybrid connection" << endl;
                   if (p == 0){
                      cout << "Please inspect the input voltage connector."<< endl;
-                     MyFile << "ERROR ; " << ERR_HYB_CONN_Chiv << endl;
+                     MyFile << "ERROR ; " << ERR_HYB_CONN_Chiv << endl;   
+                     std::cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
+                     MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "Duration (min) ; " << elapsed_seconds.count()/60 << endl;
                      exit(ERR_HYB_CONN_Chiv);
+                  }
+                  
+                  if ( hiv_value < 10  && (p == 1 || p == 2 || p == 5) ){
+                     cout << "Low input voltage."<< endl; 
+                     MyFile <<  "ERROR ; " << ERR_LOW_HIV << endl;
+                     std::cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
+                     MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "Duration (min) ; " << elapsed_seconds.count()/60 << endl;
+                     exit(ERR_LOW_HIV);
                   }
                   if (p == 1 || p == 2 || p == 5){
                      cout << "Please inspect the left connector."<< endl; 
                      MyFile <<  "ERROR ; " << ERR_HYB_CONN_Cleft << endl;
+                     std::cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
+                     MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "Duration (min) ; " << elapsed_seconds.count()/60 << endl;
                      exit(ERR_HYB_CONN_Cleft);
                   }
                   if (p == 3 || p == 6){
                      cout << "Please inspect the right connector."<< endl;
                      MyFile <<   "ERROR ; " << ERR_HYB_CONN_Cright << endl;
+                     std::cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
+                     MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "Duration (min) ; " << elapsed_seconds.count()/60 << endl;
                      exit(ERR_HYB_CONN_Cright);
                   }
                   if (p == 4){
                      cout << "Please inspect the tail connector."<< endl;
                      MyFile <<  "ERROR ; " << ERR_HYB_CONN_Ctail << endl;
+                     std::cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
+                     MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "Duration (min) ; " << elapsed_seconds.count()/60 << endl;
                      exit(ERR_HYB_CONN_Ctail);
-                  }   
+                  }
                }//end if 
             }//end for
 
@@ -370,7 +407,8 @@ int main(int argc, char *argv[])
             if(cTC_PSPOH.wait_for_RTR()==0){
                cTC_PSPOH.spi_read(answer,256,verbose);
             }else{
-
+               cout << "----------Card reset----------" << endl; 
+               MyFile << "RESET" << endl;
                cTC_PSPOH.cpu_reset();
                index = index - step;
                continue;
@@ -384,7 +422,8 @@ int main(int argc, char *argv[])
             if(cTC_PSPOH.wait_for_RTR()==0){
                cTC_PSPOH.spi_read(answer,256,verbose);
             }else{
-
+               cout << "----------Card reset----------" << endl; 
+               MyFile << "RESET" << endl;
                cTC_PSPOH.cpu_reset();
                index = index - step;
                continue;
@@ -398,7 +437,8 @@ int main(int argc, char *argv[])
             if(cTC_PSPOH.wait_for_RTR()==0){
                cTC_PSPOH.spi_read(answer,256,verbose);    
             }else{
-
+               cout << "----------Card reset----------" << endl; 
+               MyFile << "RESET" << endl;
                cTC_PSPOH.cpu_reset();
                index = index - step;
                continue;
@@ -411,7 +451,7 @@ int main(int argc, char *argv[])
             if(cTC_PSPOH.wait_for_RTR()==0){
                cTC_PSPOH.spi_read(answer,256,verbose);
             }else{
-
+               cout << "----------Card reset----------" << endl; 
                cTC_PSPOH.cpu_reset();
                index = index - step;
                continue;
@@ -427,7 +467,8 @@ int main(int argc, char *argv[])
             if(cTC_PSPOH.wait_for_RTR()==0){
                cTC_PSPOH.spi_read(answer,256,verbose);
             }else{
-
+               cout << "----------Card reset----------" << endl; 
+               MyFile << "RESET" << endl;
                cTC_PSPOH.cpu_reset();
                index = index - step;
                continue;
@@ -462,10 +503,6 @@ int main(int argc, char *argv[])
       MyFile << "Supply ; OFF\r\n";
       //cTC_PSPOH.system_reset();
       end = system_clock::now();
-
-      //Time measurement
-      duration<double> elapsed_seconds = end-start;
-      time_t end_time = system_clock::to_time_t(end);
 
       std::cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
       MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "Duration (min) ; " << elapsed_seconds.count()/60 << endl;
@@ -511,7 +548,8 @@ bool reset_and_repeat(int times, TC_PSPOH child){
    bool repeat = true;
    child.cpu_reset();
    //allow a moment to stabilise
-   std::this_thread::sleep_for(std::chrono::milliseconds(300));
+   // std::this_thread::sleep_for(std::chrono::milliseconds(300));
+   child.reset_cp2130();
 
    if (times == 5){
       repeat = false;

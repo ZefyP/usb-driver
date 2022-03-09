@@ -19,41 +19,39 @@ namespace fs = boost::filesystem;
 */
 
 
-TemporaryCommandLineOptions::TemporaryCommandLineOptions(const int argc, const char* const argv[]):
-    myOptions(""),
-    config(""),
-    verbose(false),
-    my_new_directory(""),
-    hybridId(""),
-    step(60),
-    stepMax(120),
-    flagG(false),
-    flagV(false)
+TemporaryCommandLineOptions::TemporaryCommandLineOptions(const int argc, const char* const argv[])
+    // myOptions(""),
+    // config(""),
+    // verbose(false),
+    // my_new_directory(""),
+    // hybridId(""),
+    // step(60),
+    // stepMax(120),
+    // flagG(false),
+    // flagV(false)
 {
     setup(argc, argv);
-    get_verbose();
-    get_docPath();
+    // get_verbose();
+    // get_docPath();
 
-    get_step();
-    get_stepMin();
-    get_stepMax();
+    // get_step();
+    // get_stepMin();
+    // get_stepMax();
 
-    get_supply_step();
-    get_supply_min();
-    get_supply_max();
+    // get_supply_step();
+    // get_supply_min();
+    // get_supply_max();
 
-    get_hybridId();
-    new_directory(my_new_directory);
-    get_new_directory();
-    get_usegui();
-    get_usevector();
+    // get_hybridId();
+    // new_directory(my_new_directory);
+    // get_new_directory();
+    // get_usegui();
+    // get_usevector();
 
 }
 
 TemporaryCommandLineOptions::~TemporaryCommandLineOptions() //destructor
-{
-
-}
+{}
 
 
 void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[])
@@ -186,10 +184,7 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
     if(vm.count("useVector"))
     {
         cout << "Vectorflag ; " << vm["useVector"].as<bool>() << endl;
-    }
-   
-
-        
+    }        
 }//end Options::setup()   
 
 string TemporaryCommandLineOptions::get_docPath()
