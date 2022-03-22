@@ -63,10 +63,7 @@ class TemporaryCommandLineOptions
       
       bool get_usegui();
       bool get_usevector();
-      //not implemented -- not for use 
-      //limits the available contructor options to ones chosen below
-      // TemporaryCommandLineOptions(const TemporaryCommandLineOptions &rhs );
-      // TemporaryCommandLineOptions &operator = (const TemporaryCommandLineOptions &rhs);
+
      private:
       //variables for commands
       po::options_description myOptions;
@@ -88,4 +85,4 @@ class TemporaryCommandLineOptions
       bool flagV; //for vector
 
 };
-#endif
+#endif //_TEMP_TEST_OPTIONS_H__

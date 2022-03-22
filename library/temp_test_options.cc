@@ -57,29 +57,27 @@ TemporaryCommandLineOptions::~TemporaryCommandLineOptions() //destructor
 void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[])
 {
     
-    po::options_description desc("Allowed options");
+    po::options_description desc("---------------------------------------------\nTest Parameters");
 
     desc.add_options()
-        ("help,h", "produce help message")
-        ("config,f", po::value<string>()->default_value("default"),"set configuration file path for the power supply")
-        ("verbose,v",po::bool_switch (&verbose)-> default_value(false), "verbosity level")
-        
-        ("step,s", po::value< int > (&step)-> default_value(10), "Load percentage step from NO LOAD to 120pc of the nominal values" )
-        ("stepMin", po::value< int > (&stepMin)-> default_value(0), "Minimum load for this test" )
-        ("stepMax", po::value< int > (&stepMax)-> default_value(20), "Maximum load for this test" )
-        
-        ("supstep", po::value< int > (&supply_step)-> default_value(10), "Supply step from set min to max voltage" )
-        ("supmin", po::value< int > (&supply_min)-> default_value(110), "Supply min" )
-        ("supmax", po::value< int > (&supply_max)-> default_value(110), "Supply max" )
-                
-        
-        ("hybridId,i", po::value<string> (&hybridId)->default_value("000"), "Scanned hybrid module ID")
+        ("help,h", "Produce help message")
+        ("verbose,v",po::bool_switch (&verbose)-> default_value(false), "Verbosity level")
+        ("config,f", po::value<string>()->default_value("default"),"Power supply configuration file path")
         ("output,o", po::value <string> (&my_new_directory), "Test results will be saved in a new directory")
-
+       
+        ("hybridId,i", po::value<string> (&hybridId)->default_value("000"), "Scanned hybrid module ID")
+        ("useVector,V",po::bool_switch (&flagV)-> default_value(false),"Test with array of selected loads")
         ("useGui,G",po::bool_switch (&flagG)-> default_value(false),"Use the Gui")
-        ("useVector,V",po::bool_switch (&flagV)-> default_value(false),"Test with array of selected loads");   
         
         
+        ("step,s", po::value< int > (&step)-> default_value(100), "Load percentage step from NO LOAD to 120 percent of the nominal values" )
+        ("stepMin", po::value< int > (&stepMin)-> default_value(0), "Minimum load current for this test" )
+        ("stepMax", po::value< int > (&stepMax)-> default_value(120), "Maximum load current for this test" )
+
+        ("supstep", po::value< int > (&supply_step)-> default_value(10), "Supply step" )
+        ("supmin", po::value< int > (&supply_min)-> default_value(110), "Supply min ( WARNING: Input --supmin 105 to set minimum at 10.5 Volt" )
+        ("supmax", po::value< int > (&supply_max)-> default_value(110), "Supply max ( WARNING: Input --supmax 120 to set minimum at 12.0 Volt)") ;
+                
 
     //Parses the command line
     po::variables_map vm;
@@ -100,45 +98,45 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
     if(vm.count("help"))
     {
     cout << desc << "\n";
+    exit(OPTS_HELP);
         // return 0;
     }
 
     // Test Card objects
 
-    if(vm.count( "verbose") )
+    cout << "Test parametres selected: " << endl;
+
+    if(vm.count("verbose") )
     {
-        verbose = vm["verbose"].as<bool>();
-        cout << "verbose ; " << verbose << endl;
         cout << argc-1 << " args were given to this program. These are: " << endl;
         for (size_t i = 1; i < argc; i++){
             cout << argv[i] << endl;
         }
+        verbose = vm["verbose"].as<bool>();
+        cout << "verbose ; " << verbose << endl;
     }
 
-    // load
+    // Load Step
     if(vm.count("step") )
     {
         cout << "step ; " << step << endl;
     }
-
     if(vm.count("stepMin" ))
     {   
         stepMax = vm["stepMin"].as<int>();
         cout << "minLoad ; " << stepMin << endl;
     }
-
     if(vm.count("stepMax" ))
     {   
         stepMax = vm["stepMax"].as<int>();
         cout << "maxLoad ; " << stepMax << endl;
     }
 
-    // supply
+    // Power Supply step
     if(vm.count("supstep") )
     {
         cout << "Supply step ; " << supply_step << endl;
     }
-
     if(vm.count("supmin") )
     {
         cout << "Supply min ; " << supply_min << endl;
@@ -148,21 +146,21 @@ void TemporaryCommandLineOptions::setup(const int argc, const char* const argv[]
         cout << "Supply max ; " << supply_max << endl;
     }
 
-    // Power supply object
+    // Power supply configuration file 
     if(vm.count("config"))
     {
         path =  vm["config"].as<string>();
     }
 
     
-    // hybridId object
+    // Hybrid Serial Number 
     if(vm.count("hybridId"))
     {
         cout << "hybridId ; " << vm["hybridId"].as<string>() << endl;
     }
 
-    //New Directory
-     if(vm.count("output")) //abstract at later stage
+    //New Directory for results file
+     if(vm.count("output"))
     {
         my_new_directory = vm["output"].as<string>();
         new_directory(my_new_directory);
@@ -192,7 +190,6 @@ string TemporaryCommandLineOptions::get_docPath()
     return path;
 }
 
-
 int TemporaryCommandLineOptions::get_step()
 {
     return step; 
@@ -212,7 +209,6 @@ string TemporaryCommandLineOptions::get_hybridId()
 {
     return hybridId;
 }
-
 
 int TemporaryCommandLineOptions::get_supply_step()
 {
@@ -244,7 +240,6 @@ bool TemporaryCommandLineOptions::get_verbose()
 {
     return verbose;
 }
-
 
 bool TemporaryCommandLineOptions::get_usegui()
 {
