@@ -1,0 +1,51 @@
+Hybrid ; 000
+maxLoad ; 100
+step ; 100
+minLoad ; 0
+SupStep ; 1
+SupMin ; 70
+SupMax ; 105
+
+Supply ; INIT
+CH 4: V ; 11
+ CH 4: A ; 0.0095
+Started computation at ; Fri Mar 18 14:26:36 2022
+
+header-end ; 0
+
+
+SET:VIN ; 10.5
+HIV ; ON
+CH1: V ; 3.501
+CH1: A ; 0.1485
+CH2: V ; 5
+CH2: A ; 0.0283
+CH3: V ; 3.3
+CH3: A ; 0.2054
+CH4: V ; 10.542
+CH4: A ; 0.1002
+SET:LOAD ; 0
+
+LOAD_1v25L ; 0
+LOAD_1v25R ; 0
+LOAD_1v25T ; 0
+LOAD_1vL ; 0
+LOAD_1vR ; 0
+
+RESET
+CH1: V ; 3.5
+CH1: A ; 0.148
+CH2: V ; 5
+CH2: A ; 0.0286
+CH3: V ; 3.3
+CH3: A ; 0.2026
+CH4: V ; 10.5
+CH4: A ; 0.0091
+SET:LOAD ; 0
+
+LOAD_1v25L ; 0
+LOAD_1v25R ; 0
+LOAD_1v25T ; 0
+LOAD_1vL ; 0
+LOAD_1vR ; 0
+

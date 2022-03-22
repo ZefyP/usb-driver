@@ -1,0 +1,162 @@
+total 0
+crw-rw----.  1 root dialout  10,   235 Mar 21 10:12 autofs
+drwxr-xr-x.  2 root root           180 Mar 21 10:12 block
+crw-------.  1 root root     10,   234 Mar 21 10:12 btrfs-control
+drwxr-xr-x.  3 root root            60 Mar 21 10:12 bus
+drwxr-xr-x.  2 root root           100 Mar 21 10:12 cc_hybridtesting2
+drwxr-xr-x.  2 root root          3320 Mar 21 14:19 char
+crw-rw----.  1 root dialout   5,     1 Mar 21 10:12 console
+lrwxrwxrwx.  1 root root            11 Mar 21 10:12 core -> /proc/kcore
+drwxr-xr-x. 14 root root           300 Mar 21 10:12 cpu
+crw-rw----.  1 root dialout  10,    61 Mar 21 10:12 cpu_dma_latency
+crw-rw----.  1 root dialout  10,    62 Mar 21 10:12 crash
+drwxr-xr-x.  7 root root           140 Mar 21 10:12 disk
+brw-rw----.  1 root disk    253,     0 Mar 21 10:12 dm-0
+brw-rw----.  1 root disk    253,     1 Mar 21 10:12 dm-1
+brw-rw----.  1 root dialout 253,     2 Mar 21 10:12 dm-2
+crw-rw----.  1 root video    29,     0 Mar 21 10:12 fb0
+lrwxrwxrwx.  1 root root            13 Mar 21 10:12 fd -> /proc/self/fd
+crw-rw----.  1 root dialout   1,     7 Mar 21 10:12 full
+crw-rw-rw-.  1 root root     10,   229 Mar 21 10:12 fuse
+crw-rw----.  1 root dialout  10,   228 Mar 21 10:12 hpet
+drwxr-xr-x.  3 root root             0 Mar 21 10:12 hugepages
+crw-rw----.  1 root dialout  10,   183 Mar 21 10:12 hwrng
+lrwxrwxrwx.  1 root root            25 Mar 21 10:12 initctl -> /run/systemd/initctl/fifo
+drwxr-xr-x.  3 root root           220 Mar 21 10:12 input
+crw-rw----.  1 root dialout   1,    11 Mar 21 10:12 kmsg
+crw-rw-rw-+  1 root kvm      10,   232 Mar 21 10:12 kvm
+srw-rw-rw-.  1 root root             0 Mar 21 10:12 log
+crw-rw----.  1 root disk     10,   237 Mar 21 10:12 loop-control
+crw-rw----.  1 root lp        6,     0 Mar 21 10:12 lp0
+crw-rw----.  1 root lp        6,     1 Mar 21 10:12 lp1
+crw-rw----.  1 root lp        6,     2 Mar 21 10:12 lp2
+crw-rw----.  1 root lp        6,     3 Mar 21 10:12 lp3
+drwxr-xr-x.  2 root root           120 Mar 21 10:12 mapper
+crw-rw----.  1 root dialout  10,   227 Mar 21 10:12 mcelog
+crw-r-----.  1 root kmem      1,     1 Mar 21 10:12 mem
+drwxrwxrwt.  2 root root            40 Mar 21 10:12 mqueue
+lrwxrwxrwx.  1 root root             7 Mar 21 10:12 myPowerSupply -> ttyUSB0
+drwxr-xr-x.  2 root root            60 Mar 21 10:12 net
+crw-rw----.  1 root dialout  10,    60 Mar 21 10:12 network_latency
+crw-rw----.  1 root dialout  10,    59 Mar 21 10:12 network_throughput
+crw-rw----.  1 root dialout   1,     3 Mar 21 10:12 null
+crw-rw----.  1 root dialout 245,     0 Mar 21 10:12 nvme0
+brw-rw----.  1 root disk    259,     0 Mar 21 10:12 nvme0n1
+brw-rw----.  1 root disk    259,     1 Mar 21 10:12 nvme0n1p1
+brw-rw----.  1 root disk    259,     2 Mar 21 10:12 nvme0n1p2
+brw-rw----.  1 root disk    259,     3 Mar 21 10:12 nvme0n1p3
+crw-rw----.  1 root dialout  10,   144 Mar 21 10:12 nvram
+crw-rw----.  1 root dialout   1,    12 Mar 21 10:12 oldmem
+crw-r-----.  1 root kmem      1,     4 Mar 21 10:12 port
+crw-------.  1 root root    108,     0 Mar 21 10:12 ppp
+crw-rw-rw-.  1 root tty       5,     2 Mar 21 14:27 ptmx
+drwxr-xr-x.  2 root root             0 Mar 21 10:12 pts
+crw-rw----.  1 root dialout   1,     8 Mar 21 10:12 random
+drwxr-xr-x.  2 root root            60 Mar 21 10:12 raw
+crw-rw-r--+  1 root dialout  10,    58 Mar 21 10:12 rfkill
+lrwxrwxrwx.  1 root root             4 Mar 21 10:12 rtc -> rtc0
+crw-rw----.  1 root dialout 252,     0 Mar 21 10:12 rtc0
+drwxr-xr-x.  4 root root            80 Mar 21 10:12 serial
+drwxrwxrwt.  2 root root            40 Mar 21 10:12 shm
+crw-rw----.  1 root dialout  10,   231 Mar 21 10:12 snapshot
+drwxr-xr-x.  3 root root           200 Mar 21 10:12 snd
+lrwxrwxrwx.  1 root root            15 Mar 21 10:12 stderr -> /proc/self/fd/2
+lrwxrwxrwx.  1 root root            15 Mar 21 10:12 stdin -> /proc/self/fd/0
+lrwxrwxrwx.  1 root root            15 Mar 21 10:12 stdout -> /proc/self/fd/1
+crw-rw----.  1 root dialout  10,   224 Mar 21 10:12 tpm0
+crw-rw----.  1 root dialout 254, 65536 Mar 21 10:12 tpmrm0
+crw-rw-rw-.  1 root tty       5,     0 Mar 21 11:53 tty
+crw--w----.  1 root tty       4,     0 Mar 21 10:12 tty0
+crw--w----.  1 root tty       4,     1 Mar 21 10:12 tty1
+crw--w----.  1 root tty       4,    10 Mar 21 10:12 tty10
+crw--w----.  1 root tty       4,    11 Mar 21 10:12 tty11
+crw--w----.  1 root tty       4,    12 Mar 21 10:12 tty12
+crw--w----.  1 root tty       4,    13 Mar 21 10:12 tty13
+crw--w----.  1 root tty       4,    14 Mar 21 10:12 tty14
+crw--w----.  1 root tty       4,    15 Mar 21 10:12 tty15
+crw--w----.  1 root tty       4,    16 Mar 21 10:12 tty16
+crw--w----.  1 root tty       4,    17 Mar 21 10:12 tty17
+crw--w----.  1 root tty       4,    18 Mar 21 10:12 tty18
+crw--w----.  1 root tty       4,    19 Mar 21 10:12 tty19
+crw--w----.  1 root tty       4,     2 Mar 21 10:12 tty2
+crw--w----.  1 root tty       4,    20 Mar 21 10:12 tty20
+crw--w----.  1 root tty       4,    21 Mar 21 10:12 tty21
+crw--w----.  1 root tty       4,    22 Mar 21 10:12 tty22
+crw--w----.  1 root tty       4,    23 Mar 21 10:12 tty23
+crw--w----.  1 root tty       4,    24 Mar 21 10:12 tty24
+crw--w----.  1 root tty       4,    25 Mar 21 10:12 tty25
+crw--w----.  1 root tty       4,    26 Mar 21 10:12 tty26
+crw--w----.  1 root tty       4,    27 Mar 21 10:12 tty27
+crw--w----.  1 root tty       4,    28 Mar 21 10:12 tty28
+crw--w----.  1 root tty       4,    29 Mar 21 10:12 tty29
+crw--w----.  1 root tty       4,     3 Mar 21 10:12 tty3
+crw--w----.  1 root tty       4,    30 Mar 21 10:12 tty30
+crw--w----.  1 root tty       4,    31 Mar 21 10:12 tty31
+crw--w----.  1 root tty       4,    32 Mar 21 10:12 tty32
+crw--w----.  1 root tty       4,    33 Mar 21 10:12 tty33
+crw--w----.  1 root tty       4,    34 Mar 21 10:12 tty34
+crw--w----.  1 root tty       4,    35 Mar 21 10:12 tty35
+crw--w----.  1 root tty       4,    36 Mar 21 10:12 tty36
+crw--w----.  1 root tty       4,    37 Mar 21 10:12 tty37
+crw--w----.  1 root tty       4,    38 Mar 21 10:12 tty38
+crw--w----.  1 root tty       4,    39 Mar 21 10:12 tty39
+crw--w----.  1 root tty       4,     4 Mar 21 10:12 tty4
+crw--w----.  1 root tty       4,    40 Mar 21 10:12 tty40
+crw--w----.  1 root tty       4,    41 Mar 21 10:12 tty41
+crw--w----.  1 root tty       4,    42 Mar 21 10:12 tty42
+crw--w----.  1 root tty       4,    43 Mar 21 10:12 tty43
+crw--w----.  1 root tty       4,    44 Mar 21 10:12 tty44
+crw--w----.  1 root tty       4,    45 Mar 21 10:12 tty45
+crw--w----.  1 root tty       4,    46 Mar 21 10:12 tty46
+crw--w----.  1 root tty       4,    47 Mar 21 10:12 tty47
+crw--w----.  1 root tty       4,    48 Mar 21 10:12 tty48
+crw--w----.  1 root tty       4,    49 Mar 21 10:12 tty49
+crw--w----.  1 root tty       4,     5 Mar 21 10:12 tty5
+crw--w----.  1 root tty       4,    50 Mar 21 10:12 tty50
+crw--w----.  1 root tty       4,    51 Mar 21 10:12 tty51
+crw--w----.  1 root tty       4,    52 Mar 21 10:12 tty52
+crw--w----.  1 root tty       4,    53 Mar 21 10:12 tty53
+crw--w----.  1 root tty       4,    54 Mar 21 10:12 tty54
+crw--w----.  1 root tty       4,    55 Mar 21 10:12 tty55
+crw--w----.  1 root tty       4,    56 Mar 21 10:12 tty56
+crw--w----.  1 root tty       4,    57 Mar 21 10:12 tty57
+crw--w----.  1 root tty       4,    58 Mar 21 10:12 tty58
+crw--w----.  1 root tty       4,    59 Mar 21 10:12 tty59
+crw--w----.  1 root tty       4,     6 Mar 21 10:12 tty6
+crw--w----.  1 root tty       4,    60 Mar 21 10:12 tty60
+crw--w----.  1 root tty       4,    61 Mar 21 10:12 tty61
+crw--w----.  1 root tty       4,    62 Mar 21 10:12 tty62
+crw--w----.  1 root tty       4,    63 Mar 21 10:12 tty63
+crw--w----.  1 root tty       4,     7 Mar 21 10:12 tty7
+crw--w----.  1 root tty       4,     8 Mar 21 10:12 tty8
+crw--w----.  1 root tty       4,     9 Mar 21 10:12 tty9
+crw-rw----.  1 root dialout   4,    64 Mar 21 10:12 ttyS0
+crw-rw----.  1 root dialout   4,    65 Mar 21 10:12 ttyS1
+crw-rw----.  1 root dialout   4,    66 Mar 21 10:12 ttyS2
+crw-rw----.  1 root dialout   4,    67 Mar 21 10:12 ttyS3
+crw-rw----.  1 root dialout 188,     0 Mar 21 11:53 ttyUSB0
+crw-------.  1 root root     10,   239 Mar 21 10:12 uhid
+crw-------.  1 root root     10,   223 Mar 21 10:12 uinput
+crw-rw----.  1 root dialout   1,     9 Mar 21 10:12 urandom
+crw-rw----.  1 root dialout 247,     0 Mar 21 10:12 usbmon0
+crw-rw----.  1 root dialout 247,     1 Mar 21 10:12 usbmon1
+crw-rw----.  1 root dialout 247,     2 Mar 21 10:12 usbmon2
+crw-rw----.  1 root tty       7,     0 Mar 21 10:12 vcs
+crw-rw----.  1 root tty       7,     1 Mar 21 10:12 vcs1
+crw-rw----.  1 root tty       7,     2 Mar 21 10:12 vcs2
+crw-rw----.  1 root tty       7,     3 Mar 21 10:12 vcs3
+crw-rw----.  1 root tty       7,     4 Mar 21 10:12 vcs4
+crw-rw----.  1 root tty       7,     5 Mar 21 10:12 vcs5
+crw-rw----.  1 root tty       7,     6 Mar 21 10:12 vcs6
+crw-rw----.  1 root tty       7,   128 Mar 21 10:12 vcsa
+crw-rw----.  1 root tty       7,   129 Mar 21 10:12 vcsa1
+crw-rw----.  1 root tty       7,   130 Mar 21 10:12 vcsa2
+crw-rw----.  1 root tty       7,   131 Mar 21 10:12 vcsa3
+crw-rw----.  1 root tty       7,   132 Mar 21 10:12 vcsa4
+crw-rw----.  1 root tty       7,   133 Mar 21 10:12 vcsa5
+crw-rw----.  1 root tty       7,   134 Mar 21 10:12 vcsa6
+drwxr-xr-x.  2 root root            60 Mar 21 10:12 vfio
+crw-rw----.  1 root dialout  10,    63 Mar 21 10:12 vga_arbiter
+crw-------.  1 root root     10,   137 Mar 21 10:12 vhci
+crw-------.  1 root root     10,   238 Mar 21 10:12 vhost-net
+crw-rw----.  1 root dialout   1,     5 Mar 21 10:12 zero

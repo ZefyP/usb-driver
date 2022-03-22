@@ -8,9 +8,12 @@
 
 bool reset_and_repeat(int times, TC_PSPOH child);
 
-int main()
+int main(int argc, char *argv[])
 {
-    TC_PSPOH cTC_PSPOH;
+    uint32_t bus = std::atoi(argv[1]);
+    uint8_t device = std::atoi(argv[2]);
+    TC_PSPOH cTC_PSPOH( bus, device);
+    // TC_PSPOH cTC_PSPOH;
     // std::cout << "Going to reset... " << std::endl;
     cTC_PSPOH.cpu_reset();
     cTC_PSPOH.reset_cp2130();

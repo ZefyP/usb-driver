@@ -1,4 +1,57 @@
-#include "pspoh.h"
+// initial libraries
+#include <cstring>
+#include "TC_PSPOH.h"
+#include <chrono>
+#include <ctime>  
+#include <thread>
+#include <vector>
+#include <iostream>
+#include <boost/lexical_cast.hpp>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <bits/stdc++.h>
+//#define DEBUGO
+//#define RESET
+
+// power supply libraries
+#include "DeviceHandler.h"
+#include "PowerSupply.h"
+#include "PowerSupplyChannel.h"
+#include <boost/program_options.hpp> //!For command line arg parsing
+#include <iomanip>
+#include <limits>
+#include "RohdeSchwarz.h"
+
+// argument parcer module
+#include "temp_test_options.h"
+
+#include "gui_logger.h"
+
+using namespace std;
+using namespace chrono;
+
+/*!
+ ************************************************
+ * Main.
+ ************************************************
+ */
+
+bool fileExists(const string &name);
+
+vector<string> extract_val(string sentence);
+string return_val( vector<string> values , int pos );
+bool scpi_error_occured(string sentence);
+bool reset_and_repeat(int times, TC_PSPOH child);
+
+int ERR_HYB_CONN_Vhiv = 10; // Hybrid module not properly connected based on current measurement.
+int ERR_HYB_CONN_Chiv = 11; 
+int ERR_HYB_CONN_Cleft = 12;
+int ERR_HYB_CONN_Cright = 13;
+int ERR_HYB_CONN_Ctail = 14;
+int ERR_SCPI = 15; // An error was flagged by the microcontroller.
+int ERR_RTR_TIME_OUT = 16;
+int ERR_LOW_HIV = 17; // Supply inpute voltage is too low. PSPOH is rated for 10-12 V
 
 int main(int argc, char *argv[])
 {
@@ -21,6 +74,7 @@ int main(int argc, char *argv[])
    fname_base = fname_base + "/result" ;
    string ext= ".txt", fname;
    int cnt = 0;
+   // fname = fname_base + boost::lexical_cast<string>(cnt++)+ext;
    do {
       if(cnt!=0 && verbose){
          std::cout << "file exists : \"" << fname << "\"" << endl;
@@ -44,6 +98,11 @@ int main(int argc, char *argv[])
       string id = cTemporaryCommandLineOptions.get_hybridId();
       std::cout << "Hybrid ; " << id << endl << "-------------------------------------------------------------------------------" << endl;
       MyFile << "Hybrid ; " << id << endl;
+      //Time measurement
+      std::cout << "calculating time..."<<endl;
+      auto end = system_clock::now();
+      auto start = system_clock::now();
+      time_t start_time = system_clock::to_time_t(start);
       // Test Parameters
       int step = cTemporaryCommandLineOptions.get_step();
       int stepMax = cTemporaryCommandLineOptions.get_stepMax();
@@ -57,24 +116,13 @@ int main(int argc, char *argv[])
       MyFile << "SupMin ; " << supmin << endl;
       MyFile << "SupMax ; " << supmax << endl;
       std::vector<int> arr_load_settings = {0,80,100,120};
-
-
-      //Time measurement
-   // std::cout << "calculating time..." << endl;
-   std::chrono::time_point<std::chrono::system_clock> end = system_clock::now();
-   std::chrono::time_point<std::chrono::system_clock> start = system_clock::now();
-   time_t start_time = system_clock::to_time_t(start);
-   duration<double> elapsed_seconds;
-   time_t end_time;
-
-
       
 /*!
  *** POWER SUPPLY **********************************************
  */
     std::cout << "-------------------------------------------------------------------------------" << endl; 
     std::cout << "Initialising power supply..." << endl;
-    MyFile << "Supply ; INIT" << endl;
+    MyFile << "\nSupply ; INIT\r" << endl;
 
     
     std::string  docPath = cTemporaryCommandLineOptions.get_docPath();
@@ -102,10 +150,10 @@ int main(int argc, char *argv[])
     } 
 
 
-    channel1 -> setOverVoltageProtection(4.0);
-    channel2 -> setOverVoltageProtection(6.0);
-    channel3 -> setOverVoltageProtection(4.0);
-    channel4 -> setOverVoltageProtection(12.01);
+   //  channel1 -> setOverVoltageProtection(4.0);
+   //  channel2 -> setOverVoltageProtection(6.0);
+   //  channel3 -> setOverVoltageProtection(4.0);
+   //  channel4 -> setOverVoltageProtection(12.01);
 
    //  channel1->setVoltage(3.5);
    //  channel2->setVoltage(5.0);
@@ -150,7 +198,7 @@ int main(int argc, char *argv[])
               //    << "OVP: " << channel4->getOverVoltageProtection() << std::endl
               << "Voltage: " << channel4->getOutputVoltage() << endl
               << "Current: " << channel4->getCurrent() << endl;
-    MyFile << "CH 4: V ; " << channel4->getOutputVoltage()<< endl << "CH 4: A ; " << channel4->getCurrent() << endl;
+    MyFile << "CH 4: V ; " << channel4->getOutputVoltage()<< endl << " CH 4: A ; " << channel4->getCurrent() << endl;
     wait();
      // std::this_thread::sleep_for(std::chrono::milliseconds(500)); 
     std::cout << "-------------------------------------------------------------------------------" << endl;
@@ -158,15 +206,18 @@ int main(int argc, char *argv[])
    *** TEST CARD **********************************************
   */
       //Local variables
-      TC_PSPOH cTC_PSPOH; //Constructor without specifying the bus and device
-      //TC_PSPOH cTC_PSPOH(1,63);
+      // TC_PSPOH cTC_PSPOH; //Constructor without specifying the bus and device
+      TC_PSPOH cTC_PSPOH(1,12);
       // cTC_PSPOH.cpu_reset();
       string answer ="";
       vector<string> v_answer;
       string val ="";
 
-      MyFile << "Started computation at ; " << ctime(&start_time)<< endl; 
-      cout << "Started computation at ; " << ctime(&start_time)<< endl;   
+      
+      //Time measurement
+      duration<double> elapsed_seconds = end-start;
+      time_t end_time = system_clock::to_time_t(end);
+      MyFile << "Started computation at ; " << ctime(&start_time)<< endl;  
       MyFile << "header-end ; 0" << endl << endl;
       std::cout << "-------------------------------------------------------------------------------" << endl;
       
@@ -178,10 +229,8 @@ int main(int argc, char *argv[])
       //for (int sup_volt = supmin; sup_volt < (supmax+ supstep*0.5); sup_volt +=supstep){
          channel4->setVoltage( ((float)sup_volt) /10 ); //! because the test parameter calls 105 instead of 10.5 V
          //channel2->setCurrent(1.0);
-         MyFile << "SET:VIN ; "<< (float)sup_volt/10 << endl;
+         MyFile << "\nSET:VIN ; "<< (float)sup_volt/10 << endl;
          if(verbose) {std::cout << "----------------------------->SET:VIN ; "<< sup_volt << endl;}
-
-         cTC_PSPOH.cpu_reset(); // reset in case the previous procedure was interrupted 
          
          if (turn_on == true)
          {
@@ -215,7 +264,7 @@ int main(int argc, char *argv[])
             MyFile << "CH1: V ; " << channel1->getOutputVoltage()<< endl << "CH1: A ; " << channel1->getCurrent() << endl;
             MyFile << "CH2: V ; " << channel2->getOutputVoltage()<< endl << "CH2: A ; " << channel2->getCurrent() << endl;
             MyFile << "CH3: V ; " << channel3->getOutputVoltage()<< endl << "CH3: A ; " << channel3->getCurrent() << endl;
-            MyFile << "CH4: V ; " << channel4->getOutputVoltage()<< endl << "CH4: A ; " << channel4->getCurrent() << endl << endl;
+            MyFile << "CH4: V ; " << channel4->getOutputVoltage()<< endl << "CH4: A ; " << channel4->getCurrent() << endl;
             
             string load =  boost::lexical_cast<string>( float(selectedLoad) /100 ); 
 
@@ -230,7 +279,7 @@ int main(int argc, char *argv[])
             // cTC_PSPOH.spi_write("SET:LOAD:R2V55L "+stof(load)+0.08+"\r\n",verbose); // in Amps
             
             
-            MyFile << "\nSET:LOAD ; "+load+" "<<endl;
+            MyFile << "SET:LOAD ; "+load+"\r\n"<<endl;
 
             //set load
             cTC_PSPOH.spi_write("SET:LOAD?\r\n",verbose);
@@ -269,24 +318,23 @@ int main(int argc, char *argv[])
             }
             v_answer = extract_val(answer);
             MyFile << "V_HIV ; "    << return_val(v_answer , 0) << endl;
-            MyFile << "V_HYB_HIV_OUT ; " << return_val(v_answer , 7) << endl;
             MyFile << "V_2v55 ; "   << return_val(v_answer , 1) << endl;
             MyFile << "V_1v25_L ; " << return_val(v_answer , 2) << endl;
             MyFile << "V_1v25_R ; " << return_val(v_answer , 3) << endl;
             MyFile << "V_1v25_T ; " << return_val(v_answer , 4) << endl;
             MyFile << "V_1v_L ; "   << return_val(v_answer , 5) << endl;
-            MyFile << "V_1v_R ; "   << return_val(v_answer , 6) << endl << endl ;
-           
+            MyFile << "V_1v_R ; "   << return_val(v_answer , 6) << endl;
             
              // Check if the hybrid is properly connected. If the measurement is below 1V the test should stop. 
             string value_str= v_answer[0];
             float hiv_value = std::stof(value_str); // string to float 
             if (std::stof(load) != 0.0 && hiv_value < 1 ){
                   cout << "Error Hybrid connection" << endl;
-                  cout << "Please inspect the left connector and input voltage connector."<< endl;
+                  cout << "Please inspect the left connector."<< endl;
                   MyFile <<  "ERROR ; " << ERR_HYB_CONN_Vhiv << endl;
-                  print_computation_time(MyFile, end, start);
-                  exit(ERR_HYB_CONN_Vhiv);
+                  std::cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
+                  MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "Duration (min) ; " << elapsed_seconds.count()/60 << endl;
+                     exit(ERR_HYB_CONN_Vhiv);
             }
              //MyFile << "Currents:\r\n";
             cTC_PSPOH.spi_write("MEAS:HIV:CUR?\r\n",verbose);
@@ -302,14 +350,12 @@ int main(int argc, char *argv[])
             }
             v_answer = extract_val(answer);
             MyFile << "C_HIV ; "    << return_val(v_answer , 0) << endl;
-            MyFile << "C_HYB_HIV_OUT ; " << return_val(v_answer , 7) << endl;
             MyFile << "C_2v55 ; "   << return_val(v_answer , 1) << endl;
             MyFile << "C_1v25_L ; " << return_val(v_answer , 2) << endl;
             MyFile << "C_1v25_R ; " << return_val(v_answer , 3) << endl;
             MyFile << "C_1v25_T ; " << return_val(v_answer , 4) << endl;
             MyFile << "C_1v_L ; "   << return_val(v_answer , 5) << endl;
-            MyFile << "C_1v_R ; "   << return_val(v_answer , 6) << endl << endl;
-            
+            MyFile << "C_1v_R ; "   << return_val(v_answer , 6) << endl;
             // Check if the hybrid is properly connected. If the measurement is below 0.01A the test should stop. 
             for (int p = 0; p <= 6; p++)
             {
@@ -320,31 +366,37 @@ int main(int argc, char *argv[])
                   if (p == 0){
                      cout << "Please inspect the input voltage connector."<< endl;
                      MyFile << "ERROR ; " << ERR_HYB_CONN_Chiv << endl;   
-                     print_computation_time(MyFile, end, start);
+                     std::cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
+                     MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "Duration (min) ; " << elapsed_seconds.count()/60 << endl;
                      exit(ERR_HYB_CONN_Chiv);
                   }
+                  
                   if ( hiv_value < 10  && (p == 1 || p == 2 || p == 5) ){
                      cout << "Low input voltage."<< endl; 
                      MyFile <<  "ERROR ; " << ERR_LOW_HIV << endl;
-                     print_computation_time(MyFile, end, start);
+                     std::cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
+                     MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "Duration (min) ; " << elapsed_seconds.count()/60 << endl;
                      exit(ERR_LOW_HIV);
                   }
                   if (p == 1 || p == 2 || p == 5){
                      cout << "Please inspect the left connector."<< endl; 
                      MyFile <<  "ERROR ; " << ERR_HYB_CONN_Cleft << endl;
-                     print_computation_time(MyFile, end, start);
+                     std::cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
+                     MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "Duration (min) ; " << elapsed_seconds.count()/60 << endl;
                      exit(ERR_HYB_CONN_Cleft);
                   }
                   if (p == 3 || p == 6){
                      cout << "Please inspect the right connector."<< endl;
                      MyFile <<   "ERROR ; " << ERR_HYB_CONN_Cright << endl;
-                     print_computation_time(MyFile, end, start);
+                     std::cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
+                     MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "Duration (min) ; " << elapsed_seconds.count()/60 << endl;
                      exit(ERR_HYB_CONN_Cright);
                   }
                   if (p == 4){
                      cout << "Please inspect the tail connector."<< endl;
                      MyFile <<  "ERROR ; " << ERR_HYB_CONN_Ctail << endl;
-                     print_computation_time(MyFile, end, start);
+                     std::cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
+                     MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "Duration (min) ; " << elapsed_seconds.count()/60 << endl;
                      exit(ERR_HYB_CONN_Ctail);
                   }
                }//end if 
@@ -427,7 +479,7 @@ int main(int argc, char *argv[])
             MyFile << "T_AMB ; "    << return_val(v_answer , 1) << endl;
             MyFile << "T_HYB ; "    << return_val(v_answer , 2) << endl;
             MyFile << "T_PTAT ; "   << return_val(v_answer , 5) << endl;
-            MyFile << "PTAT_offset ; " << return_val(v_answer , 3) << endl << endl;
+            MyFile << "PTAT_offset ; " << return_val(v_answer , 3) << endl;
 
             
             if( cGui ){
@@ -450,13 +502,11 @@ int main(int argc, char *argv[])
       MyFile << "HIV ; OFF\r\n";
       MyFile << "Supply ; OFF\r\n";
       //cTC_PSPOH.system_reset();
-
-
       end = system_clock::now();
 
-      std::cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << chrono::duration_cast<chrono::seconds>(end - start).count()<< " s" << endl;
-      MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "Duration (min) ; " <<chrono::duration_cast<chrono::seconds>(end - start).count()/60 << endl;
-      
+      std::cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
+      MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "Duration (min) ; " << elapsed_seconds.count()/60 << endl;
+     
       MyFile.close();
 
      /*
@@ -549,14 +599,4 @@ vector<string> extract_val(string sentence ){
 string return_val( vector<string> values , int pos ){
    string extracted_value = values[pos];
    return extracted_value;
-}
-
-
-void print_computation_time(ofstream &MyFile, std::chrono::time_point<std::chrono::system_clock> &end, std::chrono::time_point<std::chrono::system_clock> start ){
-   end = system_clock::now();
-   time_t end_time = system_clock::to_time_t(end);
-   duration<double> elapsed_seconds = end - start;
-   std::cout << endl << "Finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
-   MyFile << endl << "Finished computation at ; " << ctime(&end_time) << endl << "Duration (sec) ; " << elapsed_seconds.count() << endl;
-   
 }
