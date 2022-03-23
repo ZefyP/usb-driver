@@ -1,9 +1,0 @@
-Hybrid ; 000
-maxLoad ; 10
-step ; 10
-minLoad ; 0
-SupStep ; 10
-SupMin ; 110
-SupMax ; 110
-
-Supply ; INIT

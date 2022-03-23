@@ -6,22 +6,22 @@ SupStep ; 10
 SupMin ; 100
 SupMax ; 120
 Supply ; INIT
-CH 4: V ; 11
-CH 4: A ; 0.0048
-Started computation at ; Wed Mar 23 10:01:22 2022
+CH 4: V ; 11.132
+CH 4: A ; 0.0043
+Started computation at ; Wed Mar 23 10:28:33 2022
 
 header-end ; 0
 
 SET:VIN ; 12
 HIV ; ON
 CH1: V ; 3.501
-CH1: A ; 0.0098
+CH1: A ; 0.0093
 CH2: V ; 5
-CH2: A ; 0.0251
+CH2: A ; 0.03
 CH3: V ; 3.3
-CH3: A ; 0.065
-CH4: V ; 11.997
-CH4: A ; 0.0056
+CH3: A ; 0.0688
+CH4: V ; 11.578
+CH4: A ; 0.0048
 
 
 SET:LOAD ; 0 
@@ -31,4 +31,4 @@ LOAD_1v25T ; 0
 LOAD_1vL ; 0
 LOAD_1vR ; 0
 
-V_HIV ; 0.257813
+V_HIV ; 0.193863

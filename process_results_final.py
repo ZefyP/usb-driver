@@ -62,8 +62,8 @@ def check_range(meas, min, max, load=None, vin=None):
 
 
 #Redefine for PSPOH. This should be Zefy's script to process the output
-results_file = '/home/zefy/trial/PSPOH/usb-driver/results/11_02_22_Long_Tests_010/result2.txt'
-#results_file = '../../PSPOH/usb-driver/results/test1/result0.txt'
+#results_file = '/home/zefy/trial/PSPOH/usb-driver/results/11_02_22_Long_Tests_010/result2.txt'
+results_file = '/home/zefy/trial/PSPOH/usb-driver/results/temp/result0.txt'
 
 hybrid = ""
 maxLoad = ""
@@ -213,6 +213,12 @@ for v_hiv_value in range( int(SupMin), int(SupMax) , int(SupStep) ):
                     value_correct &= check_range(parameter, accepted_range[load][0], accepted_range[load][1], int(load) )
             else:
                 value_correct &= check_range(parameter, accepted_range[0], accepted_range[1])
+
+
+        if( parameter == "V_HYB_HIV_OUT" ):  
+            check_range(meas, 0, max, 0, 7)
+            print ("HELLO WORLD -----------------------------------------------")
+            
 
         if( parameter == "V_1v_L" ):
             value_correct &= check_range(parameter, v_hiv_value*accepted_range[0], v_hiv_value*accepted_range[1])

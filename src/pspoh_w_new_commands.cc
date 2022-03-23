@@ -206,9 +206,9 @@ int main(int argc, char *argv[])
    *** TEST CARD **********************************************
   */
       //Local variables
-      // TC_PSPOH cTC_PSPOH; //Constructor without specifying the bus and device
-      TC_PSPOH cTC_PSPOH(1,12);
-      // cTC_PSPOH.cpu_reset();
+      TC_PSPOH cTC_PSPOH; //Constructor without specifying the bus and device
+      //TC_PSPOH cTC_PSPOH(1,12);
+      //cTC_PSPOH.cpu_reset();
       string answer ="";
       vector<string> v_answer;
       string val ="";

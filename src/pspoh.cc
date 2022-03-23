@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
          MyFile << "SET:VIN ; "<< (float)sup_volt/10 << endl;
          if(verbose) {std::cout << "----------------------------->SET:VIN ; "<< sup_volt << endl;}
 
-         cTC_PSPOH.cpu_reset(); // reset in case the previous procedure was interrupted 
+         // cTC_PSPOH.cpu_reset(); // reset in case the previous procedure was interrupted 
          
          if (turn_on == true)
          {

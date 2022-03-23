@@ -40,7 +40,7 @@ TC_PSPOH::TC_PSPOH( uint32_t bus, uint8_t device )
         // cCP2130.initialize((char*)iProduct.c_str());
         cCP2130.initialize(bus, device);
     
-        //Get product string
+        //Get product stringnn
         // product_string.clear();
         // product_string.resize(62);
         // std::string product_string_narrow;
@@ -405,8 +405,8 @@ int TC_PSPOH::scpi_write_readback(const std::string& command, std::string& answe
         if ( this->scpi_write(command, verbose, true) == 1)
             return 1;
     }
-    else
-        std::cout << w_status << " bytes sent to CP2130 for SPI write" << std::endl;
+    // else
+    //     std::cout << w_status << " bytes sent to CP2130 for SPI write" << std::endl;
     std::cout << command << std::endl;
     int r_status = -20;
 
